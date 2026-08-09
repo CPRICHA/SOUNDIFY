@@ -1,0 +1,6 @@
+{
+  "name": "SoundSee",
+  "description": "A sound-awareness app for hearing-impaired users converting environmental sounds into visual + haptic alerts.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

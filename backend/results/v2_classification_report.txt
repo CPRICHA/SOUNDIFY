@@ -1,0 +1,31 @@
+                         precision    recall  f1-score   support
+
+        Air Conditioner     0.6818    0.6000    0.6383       100
+                  Alarm     1.0000    1.0000    1.0000         2
+   Approaching Vehicles     1.0000    1.0000    1.0000         2
+            Baby Crying     0.6667    0.6667    0.6667         3
+            Cat Meowing     0.5000    0.5000    0.5000         6
+       Children Playing     0.7679    0.8600    0.8113       100
+     Construction Sound     0.7904    0.8786    0.8322       206
+             Cow Mooing     0.9231    1.0000    0.9600        12
+               Dog Bark     0.7624    0.7700    0.7662       100
+             Door Knock     0.6667    1.0000    0.8000         4
+               Doorbell     0.7500    1.0000    0.8571         9
+          Engine Idling     0.8529    0.6237    0.7205        93
+           Firecrackers     0.6667    0.2500    0.3636         8
+         Glass Breaking     0.7647    1.0000    0.8667        13
+               Gun Shot     0.8421    1.0000    0.9143        32
+    Microwave Oven Beep     0.4286    0.7500    0.5455        12
+          Mixer Grinder     1.0000    0.6667    0.8000         3
+Pressure Cooker Whistle     1.0000    0.5000    0.6667         2
+                  Siren     0.9516    0.6705    0.7867        88
+           Street Music     0.7586    0.8800    0.8148       100
+            Temple Bell     1.0000    0.3333    0.5000         3
+             Train Horn     1.0000    0.1667    0.2857         6
+               Utensils     0.5000    0.2000    0.2857         5
+           Vehicle Horn     0.7632    0.7632    0.7632        38
+          Water Running     0.7391    0.8500    0.7907        20
+
+               accuracy                         0.7766       967
+              macro avg     0.7911    0.7172    0.7174       967
+           weighted avg     0.7860    0.7766    0.7708       967

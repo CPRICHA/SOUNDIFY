@@ -1,0 +1,9 @@
+============================================================
+AIISH v2 Evaluation Summary
+============================================================
+
+Model            : models/AIISH_v2.keras
+Dataset          : data/embeddings/combined_embeddings.npz
+Test Samples     : 967
+Number of Classes: 25
+Test Accuracy    : 0.7766
