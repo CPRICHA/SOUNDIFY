@@ -173,4 +173,4 @@ Current trained model.
 ⚠️ Inference is currently ~3–4 seconds
 ⚠️ Real-time optimization comes later
 
-**For now, don't change the ML pipeline or architecture. This version is our working baseline.**
+**This version is our working baseline.**
