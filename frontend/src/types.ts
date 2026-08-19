@@ -1,4 +1,5 @@
-export type SeverityType = 'critical' | 'attention' | 'low';
+export type PriorityLevel = 'critical' | 'high' | 'medium' | 'low';
+export type SeverityType = PriorityLevel;
 export type EnvironmentType = 'indoor' | 'outdoor';
 
 export interface SoundLabel {
@@ -6,15 +7,16 @@ export interface SoundLabel {
   name: string;
   environment: EnvironmentType;
   category: string;
-  severity: SeverityType;
-  iconName: string; // lucide icon identifier
+  severity: PriorityLevel;
+  imagePath: string; // Static image/SVG asset path (e.g., /icons/sounds/alarm_fire_smoke.svg)
+  iconName?: string; // (Deprecated) Legacy icon identifier
 }
 
 export interface SoundEvent {
   id: string;
   user_id: string;
   label: string;
-  severity: SeverityType;
+  severity: PriorityLevel;
   mode: EnvironmentType;
   timestamp: string;
 }
@@ -32,25 +34,9 @@ export interface UserProfile {
   emergencyContactName?: string;
   emergencyContactPhone?: string;
   muteLowAlerts?: boolean;
+  muteMediumAlerts?: boolean;
   gpsAutoDetect?: boolean;
   language?: 'English' | 'Hindi' | 'Kannada';
   textSize?: 'small' | 'medium' | 'large';
   highContrast?: boolean;
-}
-
-/** JSON response from Python ML POST /api/v1/classify (via Express proxy). */
-export interface ClassifyTopPrediction {
-  rank: number;
-  label: string;
-  probability: number;
-}
-
-export interface ClassifyPrediction {
-  predicted_class: string;
-  confidence: number;
-  confidence_percent: number;
-  top_predictions: ClassifyTopPrediction[];
-  inference_ms: number;
-  duration_s: number;
-  model_name: string;
 }
