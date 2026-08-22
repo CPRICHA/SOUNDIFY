@@ -19,6 +19,10 @@ export default function App() {
     emergencyContactPhone: '',
     muteLowAlerts: false,
     gpsAutoDetect: false,
+    savedLocations: [
+      { id: 'loc_home', name: 'Home', address: '124 Maple Street, Apt 3B', createdAt: Date.now() - 100000 },
+      { id: 'loc_work', name: 'Office', address: '742 Evergreen Tech Park, Tower B', createdAt: Date.now() - 50000 }
+    ],
     language: 'English',
     textSize: 'medium',
     highContrast: false,

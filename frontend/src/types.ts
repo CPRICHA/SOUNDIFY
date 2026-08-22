@@ -21,6 +21,21 @@ export interface SoundEvent {
   timestamp: string;
 }
 
+export interface SavedLocation {
+  id: string;
+  name: string;
+  address: string;
+  createdAt?: number;
+}
+
+export interface FeedbackEntry {
+  id: string;
+  category: string;
+  message: string;
+  rating?: number;
+  timestamp: number;
+}
+
 export interface UserProfile {
   id: string;
   name: string;
@@ -36,6 +51,7 @@ export interface UserProfile {
   muteLowAlerts?: boolean;
   muteMediumAlerts?: boolean;
   gpsAutoDetect?: boolean;
+  savedLocations?: SavedLocation[];
   language?: 'English' | 'Hindi' | 'Kannada';
   textSize?: 'small' | 'medium' | 'large';
   highContrast?: boolean;
