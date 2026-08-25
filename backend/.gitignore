@@ -9,10 +9,7 @@ __pycache__/
 saved_models/
 checkpoints/
 
-# Dataset
-data/
-!data/mappings/
-!data/mappings/unified_labels.json
+
 
 # Jupyter
 .ipynb_checkpoints/
