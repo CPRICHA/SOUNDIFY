@@ -10,7 +10,6 @@ import { SOUND_TAXONOMY } from './soundTaxonomy';
  * Unmapped model classes (no exact UI id):
  * - Air Conditioner
  * - Children Playing
- * - Engine Idling
  * - Gun Shot          (do not force onto "blasts")
  * - Street Music
  *
@@ -31,6 +30,7 @@ export const MODEL_TO_TAXONOMY_ID: Record<string, string> = {
   // Additional clear 1:1 name matches already in SOUND_TAXONOMY
   Alarm: 'alarm_fire_smoke',
   'Approaching Vehicles': 'approaching_vehicles',
+  'Engine Idling': 'engine_idling',
   'Train Horn': 'train_horn',
   'Temple Bell': 'temple_bell',
   'Cow Mooing': 'cow_mooing',

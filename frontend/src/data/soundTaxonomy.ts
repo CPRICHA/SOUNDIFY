@@ -1,241 +1,292 @@
 import { SoundLabel } from '../types';
 
 export const SOUND_TAXONOMY: SoundLabel[] = [
+  // ============================================================
   // INDOOR — Home Safety & Household Awareness
+  // ============================================================
+
   {
     id: 'alarm_fire_smoke',
     name: 'Alarm (Fire / Smoke)',
     environment: 'indoor',
     category: 'Home Safety & Household Awareness',
     severity: 'critical',
-    iconName: 'Flame'
+    iconName: 'Flame',
   },
+
   {
     id: 'glass_breaking',
     name: 'Glass Breaking',
     environment: 'indoor',
     category: 'Home Safety & Household Awareness',
     severity: 'critical',
-    iconName: 'ShieldAlert'
+    iconName: 'ShieldAlert',
   },
+
   {
     id: 'pressure_cooker',
     name: 'Pressure Cooker Whistle',
     environment: 'indoor',
     category: 'Home Safety & Household Awareness',
     severity: 'attention',
-    iconName: 'Wind'
+    iconName: 'Wind',
   },
+
   {
     id: 'mixer_grinder',
     name: 'Mixer / Grinder',
     environment: 'indoor',
     category: 'Home Safety & Household Awareness',
-    severity: 'low',
-    iconName: 'Zap'
+    severity: 'medium',
+    iconName: 'Zap',
   },
+
   {
     id: 'microwave_beep',
     name: 'Microwave Oven Beep',
     environment: 'indoor',
     category: 'Home Safety & Household Awareness',
-    severity: 'low',
-    iconName: 'Radio'
+    severity: 'attention',
+    iconName: 'Radio',
   },
+
   {
     id: 'water_running',
     name: 'Water Running',
     environment: 'indoor',
     category: 'Home Safety & Household Awareness',
-    severity: 'low',
-    iconName: 'Droplets'
+    severity: 'attention',
+    iconName: 'Droplets',
   },
+
   {
     id: 'motor_pump',
     name: 'Motor Sound (Water Pump)',
     environment: 'indoor',
     category: 'Home Safety & Household Awareness',
-    severity: 'low',
-    iconName: 'Cpu'
+    severity: 'medium',
+    iconName: 'Cpu',
   },
+
   {
     id: 'utensils',
     name: 'Utensils',
     environment: 'indoor',
     category: 'Home Safety & Household Awareness',
-    severity: 'low',
-    iconName: 'Soup'
+    severity: 'medium',
+    iconName: 'Soup',
   },
 
+  // ============================================================
   // INDOOR — Visitor Awareness
+  // ============================================================
+
   {
     id: 'doorbell',
     name: 'Doorbell',
     environment: 'indoor',
     category: 'Visitor Awareness',
-    severity: 'attention',
-    iconName: 'Bell'
+    severity: 'medium',
+    iconName: 'Bell',
   },
+
   {
     id: 'door_knock',
     name: 'Door Knock',
     environment: 'indoor',
     category: 'Visitor Awareness',
-    severity: 'attention',
-    iconName: 'Hand'
+    severity: 'medium',
+    iconName: 'Hand',
   },
 
+  // ============================================================
   // INDOOR — Human Communication
+  // ============================================================
+
   {
     id: 'human_distress',
     name: 'Human Distress / Warning',
     environment: 'indoor',
     category: 'Human Communication',
     severity: 'critical',
-    iconName: 'Megaphone'
+    iconName: 'Megaphone',
   },
+
   {
     id: 'baby_crying',
     name: 'Baby Crying',
     environment: 'indoor',
     category: 'Human Communication',
     severity: 'attention',
-    iconName: 'Heart'
+    iconName: 'Heart',
   },
+
   {
     id: 'name_calling',
     name: 'Name Calling',
     environment: 'indoor',
     category: 'Human Communication',
-    severity: 'attention',
-    iconName: 'Speech'
+    severity: 'medium',
+    iconName: 'Speech',
   },
+
   {
     id: 'vendor_selling',
     name: 'Vendor Selling',
     environment: 'indoor',
     category: 'Human Communication',
-    severity: 'low',
-    iconName: 'Store'
+    severity: 'medium',
+    iconName: 'Store',
   },
 
+  // ============================================================
   // OUTDOOR — Emergency Vehicles
+  // ============================================================
+
   {
     id: 'siren_emergency',
     name: 'Siren (Ambulance/Police/Fire)',
     environment: 'outdoor',
     category: 'Emergency Vehicles',
     severity: 'critical',
-    iconName: 'Siren'
+    iconName: 'Siren',
   },
 
+  // ============================================================
   // OUTDOOR — Road Safety
+  // ============================================================
+
   {
     id: 'train_horn',
     name: 'Train Horn',
     environment: 'outdoor',
     category: 'Road Safety',
-    severity: 'critical',
-    iconName: 'Train'
+    severity: 'attention',
+    iconName: 'Train',
   },
+
   {
     id: 'vehicle_horn',
     name: 'Vehicle Horn (Car/Bike/Bus/Truck)',
     environment: 'outdoor',
     category: 'Road Safety',
     severity: 'attention',
-    iconName: 'Car'
+    iconName: 'Car',
   },
+
   {
     id: 'approaching_vehicles',
     name: 'Approaching Vehicles',
     environment: 'outdoor',
     category: 'Road Safety',
     severity: 'attention',
-    iconName: 'CarFront'
+    iconName: 'CarFront',
   },
+
+  {
+  id: 'engine_idling',
+  name: 'Engine Idling',
+  environment: 'outdoor',
+  category: 'Road Safety',
+  severity: 'medium',
+  iconName: 'Car',
+  },
+
   {
     id: 'auto_rickshaw',
     name: 'Auto Rickshaw',
     environment: 'outdoor',
     category: 'Road Safety',
     severity: 'low',
-    iconName: 'Bike'
+    iconName: 'Bike',
   },
 
+  // ============================================================
   // OUTDOOR — Public Safety
+  // ============================================================
+
   {
     id: 'blasts',
     name: 'Blasts',
     environment: 'outdoor',
     category: 'Public Safety',
     severity: 'critical',
-    iconName: 'Bomb'
+    iconName: 'Bomb',
   },
+
   {
     id: 'railway_crossing',
     name: 'Railway Crossing Alarm',
     environment: 'outdoor',
     category: 'Public Safety',
-    severity: 'critical',
-    iconName: 'Activity'
+    severity: 'medium',
+    iconName: 'Activity',
   },
+
   {
     id: 'fire_crackers',
     name: 'Fire Crackers',
     environment: 'outdoor',
     category: 'Public Safety',
     severity: 'attention',
-    iconName: 'Sparkles'
+    iconName: 'Sparkles',
   },
+
   {
     id: 'construction_sounds',
     name: 'Construction Sounds',
     environment: 'outdoor',
     category: 'Public Safety',
-    severity: 'low',
-    iconName: 'Hammer'
+    severity: 'medium',
+    iconName: 'Hammer',
   },
+
   {
     id: 'school_bell',
     name: 'School Bell',
     environment: 'outdoor',
     category: 'Public Safety',
-    severity: 'low',
-    iconName: 'School'
+    severity: 'medium',
+    iconName: 'School',
   },
 
+  // ============================================================
   // OUTDOOR — Environmental Awareness
+  // ============================================================
+
   {
     id: 'dog_bark',
     name: 'Dog Bark',
     environment: 'outdoor',
     category: 'Environmental Awareness',
-    severity: 'low',
-    iconName: 'PawPrint'
+    severity: 'medium',
+    iconName: 'PawPrint',
   },
+
   {
     id: 'cow_mooing',
     name: 'Cow Mooing',
     environment: 'outdoor',
     category: 'Environmental Awareness',
     severity: 'low',
-    iconName: 'Footprints'
+    iconName: 'Footprints',
   },
+
   {
     id: 'cat_meow',
     name: 'Cat Meow',
     environment: 'outdoor',
     category: 'Environmental Awareness',
     severity: 'low',
-    iconName: 'Cat'
+    iconName: 'Cat',
   },
+
   {
     id: 'temple_bell',
     name: 'Temple Bell',
     environment: 'outdoor',
     category: 'Environmental Awareness',
     severity: 'low',
-    iconName: 'BellRing'
-  }
+    iconName: 'BellRing',
+  },
 ];

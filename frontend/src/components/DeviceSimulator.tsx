@@ -201,29 +201,69 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({
     }
   }, [lastDetectedSound, setLastDetectedSound, setShowTextAlert, setShowIconAlert]);
 
-  // Render Severity Icon shapes as requested:
-  // red triangle = critical, orange tri = high (attention), green circle = low
+  // Four-level severity UI:
+  // critical = red, high/attention = orange-red, medium = yellow, low = green.
   const renderSeverityShape = (severity: SeverityType, size = 24) => {
-    if (severity === 'critical') {
-      return (
-        <div className="flex items-center justify-center text-red-600 bg-red-100 p-1.5 rounded-lg" title="Critical Alert">
-          <Icons.AlertTriangle size={size} fill="currentColor" className="text-red-600" />
-        </div>
-      );
-    } else if (severity === 'attention') {
-      return (
-        <div className="flex items-center justify-center text-amber-500 bg-amber-100 p-1.5 rounded-lg" title="Attention Alert">
-          <Icons.AlertTriangle size={size} fill="currentColor" className="text-amber-500" />
-        </div>
-      );
-    } else {
-      return (
-        <div className="flex items-center justify-center text-green-600 bg-green-100 p-1.5 rounded-lg" title="Low Severity Alert">
-          <Icons.Circle size={size} fill="currentColor" className="text-green-600" />
-        </div>
-      );
-    }
-  };
+  if (severity === 'critical') {
+    return (
+      <div
+        className="relative flex items-center justify-center text-red-600 bg-red-100 p-1.5 rounded-lg"
+        title="Critical Alert"
+      >
+        <Icons.Hexagon
+          size={size}
+          fill="currentColor"
+          className="text-red-600"
+        />
+        <span
+          className="absolute inset-0 flex items-center justify-center text-white font-black"
+          style={{ fontSize: `${size * 0.55}px` }}
+        >
+          !
+        </span>
+      </div>
+    );
+  } else if (severity === 'attention') {
+    return (
+      <div
+        className="flex items-center justify-center text-orange-600 bg-orange-100 p-1.5 rounded-lg"
+        title="High Priority Alert"
+      >
+        <Icons.AlertTriangle
+          size={size}
+          fill="currentColor"
+          className="text-orange-600"
+        />
+      </div>
+    );
+  } else if (severity === 'medium') {
+    return (
+      <div
+        className="flex items-center justify-center text-yellow-500 bg-yellow-100 p-1.5 rounded-lg"
+        title="Medium Priority Alert"
+      >
+        <Icons.Square
+          size={size}
+          fill="currentColor"
+          className="text-yellow-500"
+        />
+      </div>
+    );
+  } else {
+    return (
+      <div
+        className="flex items-center justify-center text-green-600 bg-green-100 p-1.5 rounded-lg"
+        title="Low Priority Alert"
+      >
+        <Icons.Circle
+          size={size}
+          fill="currentColor"
+          className="text-green-600"
+        />
+      </div>
+    );
+  }
+};
 
   return (
     <div className="flex flex-col items-center">
@@ -242,7 +282,9 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({
               lastDetectedSound.severity === 'critical'
                 ? 'border-red-500 shadow-[inset_0_0_20px_rgba(239,68,68,0.7)]'
                 : lastDetectedSound.severity === 'attention'
-                ? 'border-amber-400 shadow-[inset_0_0_20px_rgba(251,191,36,0.6)]'
+                ? 'border-orange-500 shadow-[inset_0_0_20px_rgba(249,115,22,0.6)]'
+                : lastDetectedSound.severity === 'medium'
+                ? 'border-yellow-400 shadow-[inset_0_0_18px_rgba(250,204,21,0.6)]'
                 : 'border-green-400 shadow-[inset_0_0_15px_rgba(52,211,153,0.5)]'
             }`}
           />
@@ -287,7 +329,9 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({
                 lastDetectedSound.severity === 'critical'
                   ? 'bg-red-600 border-red-500 shadow-red-500/25'
                   : lastDetectedSound.severity === 'attention'
-                  ? 'bg-amber-500 border-amber-400 shadow-amber-500/25'
+                  ? 'bg-orange-600 border-orange-500 shadow-orange-500/25'
+                  : lastDetectedSound.severity === 'medium'
+                  ? 'bg-yellow-500 border-yellow-400 shadow-yellow-500/25'
                   : 'bg-green-600 border-green-500 shadow-green-500/25'
               }`}>
                 {/* Empty spacer to balance the close button and keep the icon centered */}
@@ -339,7 +383,9 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({
                         lastDetectedSound.severity === 'critical'
                           ? 'border-red-600'
                           : lastDetectedSound.severity === 'attention'
-                          ? 'border-amber-500'
+                          ? 'border-orange-500'
+                          : lastDetectedSound.severity === 'medium'
+                          ? 'border-yellow-500'
                           : 'border-green-600'
                       }`}
                     >
@@ -349,7 +395,9 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({
                             lastDetectedSound.severity === 'critical'
                               ? 'bg-red-600'
                               : lastDetectedSound.severity === 'attention'
-                              ? 'bg-amber-500'
+                              ? 'bg-orange-600'
+                              : lastDetectedSound.severity === 'medium'
+                              ? 'bg-yellow-500'
                               : 'bg-green-600'
                           }`}>
                             <Icons.Ear size={12} />
@@ -365,7 +413,9 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({
                             lastDetectedSound.severity === 'critical'
                               ? 'bg-red-50 text-red-600'
                               : lastDetectedSound.severity === 'attention'
-                              ? 'bg-amber-50 text-amber-500'
+                              ? 'bg-orange-50 text-orange-600'
+                              : lastDetectedSound.severity === 'medium'
+                              ? 'bg-yellow-50 text-yellow-600'
                               : 'bg-green-50 text-green-600'
                           }`}>
                             <DynamicIcon name={lastDetectedSound.iconName} size={18} />
@@ -378,6 +428,7 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({
                           <p className="text-[10px] text-slate-500 leading-normal mt-0.5">
                             {lastDetectedSound.severity === 'critical' ? t('msgCriticalPriorityReg') :
                              lastDetectedSound.severity === 'attention' ? t('msgHighPriorityReg') :
+                             lastDetectedSound.severity === 'medium' ? 'Medium priority alert' :
                              t('msgLowPriorityReg')}
                           </p>
                         </div>
@@ -825,7 +876,9 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({
                             ? lastDetectedSound.severity === 'critical'
                               ? 'border-red-300 bg-red-50/10'
                               : lastDetectedSound.severity === 'attention'
-                              ? 'border-amber-300 bg-amber-50/10'
+                              ? 'border-orange-300 bg-orange-50/10'
+                              : lastDetectedSound.severity === 'medium'
+                              ? 'border-yellow-300 bg-yellow-50/10'
                               : 'border-green-300 bg-green-50/10'
                             : isHC ? 'border-slate-950/45 bg-slate-100/10' : 'border-indigo-100'
                         }`}></div>
@@ -834,7 +887,9 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({
                             ? lastDetectedSound.severity === 'critical'
                               ? 'border-red-200/50'
                               : lastDetectedSound.severity === 'attention'
-                              ? 'border-amber-200/50'
+                              ? 'border-orange-200/50'
+                              : lastDetectedSound.severity === 'medium'
+                              ? 'border-yellow-200/50'
                               : 'border-green-200/50'
                             : isHC ? 'border-slate-950/30' : 'border-indigo-100/50'
                         }`}></div>
@@ -845,7 +900,9 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({
                             ? lastDetectedSound.severity === 'critical'
                               ? 'bg-red-50 border-red-100/80'
                               : lastDetectedSound.severity === 'attention'
-                              ? 'bg-amber-50 border-amber-100/80'
+                              ? 'bg-orange-50 border-orange-100/80'
+                              : lastDetectedSound.severity === 'medium'
+                              ? 'bg-yellow-50 border-yellow-100/80'
                               : 'bg-green-50 border-green-100/80'
                             : isHC ? 'bg-white border-2 border-slate-950' : 'bg-indigo-50 border-indigo-100/80'
                         }`} />
@@ -870,7 +927,9 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({
                           ? lastDetectedSound.severity === 'critical'
                             ? isHC ? 'bg-red-800 text-white border-2 border-red-950' : 'bg-red-600 text-white hover:bg-red-700'
                             : lastDetectedSound.severity === 'attention'
-                            ? isHC ? 'bg-amber-600 text-black border-2 border-amber-950 font-bold' : 'bg-amber-500 text-white hover:bg-amber-600'
+                            ? isHC ? 'bg-orange-700 text-white border-2 border-orange-950 font-bold' : 'bg-orange-600 text-white hover:bg-orange-700'
+                            : lastDetectedSound.severity === 'medium'
+                            ? isHC ? 'bg-yellow-600 text-black border-2 border-yellow-950 font-bold' : 'bg-yellow-500 text-white hover:bg-yellow-600'
                             : isHC ? 'bg-green-800 text-white border-2 border-green-950' : 'bg-green-600 text-white hover:bg-green-700'
                           : isListening
                           ? isHC ? 'bg-slate-950 text-white border-2 border-slate-950' : 'bg-indigo-600 text-white hover:bg-indigo-700'
@@ -911,13 +970,17 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({
                             lastDetectedSound.severity === 'critical' 
                               ? isHC ? 'text-red-800 font-extrabold' : 'text-red-600' 
                               : lastDetectedSound.severity === 'attention' 
-                              ? isHC ? 'text-amber-600 font-extrabold' : 'text-amber-500' 
+                              ? isHC ? 'text-orange-700 font-extrabold' : 'text-orange-600' 
+                              : lastDetectedSound.severity === 'medium'
+                              ? isHC ? 'text-yellow-700 font-extrabold' : 'text-yellow-600'
                               : isHC ? 'text-green-800 font-extrabold' : 'text-green-600'
                           }`}>
                             {lastDetectedSound.severity === 'critical' 
                               ? t('criticalPriority') 
                               : lastDetectedSound.severity === 'attention' 
                               ? t('highPriority') 
+                              : lastDetectedSound.severity === 'medium'
+                              ? 'Medium'
                               : t('lowPriority')}
                           </span>
                         </div>
@@ -1617,19 +1680,37 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({
                     </div>
                   </button>
 
-                  {/* Medium Intensity (Attention) */}
+                  {/* High Intensity (High / Attention) */}
                   <button
                     onClick={() => onTriggerHapticVibration('attention')}
-                    className={`${cardClass} p-3.5 rounded-2xl text-left w-full transition-all duration-200 hover:scale-[1.01] hover:bg-slate-50/50 active:scale-[0.99] cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500`}
+                    className={`${cardClass} p-3.5 rounded-2xl text-left w-full transition-all duration-200 hover:scale-[1.01] hover:bg-slate-50/50 active:scale-[0.99] cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-500`}
                   >
-                    <div className="flex items-center gap-2 mb-1.5 text-amber-600 font-bold text-xs">
-                      <Icons.AlertTriangle size={14} className={isHC ? 'text-slate-950' : 'text-amber-600'} />
-                      <span className={isHC ? 'text-slate-950 font-extrabold' : ''}>{t('attentionAlertsTitle')}</span>
+                    <div className="flex items-center gap-2 mb-1.5 text-orange-600 font-bold text-xs">
+                      <Icons.AlertTriangle size={14} className={isHC ? 'text-slate-950' : 'text-orange-600'} />
+                      <span className={isHC ? 'text-slate-950 font-extrabold' : ''}>High Priority Alerts</span>
                     </div>
                     <p className={`text-[11px] leading-tight mb-2 ${isHC ? 'text-slate-950 font-bold' : 'text-slate-500'}`}>
-                      {t('attentionAlertsDesc')}
+                      Strong alerts that need your attention.
                     </p>
-                    <div className={`text-[10px] font-bold flex items-center gap-1 ${isHC ? 'text-slate-950' : 'text-amber-600'}`}>
+                    <div className={`text-[10px] font-bold flex items-center gap-1 ${isHC ? 'text-slate-950' : 'text-orange-600'}`}>
+                      <span>{t('tapToFeelPattern')}</span>
+                      <Icons.Vibrate size={12} className="animate-pulse" />
+                    </div>
+                  </button>
+
+                  {/* Medium Intensity */}
+                  <button
+                    onClick={() => onTriggerHapticVibration('medium')}
+                    className={`${cardClass} p-3.5 rounded-2xl text-left w-full transition-all duration-200 hover:scale-[1.01] hover:bg-slate-50/50 active:scale-[0.99] cursor-pointer focus:outline-none focus:ring-2 focus:ring-yellow-500`}
+                  >
+                    <div className="flex items-center gap-2 mb-1.5 text-yellow-600 font-bold text-xs">
+                      <Icons.AlertCircle size={14} className={isHC ? 'text-slate-950' : 'text-yellow-600'} />
+                      <span className={isHC ? 'text-slate-950 font-extrabold' : ''}>Medium Priority Alerts</span>
+                    </div>
+                    <p className={`text-[11px] leading-tight mb-2 ${isHC ? 'text-slate-950 font-bold' : 'text-slate-500'}`}>
+                      Moderate alerts for sounds that may need attention.
+                    </p>
+                    <div className={`text-[10px] font-bold flex items-center gap-1 ${isHC ? 'text-slate-950' : 'text-yellow-600'}`}>
                       <span>{t('tapToFeelPattern')}</span>
                       <Icons.Vibrate size={12} className="animate-pulse" />
                     </div>
