@@ -1,4 +1,5 @@
-export type SeverityType = 'critical' | 'attention' | 'low';
+export type SeverityType = 'critical' | 'attention' | 'medium' | 'low';
+
 export type EnvironmentType = 'indoor' | 'outdoor';
 
 export interface SoundLabel {
@@ -6,8 +7,16 @@ export interface SoundLabel {
   name: string;
   environment: EnvironmentType;
   category: string;
+
+  /**
+   * Default/fallback severity.
+   *
+   * Actual displayed priority is calculated dynamically
+   * using the current indoor/outdoor mode.
+   */
   severity: SeverityType;
-  iconName: string; // lucide icon identifier
+
+  iconName: string;
 }
 
 export interface SoundEvent {
@@ -39,6 +48,7 @@ export interface UserProfile {
 }
 
 /** JSON response from Python ML POST /api/v1/classify (via Express proxy). */
+
 export interface ClassifyTopPrediction {
   rank: number;
   label: string;
