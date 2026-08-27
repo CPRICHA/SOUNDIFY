@@ -1,0 +1,236 @@
+/* AIISH Model Tester — simple internal dashboard styling */
+
+:root {
+    --bg: #f4f5f7;
+    --card: #ffffff;
+    --border: #d8dce3;
+    --text: #1f2933;
+    --muted: #5f6b7a;
+    --accent: #2f3b4a;
+    --bar: #4a5568;
+    --error-bg: #f8ecec;
+    --error-border: #d9a3a3;
+    --error-text: #7a2e2e;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.45;
+}
+
+.page {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 32px 20px 48px;
+}
+
+.header {
+    margin-bottom: 20px;
+}
+
+.header h1 {
+    margin: 0 0 6px;
+    font-size: 1.6rem;
+    font-weight: 650;
+}
+
+.subtitle {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+}
+
+.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 18px 20px;
+    margin-bottom: 16px;
+}
+
+.card h2 {
+    margin: 0 0 14px;
+    font-size: 1.05rem;
+    font-weight: 650;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+}
+
+.error-card {
+    background: var(--error-bg);
+    border-color: var(--error-border);
+    color: var(--error-text);
+}
+
+.error-card p {
+    margin: 0;
+}
+
+.file-label {
+    display: inline-block;
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: #eef1f4;
+    color: var(--text);
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+#audio_file {
+    display: none;
+}
+
+.selected-file {
+    margin: 14px 0 16px;
+    color: var(--muted);
+}
+
+.selected-file span {
+    color: var(--text);
+    font-weight: 600;
+}
+
+.btn {
+    display: inline-block;
+    padding: 9px 16px;
+    border: 1px solid var(--accent);
+    border-radius: 4px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background: #24303d;
+}
+
+.metrics {
+    display: grid;
+    gap: 12px;
+}
+
+.metric-label {
+    display: block;
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-bottom: 2px;
+}
+
+.metric-value {
+    font-size: 1.15rem;
+    font-weight: 650;
+}
+
+.top5-header,
+.top5-row {
+    display: grid;
+    grid-template-columns: 48px 1fr minmax(180px, 240px);
+    gap: 10px;
+    align-items: center;
+}
+
+.top5-header {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+}
+
+.top5-row {
+    padding: 8px 0;
+    border-bottom: 1px solid #eef1f4;
+}
+
+.top5-row:last-child {
+    border-bottom: none;
+}
+
+.rank {
+    color: var(--muted);
+}
+
+.class-name {
+    font-weight: 500;
+}
+
+.bar-cell {
+    display: grid;
+    grid-template-columns: 1fr 64px;
+    gap: 8px;
+    align-items: center;
+}
+
+.bar-track {
+    height: 10px;
+    background: #e8ebf0;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    background: var(--bar);
+    border-radius: 2px;
+    min-width: 0;
+}
+
+.percent {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.9rem;
+}
+
+.details {
+    margin: 0;
+    display: grid;
+    gap: 10px;
+}
+
+.details > div {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 8px;
+}
+
+.details dt {
+    margin: 0;
+    color: var(--muted);
+}
+
+.details dd {
+    margin: 0;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 640px) {
+    .top5-header,
+    .top5-row {
+        grid-template-columns: 36px 1fr;
+    }
+
+    .top5-header span:last-child {
+        display: none;
+    }
+
+    .bar-cell {
+        grid-column: 1 / -1;
+        grid-template-columns: 1fr 64px;
+        margin-top: 4px;
+    }
+
+    .details > div {
+        grid-template-columns: 1fr;
+        gap: 2px;
+    }
+}
