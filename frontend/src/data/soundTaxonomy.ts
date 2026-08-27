@@ -21,9 +21,6 @@ export const SOUND_TAXONOMY: SoundLabel[] = [
     environment: 'indoor',
     category: 'Home Safety & Household Awareness',
     severity: 'critical',
-<<<<<<< HEAD
-    iconName: 'Flame',
-=======
     imagePath: '/icons/sounds/alarm_fire_smoke.svg',
     iconName: 'Flame'
 >>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
@@ -35,9 +32,6 @@ export const SOUND_TAXONOMY: SoundLabel[] = [
     environment: 'indoor',
     category: 'Home Safety & Household Awareness',
     severity: 'critical',
-<<<<<<< HEAD
-    iconName: 'ShieldAlert',
-=======
     imagePath: '/icons/sounds/glass_breaking.svg',
     iconName: 'ShieldAlert'
 >>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
@@ -48,10 +42,6 @@ export const SOUND_TAXONOMY: SoundLabel[] = [
     name: 'Pressure Cooker Whistle',
     environment: 'indoor',
     category: 'Home Safety & Household Awareness',
-<<<<<<< HEAD
-    severity: 'attention',
-    iconName: 'Wind',
-=======
     severity: 'high',
     imagePath: '/icons/sounds/pressure_cooker.svg',
     iconName: 'Wind'
@@ -59,39 +49,13 @@ export const SOUND_TAXONOMY: SoundLabel[] = [
   },
 
   {
-<<<<<<< HEAD
-    id: 'mixer_grinder',
-    name: 'Mixer / Grinder',
-    environment: 'indoor',
-    category: 'Home Safety & Household Awareness',
-    severity: 'medium',
-    iconName: 'Zap',
-  },
-
-  {
-    id: 'microwave_beep',
-    name: 'Microwave Oven Beep',
-    environment: 'indoor',
-    category: 'Home Safety & Household Awareness',
-    severity: 'attention',
-    iconName: 'Radio',
-  },
-
-  {
-=======
->>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
     id: 'water_running',
     name: 'Water Running',
     environment: 'indoor',
     category: 'Home Safety & Household Awareness',
-<<<<<<< HEAD
-    severity: 'attention',
-    iconName: 'Droplets',
-=======
     severity: 'high',
     imagePath: '/icons/sounds/water_running.svg',
     iconName: 'Droplets'
->>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
   },
 
   {
@@ -103,6 +67,7 @@ export const SOUND_TAXONOMY: SoundLabel[] = [
     imagePath: '/icons/sounds/microwave_beep.svg',
     iconName: 'Radio'
   },
+
   {
     id: 'mixer_grinder',
     name: 'Mixer / Grinder',
@@ -118,9 +83,6 @@ export const SOUND_TAXONOMY: SoundLabel[] = [
     environment: 'indoor',
     category: 'Home Safety & Household Awareness',
     severity: 'medium',
-<<<<<<< HEAD
-    iconName: 'Cpu',
-=======
     imagePath: '/icons/sounds/motor_pump.svg',
     iconName: 'Cpu'
 >>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
@@ -132,9 +94,6 @@ export const SOUND_TAXONOMY: SoundLabel[] = [
     environment: 'indoor',
     category: 'Home Safety & Household Awareness',
     severity: 'medium',
-<<<<<<< HEAD
-    iconName: 'Soup',
-=======
     imagePath: '/icons/sounds/utensils.svg',
     iconName: 'Soup'
 >>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
@@ -150,9 +109,6 @@ export const SOUND_TAXONOMY: SoundLabel[] = [
     environment: 'indoor',
     category: 'Visitor Awareness',
     severity: 'medium',
-<<<<<<< HEAD
-    iconName: 'Bell',
-=======
     imagePath: '/icons/sounds/doorbell.svg',
     iconName: 'Bell'
 >>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
@@ -164,9 +120,6 @@ export const SOUND_TAXONOMY: SoundLabel[] = [
     environment: 'indoor',
     category: 'Visitor Awareness',
     severity: 'medium',
-<<<<<<< HEAD
-    iconName: 'Hand',
-=======
     imagePath: '/icons/sounds/door_knock.svg',
     iconName: 'Hand'
 >>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
@@ -182,9 +135,6 @@ export const SOUND_TAXONOMY: SoundLabel[] = [
     environment: 'indoor',
     category: 'Human Communication',
     severity: 'critical',
-<<<<<<< HEAD
-    iconName: 'Megaphone',
-=======
     imagePath: '/icons/sounds/human_distress.svg',
     iconName: 'Megaphone'
 >>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
@@ -195,10 +145,6 @@ export const SOUND_TAXONOMY: SoundLabel[] = [
     name: 'Baby Crying',
     environment: 'indoor',
     category: 'Human Communication',
-<<<<<<< HEAD
-    severity: 'attention',
-    iconName: 'Heart',
-=======
     severity: 'high',
     imagePath: '/icons/sounds/baby_crying.svg',
     iconName: 'Heart'
@@ -211,9 +157,6 @@ export const SOUND_TAXONOMY: SoundLabel[] = [
     environment: 'indoor',
     category: 'Human Communication',
     severity: 'medium',
-<<<<<<< HEAD
-    iconName: 'Speech',
-=======
     imagePath: '/icons/sounds/name_calling.svg',
     iconName: 'Speech'
 >>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
@@ -225,9 +168,6 @@ export const SOUND_TAXONOMY: SoundLabel[] = [
     environment: 'indoor',
     category: 'Human Communication',
     severity: 'medium',
-<<<<<<< HEAD
-    iconName: 'Store',
-=======
     imagePath: '/icons/sounds/vendor_selling.svg',
     iconName: 'Store'
 >>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
@@ -243,9 +183,6 @@ export const SOUND_TAXONOMY: SoundLabel[] = [
     environment: 'outdoor',
     category: 'Emergency Vehicles',
     severity: 'critical',
-<<<<<<< HEAD
-    iconName: 'Siren',
-=======
     imagePath: '/icons/sounds/siren_emergency.svg',
     iconName: 'Siren'
 >>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
@@ -275,16 +212,10 @@ export const SOUND_TAXONOMY: SoundLabel[] = [
     name: 'Vehicle Horn (Car/Bike/Bus/Truck)',
     environment: 'outdoor',
     category: 'Road Safety',
-<<<<<<< HEAD
-    severity: 'attention',
-    iconName: 'Car',
-=======
     severity: 'high',
     imagePath: '/icons/sounds/vehicle_horn.svg',
     iconName: 'Car'
->>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
   },
-
   {
     id: 'auto_rickshaw',
     name: 'Auto Rickshaw Horn',
@@ -299,36 +230,11 @@ export const SOUND_TAXONOMY: SoundLabel[] = [
     name: 'Approaching Vehicles',
     environment: 'outdoor',
     category: 'Road Safety',
-<<<<<<< HEAD
-    severity: 'attention',
-    iconName: 'CarFront',
-  },
-
-  {
-  id: 'engine_idling',
-  name: 'Engine Idling',
-  environment: 'outdoor',
-  category: 'Road Safety',
-  severity: 'medium',
-  iconName: 'Car',
-  },
-
-  {
-    id: 'auto_rickshaw',
-    name: 'Auto Rickshaw',
-    environment: 'outdoor',
-    category: 'Road Safety',
-    severity: 'low',
-    iconName: 'Bike',
-  },
-=======
     severity: 'high',
     imagePath: '/icons/sounds/approaching_vehicles.svg',
     iconName: 'CarFront'
   },
->>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
 
-  // ============================================================
   // OUTDOOR — Public Safety
   // ============================================================
 
@@ -338,9 +244,6 @@ export const SOUND_TAXONOMY: SoundLabel[] = [
     environment: 'outdoor',
     category: 'Public Safety',
     severity: 'critical',
-<<<<<<< HEAD
-    iconName: 'Bomb',
-=======
     imagePath: '/icons/sounds/blasts.svg',
     iconName: 'Bomb'
 >>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
@@ -366,10 +269,6 @@ export const SOUND_TAXONOMY: SoundLabel[] = [
     name: 'Fire Crackers',
     environment: 'outdoor',
     category: 'Public Safety',
-<<<<<<< HEAD
-    severity: 'attention',
-    iconName: 'Sparkles',
-=======
     severity: 'high',
     imagePath: '/icons/sounds/fire_crackers.svg',
     iconName: 'Sparkles'
@@ -382,9 +281,6 @@ export const SOUND_TAXONOMY: SoundLabel[] = [
     environment: 'outdoor',
     category: 'Public Safety',
     severity: 'medium',
-<<<<<<< HEAD
-    iconName: 'Hammer',
-=======
     imagePath: '/icons/sounds/construction_sounds.svg',
     iconName: 'Hammer'
 >>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
@@ -396,9 +292,6 @@ export const SOUND_TAXONOMY: SoundLabel[] = [
     environment: 'outdoor',
     category: 'Public Safety',
     severity: 'medium',
-<<<<<<< HEAD
-    iconName: 'School',
-=======
     imagePath: '/icons/sounds/school_bell.svg',
     iconName: 'School'
 >>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
@@ -414,24 +307,10 @@ export const SOUND_TAXONOMY: SoundLabel[] = [
     environment: 'outdoor',
     category: 'Environmental Awareness',
     severity: 'medium',
-<<<<<<< HEAD
-    iconName: 'PawPrint',
-=======
     imagePath: '/icons/sounds/dog_bark.svg',
     iconName: 'PawPrint'
 >>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
   },
-
-  {
-<<<<<<< HEAD
-    id: 'cow_mooing',
-    name: 'Cow Mooing',
-    environment: 'outdoor',
-    category: 'Environmental Awareness',
-    severity: 'low',
-    iconName: 'Footprints',
-  },
-
   {
 =======
 >>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
@@ -440,9 +319,6 @@ export const SOUND_TAXONOMY: SoundLabel[] = [
     environment: 'outdoor',
     category: 'Environmental Awareness',
     severity: 'low',
-<<<<<<< HEAD
-    iconName: 'Cat',
-=======
     imagePath: '/icons/sounds/cat_meow.svg',
     iconName: 'Cat'
 >>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
@@ -454,11 +330,6 @@ export const SOUND_TAXONOMY: SoundLabel[] = [
     environment: 'outdoor',
     category: 'Environmental Awareness',
     severity: 'low',
-<<<<<<< HEAD
-    iconName: 'BellRing',
-  },
-];
-=======
     imagePath: '/icons/sounds/temple_bell.svg',
     iconName: 'BellRing'
   },

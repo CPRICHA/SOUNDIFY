@@ -425,71 +425,6 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({
     }
   }, [lastDetectedSound, setLastDetectedSound, setShowTextAlert, setShowIconAlert]);
 
-<<<<<<< HEAD
-  // Four-level severity UI:
-  // critical = red, high/attention = orange-red, medium = yellow, low = green.
-  const renderSeverityShape = (severity: SeverityType, size = 24) => {
-  if (severity === 'critical') {
-    return (
-      <div
-        className="relative flex items-center justify-center text-red-600 bg-red-100 p-1.5 rounded-lg"
-        title="Critical Alert"
-      >
-        <Icons.Hexagon
-          size={size}
-          fill="currentColor"
-          className="text-red-600"
-        />
-        <span
-          className="absolute inset-0 flex items-center justify-center text-white font-black"
-          style={{ fontSize: `${size * 0.55}px` }}
-        >
-          !
-        </span>
-      </div>
-    );
-  } else if (severity === 'attention') {
-    return (
-      <div
-        className="flex items-center justify-center text-orange-600 bg-orange-100 p-1.5 rounded-lg"
-        title="High Priority Alert"
-      >
-        <Icons.AlertTriangle
-          size={size}
-          fill="currentColor"
-          className="text-orange-600"
-        />
-      </div>
-    );
-  } else if (severity === 'medium') {
-    return (
-      <div
-        className="flex items-center justify-center text-yellow-500 bg-yellow-100 p-1.5 rounded-lg"
-        title="Medium Priority Alert"
-      >
-        <Icons.Square
-          size={size}
-          fill="currentColor"
-          className="text-yellow-500"
-        />
-      </div>
-    );
-  } else {
-    return (
-      <div
-        className="flex items-center justify-center text-green-600 bg-green-100 p-1.5 rounded-lg"
-        title="Low Priority Alert"
-      >
-        <Icons.Circle
-          size={size}
-          fill="currentColor"
-          className="text-green-600"
-        />
-      </div>
-    );
-  }
-};
-
 =======
 >>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
   return (
@@ -508,17 +443,10 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({
             className={`absolute inset-3 rounded-[36px] border-[6px] pointer-events-none z-40 animate-pulse duration-300 ${
               lastDetectedSound.severity === 'critical'
                 ? 'border-red-500 shadow-[inset_0_0_20px_rgba(239,68,68,0.7)]'
-<<<<<<< HEAD
-                : lastDetectedSound.severity === 'attention'
-                ? 'border-orange-500 shadow-[inset_0_0_20px_rgba(249,115,22,0.6)]'
-                : lastDetectedSound.severity === 'medium'
-                ? 'border-yellow-400 shadow-[inset_0_0_18px_rgba(250,204,21,0.6)]'
-=======
                 : lastDetectedSound.severity === 'high'
                 ? 'border-orange-500 shadow-[inset_0_0_20px_rgba(249,115,22,0.7)]'
                 : lastDetectedSound.severity === 'medium'
                 ? 'border-blue-500 shadow-[inset_0_0_20px_rgba(37,99,235,0.6)]'
->>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
                 : 'border-green-400 shadow-[inset_0_0_15px_rgba(52,211,153,0.5)]'
             }`}
           />
@@ -565,22 +493,6 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({
               ALERT BANNER LAYOUTS OVERLAID OVER HISTORY/SETTINGS (NOT HOME SCREEN)
              ======================================================= */}
           {lastDetectedSound && currentScreen !== 'home' && !isAppBackgrounded && (
-<<<<<<< HEAD
-            <div className="absolute top-12 left-3 right-3 z-50 flex flex-col gap-2 transition-all duration-300">
-              <div className={`text-white p-2.5 rounded-2xl shadow-xl flex items-center justify-between border animate-slideDown ${
-                lastDetectedSound.severity === 'critical'
-                  ? 'bg-red-600 border-red-500 shadow-red-500/25'
-                  : lastDetectedSound.severity === 'attention'
-                  ? 'bg-orange-600 border-orange-500 shadow-orange-500/25'
-                  : lastDetectedSound.severity === 'medium'
-                  ? 'bg-yellow-500 border-yellow-400 shadow-yellow-500/25'
-                  : 'bg-green-600 border-green-500 shadow-green-500/25'
-              }`}>
-                {/* Empty spacer to balance the close button and keep the icon centered */}
-                <div className="w-8" />
-                <div className="p-2 bg-white/20 rounded-xl flex items-center justify-center">
-                  <DynamicIcon name={lastDetectedSound.iconName} size={24} className="text-white" />
-=======
             <div className="absolute top-12 left-3 right-3 z-50 flex flex-col gap-2 transition-all duration-300 animate-slideDown">
               {userProfile.outputPreferences.includes('icon') && userProfile.outputPreferences.includes('color') ? (
                 <div className={`relative p-3.5 rounded-2xl shadow-xl flex flex-col items-center justify-center border ${
@@ -606,7 +518,6 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({
                       {lastDetectedSound.name} — {getPriorityWord(lastDetectedSound.severity)}
                     </p>
                   )}
->>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
                 </div>
               ) : (
                 <div className={`p-2.5 rounded-2xl shadow-xl flex items-center justify-between border gap-2.5 ${
@@ -678,33 +589,6 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({
                 {/* Notification Area */}
                 <div className="flex-1 flex flex-col justify-center gap-3 py-6">
                   {lastDetectedSound ? (
-<<<<<<< HEAD
-                    <div 
-                      onClick={() => {
-                        // Open app on notification click
-                        setIsAppBackgrounded(false);
-                      }}
-                      className={`w-full bg-white/95 backdrop-blur-md text-slate-900 p-3.5 rounded-2xl shadow-2xl border-l-[6px] transition-all duration-300 hover:scale-[1.02] cursor-pointer animate-slideDown ${
-                        lastDetectedSound.severity === 'critical'
-                          ? 'border-red-600'
-                          : lastDetectedSound.severity === 'attention'
-                          ? 'border-orange-500'
-                          : lastDetectedSound.severity === 'medium'
-                          ? 'border-yellow-500'
-                          : 'border-green-600'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-1.5">
-                        <div className="flex items-center gap-1.5">
-                          <div className={`p-1 rounded-md text-white ${
-                            lastDetectedSound.severity === 'critical'
-                              ? 'bg-red-600'
-                              : lastDetectedSound.severity === 'attention'
-                              ? 'bg-orange-600'
-                              : lastDetectedSound.severity === 'medium'
-                              ? 'bg-yellow-500'
-                              : 'bg-green-600'
-=======
                     (lastDetectedSound.severity === 'critical' || lastDetectedSound.severity === 'high') ? (
                       /* FULL-SCREEN INTENT TAKEOVER (Android System-Level Alert Delivery) */
                       <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-xl z-50 flex flex-col justify-between p-5 text-white animate-fadeIn">
@@ -714,7 +598,6 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({
                             lastDetectedSound.severity === 'critical'
                               ? 'bg-red-500/20 text-red-400 border-red-500/40'
                               : 'bg-orange-500/20 text-orange-400 border-orange-500/40'
->>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
                           }`}>
                             <span className="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
                             <span>{lastDetectedSound.severity === 'critical' ? t('criticalAlertOverlayTitle') : t('highAlertOverlayTitle')}</span>
@@ -730,34 +613,6 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({
                             <Icons.X size={16} />
                           </button>
                         </div>
-<<<<<<< HEAD
-                        <span className="text-[9px] text-slate-400 font-medium">{t('timeNow')}</span>
-                      </div>
-                      
-                      <div className="flex items-start gap-2.5">
-                        <div className="shrink-0">
-                          <div className={`p-2 rounded-xl text-white ${
-                            lastDetectedSound.severity === 'critical'
-                              ? 'bg-red-50 text-red-600'
-                              : lastDetectedSound.severity === 'attention'
-                              ? 'bg-orange-50 text-orange-600'
-                              : lastDetectedSound.severity === 'medium'
-                              ? 'bg-yellow-50 text-yellow-600'
-                              : 'bg-green-50 text-green-600'
-                          }`}>
-                            <DynamicIcon name={lastDetectedSound.iconName} size={18} />
-                          </div>
-                        </div>
-                        <div className="flex-1 min-w-0 text-left">
-                          <h4 className="font-bold text-xs text-slate-900 leading-snug">
-                            {t('detectedLabel')}{lastDetectedSound.name}
-                          </h4>
-                          <p className="text-[10px] text-slate-500 leading-normal mt-0.5">
-                            {lastDetectedSound.severity === 'critical' ? t('msgCriticalPriorityReg') :
-                             lastDetectedSound.severity === 'attention' ? t('msgHighPriorityReg') :
-                             lastDetectedSound.severity === 'medium' ? 'Medium priority alert' :
-                             t('msgLowPriorityReg')}
-=======
 
                         {/* Center pulsing radar & icon */}
                         <div className="flex flex-col items-center justify-center my-auto">
@@ -780,7 +635,6 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({
                           </h2>
                           <p className="text-xs text-white/70 font-semibold uppercase tracking-wider text-center">
                             {getCategoryName(lastDetectedSound.category)} • {mode === 'indoor' ? t('indoorMode') : t('outdoorMode')}
->>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
                           </p>
 
                           {/* Haptic indication */}
@@ -1507,17 +1361,10 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({
                           lastDetectedSound
                             ? lastDetectedSound.severity === 'critical'
                               ? 'border-red-300 bg-red-50/10'
-<<<<<<< HEAD
-                              : lastDetectedSound.severity === 'attention'
-                              ? 'border-orange-300 bg-orange-50/10'
-                              : lastDetectedSound.severity === 'medium'
-                              ? 'border-yellow-300 bg-yellow-50/10'
-=======
                               : lastDetectedSound.severity === 'high'
                               ? 'border-orange-300 bg-orange-50/10'
                               : lastDetectedSound.severity === 'medium'
                               ? 'border-blue-300 bg-blue-50/10'
->>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
                               : 'border-green-300 bg-green-50/10'
                             : isHC ? 'border-slate-950/45 bg-slate-100/10' : 'border-indigo-100'
                         }`}></div>
@@ -1525,17 +1372,10 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({
                           lastDetectedSound
                             ? lastDetectedSound.severity === 'critical'
                               ? 'border-red-200/50'
-<<<<<<< HEAD
-                              : lastDetectedSound.severity === 'attention'
-                              ? 'border-orange-200/50'
-                              : lastDetectedSound.severity === 'medium'
-                              ? 'border-yellow-200/50'
-=======
                               : lastDetectedSound.severity === 'high'
                               ? 'border-orange-200/50'
                               : lastDetectedSound.severity === 'medium'
                               ? 'border-blue-200/50'
->>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
                               : 'border-green-200/50'
                             : isHC ? 'border-slate-950/30' : 'border-indigo-100/50'
                         }`}></div>
@@ -1545,17 +1385,10 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({
                           lastDetectedSound
                             ? lastDetectedSound.severity === 'critical'
                               ? 'bg-red-50 border-red-100/80'
-<<<<<<< HEAD
-                              : lastDetectedSound.severity === 'attention'
-                              ? 'bg-orange-50 border-orange-100/80'
-                              : lastDetectedSound.severity === 'medium'
-                              ? 'bg-yellow-50 border-yellow-100/80'
-=======
                               : lastDetectedSound.severity === 'high'
                               ? 'bg-orange-50 border-orange-100/80'
                               : lastDetectedSound.severity === 'medium'
                               ? 'bg-blue-50 border-blue-100/80'
->>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
                               : 'bg-green-50 border-green-100/80'
                             : isHC ? 'bg-white border-2 border-slate-950' : 'bg-indigo-50 border-indigo-100/80'
                         }`} />
@@ -1577,15 +1410,6 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({
                       }}
                       className={`relative w-14 h-14 rounded-full flex items-center justify-center transition-all duration-500 shadow-lg z-10 hover:scale-105 active:scale-95 ${
                         lastDetectedSound
-<<<<<<< HEAD
-                          ? lastDetectedSound.severity === 'critical'
-                            ? isHC ? 'bg-red-800 text-white border-2 border-red-950' : 'bg-red-600 text-white hover:bg-red-700'
-                            : lastDetectedSound.severity === 'attention'
-                            ? isHC ? 'bg-orange-700 text-white border-2 border-orange-950 font-bold' : 'bg-orange-600 text-white hover:bg-orange-700'
-                            : lastDetectedSound.severity === 'medium'
-                            ? isHC ? 'bg-yellow-600 text-black border-2 border-yellow-950 font-bold' : 'bg-yellow-500 text-white hover:bg-yellow-600'
-                            : isHC ? 'bg-green-800 text-white border-2 border-green-950' : 'bg-green-600 text-white hover:bg-green-700'
-=======
                           ? userProfile.outputPreferences.includes('icon')
                             ? lastDetectedSound.severity === 'critical'
                               ? isHC ? 'bg-red-800 text-white border-2 border-red-950' : 'bg-red-600 text-white hover:bg-red-700'
@@ -1595,7 +1419,6 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({
                               ? isHC ? 'bg-blue-600 text-white border-2 border-blue-950 font-bold' : 'bg-blue-600 text-white hover:bg-blue-700'
                               : isHC ? 'bg-green-800 text-white border-2 border-green-950' : 'bg-green-600 text-white hover:bg-green-700'
                             : isHC ? 'bg-slate-950 text-white border-2 border-slate-950' : 'bg-slate-700 text-white'
->>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
                           : isListening
                           ? isHC ? 'bg-slate-950 text-white border-2 border-slate-950' : 'bg-indigo-600 text-white hover:bg-indigo-700'
                           : isHC ? 'bg-white text-slate-950 border-2 border-slate-950 font-extrabold hover:bg-slate-50' : 'bg-slate-300 text-slate-700 hover:bg-slate-400'
@@ -1626,31 +1449,6 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({
                   <div className="text-center mt-2.5 z-10 flex flex-col items-center">
                     {lastDetectedSound ? (
                       <div className="animate-fadeIn flex flex-col items-center">
-<<<<<<< HEAD
-                        <p className={`text-[13px] font-black tracking-tight capitalize ${isHC ? 'text-slate-950 font-extrabold' : 'text-slate-900'}`}>
-                          {lastDetectedSound.name}
-                        </p>
-                        <div className="flex items-center gap-1.5 mt-1">
-                          {renderSeverityShape(lastDetectedSound.severity, 10)}
-                          <span className={`text-[10px] font-bold uppercase tracking-wider ${
-                            lastDetectedSound.severity === 'critical' 
-                              ? isHC ? 'text-red-800 font-extrabold' : 'text-red-600' 
-                              : lastDetectedSound.severity === 'attention' 
-                              ? isHC ? 'text-orange-700 font-extrabold' : 'text-orange-600' 
-                              : lastDetectedSound.severity === 'medium'
-                              ? isHC ? 'text-yellow-700 font-extrabold' : 'text-yellow-600'
-                              : isHC ? 'text-green-800 font-extrabold' : 'text-green-600'
-                          }`}>
-                            {lastDetectedSound.severity === 'critical' 
-                              ? t('criticalPriority') 
-                              : lastDetectedSound.severity === 'attention' 
-                              ? t('highPriority') 
-                              : lastDetectedSound.severity === 'medium'
-                              ? 'Medium'
-                              : t('lowPriority')}
-                          </span>
-                        </div>
-=======
                         {userProfile.outputPreferences.includes('text') && (
                           <p className={`text-[13px] tracking-tight capitalize ${
                             userProfile.outputPreferences.includes('color')
@@ -1670,7 +1468,6 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({
                             {t('alertActive')}
                           </p>
                         )}
->>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
                       </div>
                     ) : (
                       <p className={`text-[12px] font-bold ${isHC ? 'text-slate-950 font-extrabold' : 'text-slate-800'}`}>
@@ -2593,30 +2390,17 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({
                     </div>
                   </button>
 
-<<<<<<< HEAD
-                  {/* High Intensity (High / Attention) */}
-                  <button
-                    onClick={() => onTriggerHapticVibration('attention')}
-=======
                   {/* High Priority Alerts */}
                   <button
                     onClick={() => onTriggerHapticVibration('high')}
->>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
                     className={`${cardClass} p-3.5 rounded-2xl text-left w-full transition-all duration-200 hover:scale-[1.01] hover:bg-slate-50/50 active:scale-[0.99] cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-500`}
                   >
                     <div className="flex items-center gap-2 mb-1.5 text-orange-600 font-bold text-xs">
                       <Icons.AlertTriangle size={14} className={isHC ? 'text-slate-950' : 'text-orange-600'} />
-<<<<<<< HEAD
-                      <span className={isHC ? 'text-slate-950 font-extrabold' : ''}>High Priority Alerts</span>
-                    </div>
-                    <p className={`text-[11px] leading-tight mb-2 ${isHC ? 'text-slate-950 font-bold' : 'text-slate-500'}`}>
-                      Strong alerts that need your attention.
-=======
                       <span className={isHC ? 'text-slate-950 font-extrabold' : ''}>{t('highAlertsTitle')}</span>
                     </div>
                     <p className={`text-[11px] leading-tight mb-2 ${isHC ? 'text-slate-950 font-bold' : 'text-slate-500'}`}>
                       {t('highAlertsDesc')}
->>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
                     </p>
                     <div className={`text-[10px] font-bold flex items-center gap-1 ${isHC ? 'text-slate-950' : 'text-orange-600'}`}>
                       <span>{t('tapToFeelPattern')}</span>
@@ -2624,21 +2408,6 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({
                     </div>
                   </button>
 
-<<<<<<< HEAD
-                  {/* Medium Intensity */}
-                  <button
-                    onClick={() => onTriggerHapticVibration('medium')}
-                    className={`${cardClass} p-3.5 rounded-2xl text-left w-full transition-all duration-200 hover:scale-[1.01] hover:bg-slate-50/50 active:scale-[0.99] cursor-pointer focus:outline-none focus:ring-2 focus:ring-yellow-500`}
-                  >
-                    <div className="flex items-center gap-2 mb-1.5 text-yellow-600 font-bold text-xs">
-                      <Icons.AlertCircle size={14} className={isHC ? 'text-slate-950' : 'text-yellow-600'} />
-                      <span className={isHC ? 'text-slate-950 font-extrabold' : ''}>Medium Priority Alerts</span>
-                    </div>
-                    <p className={`text-[11px] leading-tight mb-2 ${isHC ? 'text-slate-950 font-bold' : 'text-slate-500'}`}>
-                      Moderate alerts for sounds that may need attention.
-                    </p>
-                    <div className={`text-[10px] font-bold flex items-center gap-1 ${isHC ? 'text-slate-950' : 'text-yellow-600'}`}>
-=======
                   {/* Medium Priority Alerts */}
                   <button
                     onClick={() => onTriggerHapticVibration('medium')}
@@ -2652,7 +2421,6 @@ export const DeviceSimulator: React.FC<DeviceSimulatorProps> = ({
                       {t('mediumAlertsDesc')}
                     </p>
                     <div className={`text-[10px] font-bold flex items-center gap-1 ${isHC ? 'text-slate-950' : 'text-blue-600'}`}>
->>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
                       <span>{t('tapToFeelPattern')}</span>
                       <Icons.Vibrate size={12} className="animate-pulse" />
                     </div>
