@@ -184,49 +184,6 @@ async function startServer() {
   });
 
   // ==========================================
-  // 6. ML DETECT PROXY → Python AIISH API
-  // ==========================================
-  const ML_CLASSIFY_URL = "http://127.0.0.1:8000/api/v1/classify";
-
-  app.post("/api/detect/classify", async (req, res) => {
-    const contentType = req.headers["content-type"];
-    if (!contentType || !contentType.includes("multipart/form-data")) {
-      console.error("[detect] missing multipart Content-Type");
-      res.status(400).json({
-        error: "Expected multipart/form-data with field 'audio'",
-      });
-      return;
-    }
-
-    console.log("[detect] forwarding audio to", ML_CLASSIFY_URL);
-    try {
-      const mlRes = await fetch(ML_CLASSIFY_URL, {
-        method: "POST",
-        headers: {
-          "content-type": contentType,
-        },
-        // Stream the original multipart body to the ML service (Node fetch).
-        body: req as unknown as BodyInit,
-        duplex: "half",
-      } as RequestInit & { duplex: "half" });
-
-      const responseText = await mlRes.text();
-      console.log(`[detect] ML responded status=${mlRes.status} bytes=${responseText.length}`);
-
-      res.status(mlRes.status);
-      res.setHeader("Content-Type", "application/json");
-      res.send(responseText);
-    } catch (err) {
-      console.error("[detect] proxy failed (is Python ML API on :8000?):", err);
-      res.status(502).json({
-        error: "ML service unreachable",
-        detail: err instanceof Error ? err.message : String(err),
-        ml_url: ML_CLASSIFY_URL,
-      });
-    }
-  });
-
-  // ==========================================
   // VITE DEVELOPMENT OR PRODUCTION SERVING
   // ==========================================
   if (process.env.NODE_ENV !== "production") {

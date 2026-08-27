@@ -1,0 +1,182 @@
+/// SOUND CLASSIFICATION SERVICE INTERFACE & ON-DEVICE TFLITE SEAM
+/// -------------------------------------------------------------
+abstract class SoundClassificationService {
+  Future<void> initializeModel();
+  Future<void> startListening(Function(SoundLabel detectedSound, double confidence) onSoundDetected);
+  Future<void> stopListening();
+}
+class TFLiteSoundClassificationService implements SoundClassificationService {
+  final AudioRecorder _recorder = AudioRecorder();
+  Timer? _timer;
+  bool _isListening = false;
+  bool _processing = false;
+
+  static const String _backendUrl =
+      'http://192.168.29.196:8000/api/v1/classify';
+
+  @override
+  Future<void> initializeModel() async {
+    final response =
+        await http.get(Uri.parse('http://192.168.29.196:8000/health'));
+
+    if (response.statusCode != 200) {
+      throw Exception('AIISH backend/model is not ready');
+    }
+
+    print('AIISH backend connected successfully');
+  }
+
+  @override
+  Future<void> startListening(
+    Function(SoundLabel detectedSound, double confidence) onSoundDetected,
+  ) async {
+    if (!await _recorder.hasPermission()) {
+      throw Exception('Microphone permission denied');
+    }
+
+    _isListening = true;
+
+    // Capture and classify a short audio window repeatedly.
+    await _captureAndClassify(onSoundDetected);
+
+    _timer = Timer.periodic(const Duration(seconds: 4), (_) async {
+      if (_isListening && !_processing) {
+        await _captureAndClassify(onSoundDetected);
+      }
+    });
+  }
+
+  Future<void> _captureAndClassify(
+    Function(SoundLabel detectedSound, double confidence) onSoundDetected,
+  ) async {
+    if (_processing) return;
+
+    _processing = true;
+
+    try {
+      final tempDirectory = await getTemporaryDirectory();
+
+      final path =
+          '${tempDirectory.path}/aiish_${DateTime.now().millisecondsSinceEpoch}.wav';
+
+      await _recorder.start(
+        const RecordConfig(
+          encoder: AudioEncoder.wav,
+          sampleRate: 16000,
+          numChannels: 1,
+        ),
+        path: path,
+      );
+
+      await Future.delayed(const Duration(seconds: 3));
+
+      final recordedPath = await _recorder.stop();
+
+      if (recordedPath == null) return;
+
+      final request =
+          http.MultipartRequest('POST', Uri.parse(_backendUrl));
+
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'audio',
+          recordedPath,
+        ),
+      );
+
+      final streamedResponse = await request.send();
+      final response =
+          await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode != 200) {
+        print('Classification failed: ${response.body}');
+        return;
+      }
+
+      final data =
+          jsonDecode(response.body) as Map<String, dynamic>;
+
+      final predictedClass =
+          data['predicted_class'] as String;
+
+      final confidence =
+          (data['confidence'] as num).toDouble();
+
+      print(
+        'AIISH prediction: $predictedClass '
+        '(${(confidence * 100).toStringAsFixed(1)}%)',
+      );
+
+      // Exact mapping from the 25 AIISH_v2 model outputs
+      // to Flutter SoundLabel IDs.
+      const modelOutputToSoundId = <String, String>{
+        'Air Conditioner': 'air_conditioner',
+        'Alarm': 'alarm_fire_smoke',
+        'Approaching Vehicles': 'approaching_vehicles',
+        'Baby Crying': 'baby_crying',
+        'Cat Meowing': 'cat_meow',
+        'Children Playing': 'children_playing',
+        'Construction Sound': 'construction_sounds',
+        'Cow Mooing': 'cow_mooing',
+        'Dog Bark': 'dog_bark',
+        'Door Knock': 'door_knock',
+        'Doorbell': 'doorbell',
+        'Engine Idling': 'engine_idling',
+        'Firecrackers': 'fire_crackers',
+        'Glass Breaking': 'glass_breaking',
+
+        // Intentional display mapping: model Gun Shot -> app Blasts
+        'Gun Shot': 'blasts',
+
+        'Microwave Oven Beep': 'microwave_beep',
+        'Mixer Grinder': 'mixer_grinder',
+        'Pressure Cooker Whistle': 'pressure_cooker',
+        'Siren': 'siren_emergency',
+        'Street Music': 'street_music',
+        'Temple Bell': 'temple_bell',
+        'Train Horn': 'train_horn',
+        'Utensils': 'utensils',
+        'Vehicle Horn': 'vehicle_horn',
+        'Water Running': 'water_running',
+      };
+
+      final soundId = modelOutputToSoundId[predictedClass];
+
+      SoundLabel? matchedSound;
+
+      if (soundId != null) {
+        for (final sound in soundTaxonomy) {
+          if (sound.id == soundId) {
+            matchedSound = sound;
+            break;
+          }
+        }
+      }
+
+      if (matchedSound != null) {
+        onSoundDetected(matchedSound, confidence);
+      } else {
+        print('No Flutter taxonomy match for: $predictedClass');
+      }
+
+      try {
+        await File(recordedPath).delete();
+      } catch (_) {}
+    } catch (e) {
+      print('AIISH microphone/inference error: $e');
+    } finally {
+      _processing = false;
+    }
+  }
+
+  @override
+  Future<void> stopListening() async {
+    _isListening = false;
+    _timer?.cancel();
+
+    if (await _recorder.isRecording()) {
+      await _recorder.stop();
+    }
+  }
+}
+/// -------------------------------------------------------------

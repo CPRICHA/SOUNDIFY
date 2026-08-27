@@ -147,7 +147,7 @@ def main():
     print("  POST http://127.0.0.1:8000/api/v1/classify")
     print("=" * 60)
 
-    app.run(host="127.0.0.1", port=8000, debug=False)
+    app.run(host="0.0.0.0", port=8000, debug=False)
 
 
 if __name__ == "__main__":

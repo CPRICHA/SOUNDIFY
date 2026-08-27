@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, {
   useState,
   useEffect,
@@ -69,10 +70,59 @@ export default function App() {
 
   const [showTextAlert, setShowTextAlert] =
     useState<boolean>(false);
+=======
+import React, { useState, useEffect } from 'react';
+import * as Icons from 'lucide-react';
+import { DeviceSimulator } from './components/DeviceSimulator';
+import { SoundLabel, SoundEvent, UserProfile, SeverityType } from './types';
+
+export default function App() {
+  // Global user state - synchronizes with local DB endpoints
+  const [userProfile, setUserProfile] = useState<UserProfile>({
+    id: 'usr_123',
+    name: 'John Doe',
+    age: 28,
+    phone: '+15551234567',
+    email: 'deekshakuselan23@gmail.com',
+    micAccess: true,
+    termsAccepted: true,
+    privacyPolicyAccepted: true,
+    outputPreferences: ['text', 'icon', 'color'],
+    emergencyContactName: '',
+    emergencyContactPhone: '',
+    muteLowAlerts: false,
+    gpsAutoDetect: false,
+    savedLocations: [
+      { id: 'loc_home', name: 'Home', address: '124 Maple Street, Apt 3B', createdAt: Date.now() - 100000 },
+      { id: 'loc_work', name: 'Office', address: '742 Evergreen Tech Park, Tower B', createdAt: Date.now() - 50000 }
+    ],
+    language: 'English',
+    textSize: 'medium',
+    highContrast: false,
+  });
+
+  const [currentScreen, setCurrentScreen] = useState<string>('splash');
+  const [lastDetectedSound, setLastDetectedSound] = useState<SoundLabel | null>(null);
+  const [showTextAlert, setShowTextAlert] = useState<boolean>(false);
+  const [showIconAlert, setShowIconAlert] = useState<boolean>(false);
+  
+  // Audio sampling and mode flags
+  const [isListening, setIsListening] = useState<boolean>(true);
+  const [mode, setMode] = useState<'indoor' | 'outdoor'>('indoor');
+  
+  // Log timelines & synced history
+  const [historyList, setHistoryList] = useState<SoundEvent[]>([]);
+  
+  // Haptic simulation state
+  const [isVibrating, setIsVibrating] = useState<boolean>(false);
+  const [vibrationPattern, setVibrationPattern] = useState<string>('');
+  const [vibrationProgress, setVibrationProgress] = useState<number>(0);
+>>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
 
   const [showIconAlert, setShowIconAlert] =
     useState<boolean>(false);
 
+<<<<<<< HEAD
   // ============================================================
   // LISTENING + ENVIRONMENT
   // ============================================================
@@ -189,6 +239,9 @@ export default function App() {
   // INITIAL SERVER STATE
   // ============================================================
 
+=======
+  // Load initial states from server on mount
+>>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
   useEffect(() => {
     fetchProfile();
     fetchHistory();
@@ -207,10 +260,14 @@ export default function App() {
         setUserProfile(data);
       }
     } catch (e) {
+<<<<<<< HEAD
       console.error(
         'Error fetching profile',
         e
       );
+=======
+      console.error("Error fetching profile", e);
+>>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
     }
   };
 
@@ -227,10 +284,14 @@ export default function App() {
         setHistoryList(data);
       }
     } catch (e) {
+<<<<<<< HEAD
       console.error(
         'Error fetching event logs',
         e
       );
+=======
+      console.error("Error fetching event logs", e);
+>>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
     }
   };
 
@@ -240,6 +301,7 @@ export default function App() {
 
   useEffect(() => {
     if (userProfile.id) {
+<<<<<<< HEAD
       fetch(
         `/api/users/${userProfile.id}/profile`,
         {
@@ -325,12 +387,25 @@ export default function App() {
   const triggerHapticVibration = (
     severity: SeverityType
   ) => {
+=======
+      fetch(`/api/users/${userProfile.id}/profile`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userProfile)
+      }).catch(e => console.error("Error syncing profile update", e));
+    }
+  }, [userProfile]);
+
+  // Triggers haptic simulation on desktop and invokes Web Vibration API on phone/mobile screens
+  const triggerHapticVibration = (severity: SeverityType) => {
+>>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
     setIsVibrating(true);
 
     let patternText = '';
     let duration = 0;
     let webPattern: number[] = [];
 
+<<<<<<< HEAD
     if (
       severity === 'critical'
     ) {
@@ -356,6 +431,18 @@ export default function App() {
       patternText =
         'High (Strong Double-beat)';
 
+=======
+    if (severity === 'critical') {
+      patternText = 'Critical (Continuous pulse ⌂⌂⌂⌂⌂)';
+      duration = 1500;
+      webPattern = [250, 50, 250, 50, 250, 50, 250, 50, 250];
+    } else if (severity === 'high') {
+      patternText = 'High (Rapid triple-beat ⌴⌴⌴ ⌴⌴⌴)';
+      duration = 1200;
+      webPattern = [150, 75, 150, 75, 150, 200, 150, 75, 150];
+    } else if (severity === 'medium') {
+      patternText = 'Medium (Double-beat ⌴⌴ ⌴⌴)';
+>>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
       duration = 1000;
 
       webPattern = [
@@ -393,14 +480,20 @@ export default function App() {
 
     setVibrationProgress(100);
 
+<<<<<<< HEAD
     if (
       'vibrate' in navigator
     ) {
+=======
+    // Call native Web Vibration API
+    if ('vibrate' in navigator) {
+>>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
       try {
         navigator.vibrate(
           webPattern
         );
       } catch (e) {
+<<<<<<< HEAD
         console.warn(
           'Navigator vibration blocked inside frame permissions.'
         );
@@ -452,8 +545,23 @@ export default function App() {
           !isListeningRef.current
         ) {
           return;
+=======
+        console.warn("Navigator vibration blocked inside frame permissions.");
+      }
+    }
+
+    // Animate haptic progress visualizer
+    const step = 100 / (duration / 50);
+    const interval = setInterval(() => {
+      setVibrationProgress(prev => {
+        if (prev <= 0) {
+          clearInterval(interval);
+          setIsVibrating(false);
+          return 0;
+>>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
         }
 
+<<<<<<< HEAD
         const profile =
           userProfileRef.current;
 
@@ -1191,6 +1299,93 @@ export default function App() {
           SMARTPHONE DEVICE SIMULATOR
           ====================================================== */}
 
+=======
+  // Sound detection trigger handler (Simulates Microphone sound-wave ingestion)
+  const handleSoundTrigger = async (sound: SoundLabel) => {
+    if (!isListening) return;
+
+    const isMuted = sound.severity === 'low' && userProfile.muteLowAlerts;
+
+    // Direct state response on smartphone simulator
+    setLastDetectedSound(sound);
+    if (!isMuted) {
+      setShowTextAlert(true);
+      setShowIconAlert(true);
+      // Fire haptics
+      triggerHapticVibration(sound.severity);
+
+      // Trigger Web Notification API if granted (for desktop / external browser window testing)
+      if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+        try {
+          new Notification(`Sound Detected: ${sound.name}`, {
+            body: `Priority: ${sound.severity.toUpperCase()} • Mode: ${mode.toUpperCase()} • Category: ${sound.category}`,
+            icon: '/favicon.ico',
+            tag: 'sound-alert',
+          });
+        } catch (e) {
+          console.warn("Web notification trigger note:", e);
+        }
+      }
+    } else {
+      setShowTextAlert(false);
+      setShowIconAlert(false);
+    }
+
+    // Sync incident with Node express database
+    try {
+      const res = await fetch('/api/sound-events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: userProfile.id || "usr_123",
+          label: sound.name,
+          severity: sound.severity,
+          mode: mode,
+          timestamp: new Date().toISOString()
+        })
+      });
+
+      if (res.ok) {
+        fetchHistory(); // Reload history
+      }
+    } catch (e) {
+      console.error("Error logging sound event", e);
+    }
+  };
+
+  // Dispatch Twilio SMS alert simulation
+  const handleTriggerEmergency = async (actionType: string, message: string) => {
+    try {
+      const res = await fetch('/api/emergency/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: userProfile.id || 'usr_123',
+          message: message,
+          action_type: actionType
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const newLog = {
+          id: `log_${Math.random().toString(36).substring(2, 8)}`,
+          message: data.dispatch_message,
+          recipient: data.recipient,
+          timestamp: new Date().toLocaleTimeString(),
+          actionType: data.action_type
+        };
+        setTwilioLogs(prev => [newLog, ...prev]);
+      }
+    } catch (e) {
+      console.error("Error triggering emergency helper", e);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 md:p-8 select-none">
+      {/* Smartphone Device Simulator */}
+>>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
       <div className="shrink-0 flex flex-col items-center">
         <DeviceSimulator
           userProfile={
@@ -1256,6 +1451,7 @@ export default function App() {
           }
         />
       </div>
+<<<<<<< HEAD
 
       {/* ======================================================
           STAGE 2 + STAGE 3 DEV PANEL
@@ -1424,6 +1620,8 @@ export default function App() {
         )}
 
       </div>
+=======
+>>>>>>> 6221bdc23c1901c8da415908318ddc9f37a0c3c4
     </div>
   );
 }

@@ -371,11 +371,47 @@ class OutputPreferenceScreen extends ConsumerWidget {
 /// -------------------------------------------------------------
 /// 5. HOME SCREEN
 /// -------------------------------------------------------------
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
+   @override
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+
+    Future.microtask(() async {
+      final service = ref.read(classificationServiceProvider);
+
+      try {
+        await service.initializeModel();
+
+        await service.startListening((sound, confidence) {
+          if (!mounted) return;
+
+          ref.read(lastDetectedSoundProvider.notifier).state = sound;
+
+          print(
+            'Detected in HomeScreen: ${sound.name} '
+            '${(confidence * 100).toStringAsFixed(1)}%',
+          );
+        });
+      } catch (e) {
+        print('Failed to start AIISH detection: $e');
+      }
+    });
+  }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void dispose() {
+    ref.read(classificationServiceProvider).stopListening();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final mode = ref.watch(currentModeProvider);
     final listening = ref.watch(isListeningProvider);
     final lastSound = ref.watch(lastDetectedSoundProvider);
@@ -510,7 +546,7 @@ class HomeScreen extends ConsumerWidget {
               const Spacer(),
               
               // Outdoor safety auxiliary triggers (Dynamic)
-              if (mode == 'outdoor' && lastSound != null && lastSound.severity == AlertSeverity.critical) ...[
+              if (mode == 'outdoor' && lastSound != null && lastSound.severity == PriorityLevel.critical) ...[
                 Row(
                   children: [
                     Expanded(
@@ -603,10 +639,10 @@ class AlertBannerIcon extends StatelessWidget {
     Color severityColor = Colors.green;
     IconData severityShape = Icons.circle;
 
-    if (sound.severity == AlertSeverity.critical) {
+    if (sound.severity == PriorityLevel.critical) {
       severityColor = Colors.red;
       severityShape = Icons.warning;
-    } else if (sound.severity == AlertSeverity.attention) {
+    } else if (sound.severity == PriorityLevel.high) {
       severityColor = Colors.orange;
       severityShape = Icons.warning;
     }
@@ -663,11 +699,11 @@ class DetailedHistoryScreen extends ConsumerWidget {
           IconData severityIcon = Icons.circle;
           Color sevColor = Colors.green;
 
-          if (item.severity == AlertSeverity.critical) {
-            severityIcon = Icons.triangle_up;
+          if (item.severity == PriorityLevel.critical) {
+            severityIcon = Icons.warning_amber;
             sevColor = Colors.red;
-          } else if (item.severity == AlertSeverity.attention) {
-            severityIcon = Icons.triangle_up;
+          } else if (item.severity == PriorityLevel.high) {
+            severityIcon = Icons.warning_amber;
             sevColor = Colors.amber;
           }
 
@@ -676,7 +712,7 @@ class DetailedHistoryScreen extends ConsumerWidget {
             child: ListTile(
               leading: Icon(severityIcon, color: sevColor, size: 28),
               title: Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: Text('${item.category} • ${item.environment.toUpperCase()}'),
+              subtitle: Text('${item.category} • ${item.environment.name.toUpperCase()}'),
               trailing: const Text('Just now', style: TextStyle(color: Colors.grey, fontSize: 12)),
             ),
           );
