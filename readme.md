@@ -45,132 +45,117 @@ tflite_loaded: true
 
 ## 3. Start Frontend
 
-Open **Terminal 2**:
+## Running the Flutter Frontend
 
-```powershell
-cd frontend
-npm install
-npm run dev
+From the root directory of the SOUNDIFY project:
+
+```bash
+cd frontend/flutter
 ```
 
-Open:
+Install the required dependencies:
 
-```text
-http://127.0.0.1:3000
-```
-
-Allow microphone permission.
-
-Play a **doorbell / dog bark / siren** near the microphone and wait a few seconds for the visual alert.
-
----
-
-# What was integrated?
-
-### Frontend → Backend
-
-```text
-Microphone
-   ↓
-React
-   ↓
-Express `/api/detect/classify`
-   ↓
-Python ML `/api/v1/classify`
-```
-
-### ML
-
-```text
-Audio
- ↓
-YAMNet
- ↓
-AIISH_v2.tflite
- ↓
-Sound + confidence
-```
-
-### Alert
-
-```text
-ML prediction
- ↓
-modelLabelMap.ts
- ↓
-existing handleSoundTrigger()
- ↓
-Visual Alert
+```bash
+flutter pub get
 ```
 
 ---
 
-# Important files
+## 1. Run Using Chrome
 
-### Frontend
+Check whether Chrome is available:
 
-```text
-frontend/src/App.tsx
+```bash
+flutter devices
 ```
 
-Connects listening/mic detection to the app.
+Run the Flutter application in Chrome:
 
-```text
-frontend/src/services/micCapture.ts
+```bash
+flutter run -d chrome
 ```
 
-Captures microphone audio.
+To stop the application, press:
 
 ```text
-frontend/src/services/detectClient.ts
+q
 ```
-
-Sends audio to the backend.
-
-```text
-frontend/src/data/modelLabelMap.ts
-```
-
-Maps ML sounds → AIISH visual alerts.
-
-```text
-frontend/server.ts
-```
-
-Connects frontend → Python ML API.
-
-### Backend
-
-```text
-backend/src/api/app.py
-```
-
-ML API.
-
-```text
-backend/src/inference/pipeline.py
-```
-
-YAMNet → AIISH model inference.
-
-```text
-backend/models/AIISH_v2.tflite
-```
-
-Current trained model.
 
 ---
 
-# Current status
+## 2. Run on Android Using USB Debugging
 
-✅ Frontend working
-✅ Backend working
-✅ Real microphone working
-✅ ML prediction working
-✅ Visual alerts connected
+### Enable USB Debugging
 
-⚠️ Accuracy still needs improvement
-⚠️ Inference is currently ~3–4 seconds
-⚠️ Real-time optimization comes later
+On the Android phone:
 
-**This version is our working baseline.**
+1. Open **Settings → About Phone**.
+2. Tap **Build Number** 7 times to enable Developer Options.
+3. Open **Developer Options**.
+4. Enable **USB Debugging**.
+5. Connect the phone to the computer using a USB cable.
+6. Accept **Allow USB debugging** on the phone.
+
+### Check the Connected Device
+
+```bash
+flutter devices
+```
+
+Your Android phone should appear in the device list.
+
+### Run SOUNDIFY on the Phone
+
+If only one Android device is connected:
+
+```bash
+flutter run
+```
+
+If multiple devices are shown, copy the Android device ID from:
+
+```bash
+flutter devices
+```
+
+Then run:
+
+```bash
+flutter run -d <device-id>
+```
+
+For example:
+
+```bash
+flutter run -d RZ8N123456
+```
+
+### Stop the Application
+
+In the terminal running Flutter, press:
+
+```text
+q
+```
+
+---
+
+## Quick Commands
+
+**Chrome:**
+
+```bash
+cd frontend/flutter
+flutter pub get
+flutter run -d chrome
+```
+
+**Android via USB Debugging:**
+
+```bash
+cd frontend/flutter
+flutter pub get
+flutter devices
+flutter run
+```
+
