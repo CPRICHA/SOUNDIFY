@@ -16,6 +16,7 @@ import tempfile
 from pathlib import Path
 
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -27,6 +28,7 @@ from src.inference.pipeline import initialize_pipeline, get_pipeline
 ALLOWED_EXTENSIONS = {".wav", ".mp3", ".flac", ".ogg", ".m4a", ".aac"}
 
 app = Flask(__name__)
+CORS(app)
 
 
 def allowed_file(filename: str) -> bool:
