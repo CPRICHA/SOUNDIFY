@@ -279,7 +279,7 @@ class NotificationService {
             ),
             AndroidNotificationAction(
               'action_snooze',
-              'Snooze (5m)',
+              'Snooze (2m)',
               cancelNotification: true,
             ),
           ],
@@ -361,8 +361,25 @@ class NotificationService {
   }
 
   /// Handle notification interaction (tap, action button)
-  void _handleNotificationResponse(NotificationResponse response) {
+  void _handleNotificationResponse(NotificationResponse response) async {
     if (response.actionId == 'action_dismiss') {
+      return;
+    }
+
+    if (response.actionId == 'action_snooze') {
+      final prefs = await SharedPreferences.getInstance();
+
+      await prefs.setInt(
+        'snoozed_until',
+        DateTime.now()
+            .add(const Duration(minutes: 2))
+            .millisecondsSinceEpoch,
+      );
+
+      if (kDebugMode) {
+        print('Sound alerts snoozed for 2 minutes.');
+      }
+
       return;
     }
 
@@ -371,7 +388,6 @@ class NotificationService {
         final Map<String, dynamic> data = jsonDecode(response.payload!);
         final sound = SoundLabel.fromJson(data);
 
-        // Open full-screen alert screen via global navigator key
         navigatorKey?.currentState?.pushNamed(
           '/alert',
           arguments: sound,

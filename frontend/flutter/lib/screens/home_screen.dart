@@ -60,6 +60,13 @@ class _HomeScreenState extends State<HomeScreen> {
     final lastSound = state.lastDetectedSound;
     final isListening = state.isListening;
     final l10n = AppLocalizations.of(context)!;
+    final Color? detectionBorderColor =
+    lastSound != null && colorEnabled
+        ? AppColors.getSeverityColor(
+            lastSound.severity,
+            highContrast: isHC,
+          )
+        : null;
 
     return Scaffold(
       backgroundColor: isHC ? AppColors.hcBackground : AppColors.background,
@@ -167,7 +174,17 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 24),
 
               // Central Sound Detection Display Area
-              Center(
+              Container(
+                    padding: const EdgeInsets.fromLTRB(8, 16, 8, 12),
+                    decoration: BoxDecoration(
+                      border: detectionBorderColor != null
+                          ? Border.all(
+                              color: detectionBorderColor,
+                              width: 3,
+                            )
+                          : null,
+                    ),
+            child: Center(
                 child: Column(
                   children: [
                     SizedBox(
@@ -381,6 +398,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ],
                 ),
+              ),
               ),
               const SizedBox(height: 24),
 
