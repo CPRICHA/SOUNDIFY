@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/models.dart';
 import '../data/sound_taxonomy.dart';
 import '../services/services.dart';
+import '../services/sound_classifier.dart';
 
 // Riverpod Providers
 final authServiceProvider = Provider<AuthService>((ref) => MockAuthService());

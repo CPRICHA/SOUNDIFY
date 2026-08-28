@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/models.dart';
 import '../services/app_state.dart';
 import '../services/services.dart';
+import '../services/sound_classifier.dart';
 import '../theme/app_theme.dart';
 import '../data/sound_taxonomy.dart';
 import '../l10n/app_localizations.dart';
