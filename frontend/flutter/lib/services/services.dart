@@ -254,6 +254,12 @@ class TFLiteSoundClassificationService implements SoundClassificationService {
           encoder: AudioEncoder.wav,
           sampleRate: 16000,
           numChannels: 1,
+          androidConfig: AndroidRecordConfig(
+            audioSource: AndroidAudioSource.voiceRecognition,
+            audioManagerMode: AudioManagerMode.modeNormal,
+            muteAudio: false,
+            manageBluetooth: false,
+          ),
         ),
         path: path,
       );
@@ -269,6 +275,21 @@ class TFLiteSoundClassificationService implements SoundClassificationService {
         print('Unexpected audio length: ${waveform.length}');
         return;
       }
+
+      final meanAbs =
+          waveform.fold<double>(0.0, (sum, sample) => sum + sample.abs()) /
+          waveform.length;
+
+      final peak = waveform.fold<double>(
+        0.0,
+        (maxValue, sample) =>
+            sample.abs() > maxValue ? sample.abs() : maxValue,
+      );
+
+      print(
+        'AIISH audio stats: meanAbs=${meanAbs.toStringAsFixed(6)} '
+        'peak=${peak.toStringAsFixed(6)}',
+      );
 
       final yamnetOutput = List.generate(
         6,
@@ -380,17 +401,12 @@ class TFLiteSoundClassificationService implements SoundClassificationService {
       );
 
       if (matchedSound != null) {
-        final now = DateTime.now();
-        final shouldTrigger = confidence >= _confidenceThreshold &&
-            (_lastAlertSoundId != matchedSound.id ||
-                _lastAlertAt == null ||
-                now.difference(_lastAlertAt!) >= _cooldown);
+        print(
+          'REAL AIISH DETECTION: ${matchedSound.name} '
+          '(${(confidence * 100).toStringAsFixed(1)}%)',
+        );
 
-        if (shouldTrigger) {
-          _lastAlertAt = now;
-          _lastAlertSoundId = matchedSound.id;
-          onSoundDetected(matchedSound, confidence);
-        }
+        onSoundDetected(matchedSound, confidence);
       }
     } catch (e) {
       print('AIISH offline inference error: $e');
@@ -451,6 +467,13 @@ class TFLiteSoundClassificationService implements SoundClassificationService {
     );
 
     final usableSamples = sampleCount > 48000 ? 48000 : sampleCount;
+
+    print(
+      'WAV DEBUG: bytes=${bytes.length} '
+      'dataLength=$dataLength '
+      'sampleCount=$sampleCount '
+      'usableSamples=$usableSamples',
+    );
 
     for (var i = 0; i < usableSamples; i++) {
       final sample = byteData.getInt16(dataOffset + (i * 2), Endian.little);
