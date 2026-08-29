@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/models.dart';
 import '../data/sound_taxonomy.dart';
-import '../services/services.dart';
+import '../services/services.dart' hide SoundClassificationService, TFLiteSoundClassificationService;
 import '../services/sound_classifier.dart';
 import '../data/legal_content.dart';
 
@@ -126,7 +126,12 @@ class AuthLandingScreen extends StatelessWidget {
               const SizedBox(height: 16),
               OutlinedButton(
                 onPressed: () {
-                  // Push to sign in
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SignInScreen(),
+                    ),
+                  );
                 },
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -144,22 +149,119 @@ class AuthLandingScreen extends StatelessWidget {
   }
 }
 
+
+/// -------------------------------------------------------------
+/// SIGN IN SCREEN
+/// -------------------------------------------------------------
+class SignInScreen extends ConsumerStatefulWidget {
+  const SignInScreen({super.key});
+
+  @override
+  ConsumerState<SignInScreen> createState() => _SignInScreenState();
+}
+
+class _SignInScreenState extends ConsumerState<SignInScreen> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _loading = false;
+
+  Future<void> _signIn() async {
+    setState(() => _loading = true);
+
+    try {
+      final user = await ref.read(authServiceProvider).signIn(
+        _emailController.text.trim(),
+        _passwordController.text,
+      );
+
+      if (!mounted) return;
+
+      if (user != null) {
+        print('[AUTH] SIGN IN SUCCESS: ${user.id} / ${user.email}');
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+          (route) => false,
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            e.toString().replaceFirst('Exception: ', ''),
+          ),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _loading = false);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Sign In')),
+      body: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            TextField(
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
+              decoration: const InputDecoration(
+                labelText: 'Email',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Password',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _loading ? null : _signIn,
+              child: Text(_loading ? 'Signing In...' : 'Sign In'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// -------------------------------------------------------------
 /// 3. ONBOARDING SCREEN
 /// -------------------------------------------------------------
-class OnboardingScreen extends StatefulWidget {
+class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({Key? key}) : super(key: key);
 
   @override
-  State<OnboardingScreen> createState() => _OnboardingScreenState();
+  ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
-class _OnboardingScreenState extends State<OnboardingScreen> {
+class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _ageController = TextEditingController();
   final _phoneController = TextEditingController();
   final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   bool _micAccess = false;
   bool _termsAccepted = false;
@@ -200,6 +302,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: const InputDecoration(labelText: 'Email', border: OutlineInputBorder()),
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _passwordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: 'Password *',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (v) => v == null || v.length < 6
+                      ? 'Password must be at least 6 characters'
+                      : null,
                 ),
                 const SizedBox(height: 24),
                 CheckboxListTile(
@@ -285,15 +399,54 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
                 const SizedBox(height: 32),
                 ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate() && _termsAccepted && _privacyAccepted) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const OutputPreferenceScreen()),
-                      );
-                    } else {
+                  onPressed: () async {
+                    if (!_formKey.currentState!.validate() ||
+                        !_termsAccepted ||
+                        !_privacyAccepted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Please fill required fields and accept terms.')),
+                        const SnackBar(
+                          content: Text('Please fill required fields and accept terms.'),
+                        ),
+                      );
+                      return;
+                    }
+
+                    try {
+                      final profile = UserProfile(
+                        id: '',
+                        name: _nameController.text.trim(),
+                        age: int.tryParse(_ageController.text.trim()) ?? 0,
+                        phone: _phoneController.text.trim(),
+                        email: _emailController.text.trim(),
+                        micAccess: _micAccess,
+                        termsAccepted: _termsAccepted,
+                        privacyPolicyAccepted: _privacyAccepted,
+                      );
+
+                      final user = await ref.read(authServiceProvider).signUp(
+                        profile,
+                        _passwordController.text,
+                      );
+
+                      if (!mounted) return;
+
+                      if (user != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const OutputPreferenceScreen(),
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      if (!mounted) return;
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            e.toString().replaceFirst('Exception: ', ''),
+                          ),
+                        ),
                       );
                     }
                   },
