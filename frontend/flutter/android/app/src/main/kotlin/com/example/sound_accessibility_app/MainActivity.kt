@@ -8,6 +8,7 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -25,6 +26,43 @@ class MainActivity : FlutterActivity() {
         ).setMethodCallHandler { call, result ->
 
             when (call.method) {
+
+                "startSoundDetectionService" -> {
+                    try {
+                        val intent = Intent(
+                            this,
+                            SoundDetectionForegroundService::class.java
+                        )
+
+                        ContextCompat.startForegroundService(this, intent)
+                        result.success(true)
+                    } catch (e: Exception) {
+                        result.error(
+                            "SERVICE_START_ERROR",
+                            e.message,
+                            null
+                        )
+                    }
+                }
+
+                "stopSoundDetectionService" -> {
+                    try {
+                        val intent = Intent(
+                            this,
+                            SoundDetectionForegroundService::class.java
+                        )
+
+                        stopService(intent)
+                        result.success(true)
+                    } catch (e: Exception) {
+                        result.error(
+                            "SERVICE_STOP_ERROR",
+                            e.message,
+                            null
+                        )
+                    }
+                }
+
                 "showCustomNotification" -> {
 
                     val title =

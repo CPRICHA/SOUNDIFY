@@ -97,7 +97,7 @@ class HistoryScreen extends StatelessWidget {
                     children: [
                       if (iconEnabled) ...[
                         Container(
-                          padding: const EdgeInsets.all(10),
+                          padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
                             color: colorEnabled
                                 ? AppColors.getSeverityBg(evt.severity)
@@ -109,12 +109,37 @@ class HistoryScreen extends StatelessWidget {
                                   : const Color(0xFFE2E8F0),
                             ),
                           ),
-                          child: Icon(
-                            _getIcon(evt.soundId.isNotEmpty ? evt.soundId : evt.label),
-                            size: 20,
-                            color: colorEnabled
-                                ? AppColors.getSeverityColor(evt.severity, highContrast: isHC)
-                                : (isHC ? AppColors.hcText : const Color(0xFF475569)),
+                          child: Builder(
+                            builder: (context) {
+                              final identifier =
+                                  evt.soundId.isNotEmpty ? evt.soundId : evt.label;
+
+                              SoundLabel? sound;
+
+                              try {
+                                sound = soundTaxonomy.firstWhere(
+                                  (s) =>
+                                      s.id.toLowerCase() == identifier.toLowerCase() ||
+                                      s.name.toLowerCase() == identifier.toLowerCase(),
+                                );
+                              } catch (_) {
+                                sound = null;
+                              }
+
+                              if (sound != null && sound.imagePath.isNotEmpty) {
+                                return Image.asset(
+                                  sound.imagePath,
+                                  width: 44,
+                                  height: 44,
+                                  fit: BoxFit.contain,
+                                );
+                              }
+
+                              return const Icon(
+                                Icons.volume_up_rounded,
+                                size: 28,
+                              );
+                            },
                           ),
                         ),
                         if (textEnabled) const SizedBox(width: 12),
@@ -135,7 +160,12 @@ class HistoryScreen extends StatelessWidget {
                               const SizedBox(height: 2),
                             ],
                             Text(
-                              '${_getLocalizedMode(evt.mode, l10n)} • ${evt.timestamp.hour.toString().padLeft(2, '0')}:${evt.timestamp.minute.toString().padLeft(2, '0')}',
+                                    '${_getLocalizedMode(evt.mode, l10n)} • '
+                                    '${evt.timestamp.day.toString().padLeft(2, '0')}/'
+                                    '${evt.timestamp.month.toString().padLeft(2, '0')}/'
+                                    '${evt.timestamp.year} • '
+                                    '${evt.timestamp.hour.toString().padLeft(2, '0')}:'
+                                    '${evt.timestamp.minute.toString().padLeft(2, '0')}',
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,

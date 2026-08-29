@@ -8,8 +8,9 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
+import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:record/record.dart';
-import 'sound_classifier_stub.dart';
+import 'package:flutter/services.dart';
 
 /// -------------------------------------------------------------
 /// AUTH SERVICE INTERFACE & FIREBASE IMPLEMENTATION
@@ -173,6 +174,10 @@ abstract class SoundClassificationService {
 class TFLiteSoundClassificationService implements SoundClassificationService {
   final AudioRecorder _recorder = AudioRecorder();
 
+  static const MethodChannel _androidChannel = MethodChannel(
+    'com.example.sound_accessibility_app/notifications',
+  );
+
   Interpreter? _yamnet;
   Interpreter? _classifier;
 
@@ -212,6 +217,14 @@ class TFLiteSoundClassificationService implements SoundClassificationService {
     }
 
     _isListening = true;
+
+    if (Platform.isAndroid) {
+      try {
+        await _androidChannel.invokeMethod('startSoundDetectionService');
+      } catch (e) {
+        print('Failed to start Android sound detection service: $e');
+      }
+    }
 
     await _captureAndClassify(onSoundDetected);
 
@@ -369,9 +382,9 @@ class TFLiteSoundClassificationService implements SoundClassificationService {
       if (matchedSound != null) {
         final now = DateTime.now();
         final shouldTrigger = confidence >= _confidenceThreshold &&
-            ( _lastAlertSoundId != matchedSound.id ||
-              _lastAlertAt == null ||
-              now.difference(_lastAlertAt!) >= _cooldown );
+            (_lastAlertSoundId != matchedSound.id ||
+                _lastAlertAt == null ||
+                now.difference(_lastAlertAt!) >= _cooldown);
 
         if (shouldTrigger) {
           _lastAlertAt = now;
@@ -425,10 +438,9 @@ class TFLiteSoundClassificationService implements SoundClassificationService {
       throw Exception('WAV data chunk not found');
     }
 
-    final availableLength =
-        dataLength > bytes.length - dataOffset
-            ? bytes.length - dataOffset
-            : dataLength;
+    final availableLength = dataLength > bytes.length - dataOffset
+        ? bytes.length - dataOffset
+        : dataLength;
 
     final sampleCount = availableLength ~/ 2;
     final waveform = List<double>.filled(48000, 0.0);
@@ -441,8 +453,7 @@ class TFLiteSoundClassificationService implements SoundClassificationService {
     final usableSamples = sampleCount > 48000 ? 48000 : sampleCount;
 
     for (var i = 0; i < usableSamples; i++) {
-      final sample =
-          byteData.getInt16(dataOffset + (i * 2), Endian.little);
+      final sample = byteData.getInt16(dataOffset + (i * 2), Endian.little);
 
       waveform[i] = sample / 32768.0;
     }
@@ -454,6 +465,14 @@ class TFLiteSoundClassificationService implements SoundClassificationService {
   Future<void> stopListening() async {
     _isListening = false;
     _timer?.cancel();
+
+    if (Platform.isAndroid) {
+      try {
+        await _androidChannel.invokeMethod('stopSoundDetectionService');
+      } catch (e) {
+        print('Failed to stop Android sound detection service: $e');
+      }
+    }
     _timer = null;
     _lastAlertAt = null;
     _lastAlertSoundId = null;
@@ -463,6 +482,7 @@ class TFLiteSoundClassificationService implements SoundClassificationService {
     }
   }
 }
+
 /// HISTORY & CLOUD SYNC SERVICE
 /// -------------------------------------------------------------
 abstract class HistorySyncService {
@@ -485,11 +505,11 @@ class HiveHistorySyncService implements HistorySyncService {
   @override
   Future<void> logEvent(SoundEvent event) async {
     _inMemoryEvents.add(event);
-    
+
     // In production, save to local Hive DB:
     // var box = Hive.box<SoundEvent>('sound_events');
     // await box.add(event);
-    
+
     // Sync with backend API in background if online
     await syncWithCloud();
   }
@@ -505,16 +525,19 @@ class HiveHistorySyncService implements HistorySyncService {
 /// EMERGENCY SERVICE
 /// -------------------------------------------------------------
 abstract class EmergencyService {
-  Future<bool> triggerEmergencyAlert(String userId, String message, String actionType);
+  Future<bool> triggerEmergencyAlert(
+      String userId, String message, String actionType);
 }
 
 class MockEmergencyService implements EmergencyService {
   @override
-  Future<bool> triggerEmergencyAlert(String userId, String message, String actionType) async {
+  Future<bool> triggerEmergencyAlert(
+      String userId, String message, String actionType) async {
     // TODO: Connect this to Twilio API or Firebase Cloud Function to dispatch SMS or automated phone call.
     // Example: http.post(Uri.parse('$backendUrl/emergency/contact'), body: {...});
     await Future.delayed(const Duration(milliseconds: 1000));
-    print("EMERGENCY STUB TRIGGERED: User $userId dispatched '$actionType' action: '$message'");
+    print(
+        "EMERGENCY STUB TRIGGERED: User $userId dispatched '$actionType' action: '$message'");
     return true;
   }
 }

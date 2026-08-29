@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -15,6 +16,7 @@ class AppState extends ChangeNotifier {
   SoundLabel? _lastDetectedSound;
   double? _lastDetectedConfidence;
   final List<SoundEvent> _history = [];
+  Timer? _historyCleanupTimer;
   String _selectedSimSoundId = soundTaxonomy.first.id;
   int _currentTabIndex = 0; // 0: Home, 1: History, 2: Settings
   bool _isOnboarded = false;
@@ -24,6 +26,7 @@ class AppState extends ChangeNotifier {
   AppState() {
     _loadFromPreferences();
     _listenToFirebaseAuth();
+    _startHistoryCleanupTimer();
   }
 
   void _listenToFirebaseAuth() {
@@ -95,6 +98,39 @@ class AppState extends ChangeNotifier {
   Future<void> _loadFromPreferences() async {
     try {
       final prefs = await SharedPreferences.getInstance();
+
+      // Restore sound history using the ORIGINAL timestamps.
+      final savedHistory = prefs.getStringList('sound_history') ?? [];
+
+      _history.clear();
+
+      for (final item in savedHistory) {
+        try {
+          final event = SoundEvent.fromJson(
+            jsonDecode(item) as Map<String, dynamic>,
+          );
+
+          final oneHourAgo =
+              DateTime.now().subtract(const Duration(hours: 1));
+
+          if (!event.timestamp.isBefore(oneHourAgo)) {
+            _history.add(event);
+          }
+        } catch (e) {
+          if (kDebugMode) {
+            print('Failed to restore history event: $e');
+          }
+        }
+      }
+
+      _history.sort(
+        (a, b) => b.timestamp.compareTo(a.timestamp),
+      );
+
+      // Rewrite storage so expired/corrupt entries are removed.
+      await _saveHistory();
+
+      _isListening = prefs.getBool('microphone_enabled') ?? true;
       _isOnboarded = prefs.getBool('soundsee_onboarded') ?? false;
       final savedName = prefs.getString('user_name');
       final savedPhone = prefs.getString('user_phone');
@@ -257,12 +293,17 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void toggleListening() {
+  Future<void> toggleListening() async {
     _isListening = !_isListening;
+
     if (!_isListening) {
       _lastDetectedSound = null;
       _lastDetectedConfidence = null;
     }
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('microphone_enabled', _isListening);
+
     notifyListeners();
   }
 
@@ -302,6 +343,14 @@ class AppState extends ChangeNotifier {
     );
 
     _history.insert(0, newEvent);
+    _saveHistory();
+
+    // Keep only sounds detected within the last 1 hour.
+    final oneHourAgo = DateTime.now().subtract(const Duration(hours: 1));
+    _history.removeWhere(
+      (event) => event.timestamp.isBefore(oneHourAgo),
+    );
+
     notifyListeners();
 
     // Trigger system-level alert delivery (Full-screen intent on Critical/High, heads-up on Medium/Low)
@@ -340,8 +389,44 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  void _startHistoryCleanupTimer() {
+    _historyCleanupTimer?.cancel();
+
+    _historyCleanupTimer = Timer.periodic(
+      const Duration(minutes: 1),
+      (_) => _removeExpiredHistory(),
+    );
+  }
+
+  void _removeExpiredHistory() {
+    final oneHourAgo =
+        DateTime.now().subtract(const Duration(hours: 1));
+
+    final previousLength = _history.length;
+
+    _history.removeWhere(
+      (event) => event.timestamp.isBefore(oneHourAgo),
+    );
+
+    if (_history.length != previousLength) {
+      _saveHistory();
+      notifyListeners();
+    }
+  }
+
+  Future<void> _saveHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final encodedHistory = _history
+        .map((event) => jsonEncode(event.toJson()))
+        .toList();
+
+    await prefs.setStringList('sound_history', encodedHistory);
+  }
+
   void clearHistory() {
     _history.clear();
+    _saveHistory();
     notifyListeners();
   }
 
@@ -381,5 +466,11 @@ class AppState extends ChangeNotifier {
     _userProfile.muteMediumAlerts = value;
     notifyListeners();
     saveProfileToPrefs();
+  }
+
+  @override
+  void dispose() {
+    _historyCleanupTimer?.cancel();
+    super.dispose();
   }
 }
