@@ -198,7 +198,7 @@ class TFLiteSoundClassificationService implements SoundClassificationService {
     );
 
     _classifier = await Interpreter.fromAsset(
-      'assets/models/AIISH_v2.tflite',
+      'assets/models/AIISH_v6.tflite',
     );
 
     print('AIISH offline models loaded successfully');
@@ -308,7 +308,7 @@ class TFLiteSoundClassificationService implements SoundClassificationService {
 
       final classifierInput = [meanEmbedding];
       final classifierOutput = [
-        List<double>.filled(25, 0.0),
+        List<double>.filled(26, 0.0),
       ];
 
       _classifier!.run(classifierInput, classifierOutput);
@@ -350,9 +350,18 @@ class TFLiteSoundClassificationService implements SoundClassificationService {
         'Utensils',
         'Vehicle Horn',
         'Water Running',
+        'No Sound',
       ];
 
       final predictedClass = modelClasses[bestIndex];
+
+      if (predictedClass == 'No Sound') {
+  print(
+    'AIISH offline prediction: No Sound '
+    '(${(confidence * 100).toStringAsFixed(1)}%)',
+  );
+  return;
+}
 
       const modelOutputToSoundId = <String, String>{
         'Air Conditioner': 'air_conditioner',
