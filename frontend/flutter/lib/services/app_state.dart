@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,14 +13,37 @@ class AppState extends ChangeNotifier {
   EnvironmentType _environmentMode = EnvironmentType.indoor;
   bool _isListening = true;
   SoundLabel? _lastDetectedSound;
+  double? _lastDetectedConfidence;
   final List<SoundEvent> _history = [];
   String _selectedSimSoundId = soundTaxonomy.first.id;
   int _currentTabIndex = 0; // 0: Home, 1: History, 2: Settings
   bool _isOnboarded = false;
   bool _isInitialized = false;
+  StreamSubscription<User?>? _firebaseAuthSubscription;
 
   AppState() {
     _loadFromPreferences();
+    _listenToFirebaseAuth();
+  }
+
+  void _listenToFirebaseAuth() {
+    _firebaseAuthSubscription = FirebaseAuth.instance.authStateChanges().listen((user) {
+      if (user == null) {
+        _userProfile.id = 'guest_user';
+        notifyListeners();
+        return;
+      }
+
+      _userProfile.id = user.uid;
+      if (user.email != null && user.email!.isNotEmpty) {
+        _userProfile.email = user.email!;
+      }
+      if (user.displayName != null && user.displayName!.isNotEmpty) {
+        _userProfile.name = user.displayName!;
+      }
+      notifyListeners();
+      saveProfileToPrefs();
+    });
   }
 
   // Getters
@@ -28,6 +54,7 @@ class AppState extends ChangeNotifier {
   EnvironmentType get environmentMode => _environmentMode;
   bool get isListening => _isListening;
   SoundLabel? get lastDetectedSound => _lastDetectedSound;
+  double? get lastDetectedConfidence => _lastDetectedConfidence;
   List<SoundEvent> get history => List.unmodifiable(_history);
   String get selectedSimSoundId => _selectedSimSoundId;
   int get currentTabIndex => _currentTabIndex;
@@ -234,6 +261,7 @@ class AppState extends ChangeNotifier {
     _isListening = !_isListening;
     if (!_isListening) {
       _lastDetectedSound = null;
+      _lastDetectedConfidence = null;
     }
     notifyListeners();
   }
@@ -248,8 +276,9 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void triggerSoundEvent(SoundLabel sound) {
+  void triggerSoundEvent(SoundLabel sound, [double? confidence]) {
     _lastDetectedSound = sound;
+    _lastDetectedConfidence = confidence;
     _isListening = true;
 
     // Check mute rules
@@ -307,6 +336,7 @@ class AppState extends ChangeNotifier {
 
   void clearDetectedSound() {
     _lastDetectedSound = null;
+    _lastDetectedConfidence = null;
     notifyListeners();
   }
 

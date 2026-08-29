@@ -36,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
             '${(confidence * 100).toStringAsFixed(1)}%',
           );
 
-          context.read<AppState>().triggerSoundEvent(sound);
+          context.read<AppState>().triggerSoundEvent(sound, confidence);
         });
       } catch (e) {
         print('Failed to start AIISH detection: $e');

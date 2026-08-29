@@ -1,10 +1,10 @@
-import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../models/models.dart';
 import '../data/sound_taxonomy.dart';
 import '../services/app_state.dart';
+import '../services/feedback_service.dart';
 import '../services/notification_service.dart';
 import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
@@ -707,33 +707,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               child: ElevatedButton(
                                 onPressed: () async {
                                   final text = feedbackTextCtrl.text.trim();
-                                  if (text.isNotEmpty) {
-                                    try {
-                                      final prefs =
-                                          await SharedPreferences.getInstance();
-                                      final existingList = prefs.getStringList(
-                                              'soundsee_user_feedbacks') ??
-                                          [];
-                                      final feedbackEntry = jsonEncode({
-                                        'category': selectedCategory,
-                                        'rating': feedbackRating,
-                                        'text': text,
-                                        'timestamp': DateTime.now()
-                                            .toIso8601String(),
-                                      });
-                                      existingList.insert(0, feedbackEntry);
-                                      await prefs.setStringList(
-                                          'soundsee_user_feedbacks',
-                                          existingList);
-                                    } catch (_) {}
+                                  if (text.isEmpty) {
+                                    return;
                                   }
+
+                                  final state = context.read<AppState>();
+                                  final feedbackResult =
+                                      await FeedbackService.instance.submitFeedback(
+                                    rating: feedbackRating,
+                                    feedbackText: text,
+                                    category: selectedCategory,
+                                    userId: state.userProfile.id,
+                                    soundType: state.lastDetectedSound?.name,
+                                    detectedConfidence:
+                                        state.lastDetectedConfidence,
+                                    appVersion: null,
+                                    modelVersion: 'AIISH_v2',
+                                    platform: null,
+                                  );
 
                                   if (ctx.mounted) Navigator.of(ctx).pop();
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text(
-                                            l10n.feedbackSavedSnackbar),
+                                        content: Text(feedbackResult.message),
                                         duration: const Duration(seconds: 2),
                                       ),
                                     );
@@ -999,6 +996,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     );
 
                     if (confirm == true && context.mounted) {
+                      try {
+                        await FirebaseAuth.instance.signOut();
+                      } catch (_) {
+                        // Preserve the existing flow even if sign-out fails.
+                      }
+
                       await state.resetOnboarding();
                       if (context.mounted) {
                         Navigator.of(context).pushAndRemoveUntil(

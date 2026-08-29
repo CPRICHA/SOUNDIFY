@@ -7,7 +7,7 @@ import '../services/sound_classifier.dart';
 import '../data/legal_content.dart';
 
 // Riverpod Providers
-final authServiceProvider = Provider<AuthService>((ref) => MockAuthService());
+final authServiceProvider = Provider<AuthService>((ref) => FirebaseAuthService());
 final classificationServiceProvider = Provider<SoundClassificationService>((ref) => TFLiteSoundClassificationService());
 final historyServiceProvider = Provider<HistorySyncService>((ref) => HiveHistorySyncService());
 final emergencyServiceProvider = Provider<EmergencyService>((ref) => MockEmergencyService());
