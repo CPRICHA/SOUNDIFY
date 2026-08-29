@@ -191,6 +191,15 @@ class NotificationService {
         }
       }
 
+      final BigPictureStyleInformation? bigPictureStyle =
+          notificationImage != null
+              ? BigPictureStyleInformation(
+                  notificationImage,
+                  largeIcon: notificationImage,
+                  hideExpandedLargeIcon: false,
+                )
+              : null;
+
       final isCriticalOrHigh = sound.severity == PriorityLevel.critical ||
           sound.severity == PriorityLevel.high;
 
@@ -262,6 +271,7 @@ class NotificationService {
           channelDescription:
               'Full-screen takeover intent for critical acoustic emergencies',
           largeIcon: notificationImage,
+          styleInformation: bigPictureStyle,
           importance: Importance.max,
           priority: Priority.max,
           fullScreenIntent: true,
@@ -311,6 +321,7 @@ class NotificationService {
           'Standard Sound Alerts',
           channelDescription: 'Standard notification for moderate sound levels',
           largeIcon: notificationImage,
+          styleInformation: bigPictureStyle,
           importance: Importance.high,
           priority: Priority.high,
           fullScreenIntent: false,
@@ -408,9 +419,24 @@ class NotificationService {
 
 /// Top-level background notification response handler (required by flutter_local_notifications)
 @pragma('vm:entry-point')
-void _handleBackgroundNotificationResponse(NotificationResponse response) {
-  // Handle background actions such as dismiss / snooze
-  if (kDebugMode) {
-    print('Background notification response: ${response.actionId}');
+Future<void> _handleBackgroundNotificationResponse(
+    NotificationResponse response) async {
+  if (response.actionId == 'action_dismiss') {
+    return;
+  }
+
+  if (response.actionId == 'action_snooze') {
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.setInt(
+      'snoozed_until',
+      DateTime.now()
+          .add(const Duration(minutes: 2))
+          .millisecondsSinceEpoch,
+    );
+
+    if (kDebugMode) {
+      print('Sound alerts snoozed for 2 minutes.');
+    }
   }
 }
