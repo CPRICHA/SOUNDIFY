@@ -84,6 +84,12 @@ class TFLiteSoundClassificationService implements SoundClassificationService {
   bool _isListening = false;
   bool _processing = false;
 
+  /// Minimal offline alert guard to avoid repeated notifications for the same sound.
+  double _confidenceThreshold = 0.75;
+  Duration _cooldown = const Duration(seconds: 8);
+  DateTime? _lastAlertAt;
+  String? _lastAlertSoundId;
+
   @override
   Future<void> initializeModel() async {
     _yamnet = await Interpreter.fromAsset(
@@ -265,7 +271,17 @@ class TFLiteSoundClassificationService implements SoundClassificationService {
       );
 
       if (matchedSound != null) {
-        onSoundDetected(matchedSound, confidence);
+        final now = DateTime.now();
+        final shouldTrigger = confidence >= _confidenceThreshold &&
+            ( _lastAlertSoundId != matchedSound.id ||
+              _lastAlertAt == null ||
+              now.difference(_lastAlertAt!) >= _cooldown );
+
+        if (shouldTrigger) {
+          _lastAlertAt = now;
+          _lastAlertSoundId = matchedSound.id;
+          onSoundDetected(matchedSound, confidence);
+        }
       }
     } catch (e) {
       print('AIISH offline inference error: $e');
@@ -343,6 +359,8 @@ class TFLiteSoundClassificationService implements SoundClassificationService {
     _isListening = false;
     _timer?.cancel();
     _timer = null;
+    _lastAlertAt = null;
+    _lastAlertSoundId = null;
 
     if (await _recorder.isRecording()) {
       await _recorder.stop();
