@@ -169,7 +169,7 @@ abstract class AppLocalizations {
   /// No description provided for @addressPlaceholder.
   ///
   /// In en, this message translates to:
-  /// **'e.g. 104 Willow Creek Rd, Apt 4B'**
+  /// **'Address'**
   String get addressPlaceholder;
 
   /// No description provided for @age.
@@ -271,7 +271,7 @@ abstract class AppLocalizations {
   /// No description provided for @contactNameHint.
   ///
   /// In en, this message translates to:
-  /// **'e.g. Dr. Sarah Mitchell'**
+  /// **'Name'**
   String get contactNameHint;
 
   /// No description provided for @contactPhone.
@@ -283,13 +283,13 @@ abstract class AppLocalizations {
   /// No description provided for @contactPhoneHint.
   ///
   /// In en, this message translates to:
-  /// **'e.g. +91 98765 43210'**
+  /// **'Number'**
   String get contactPhoneHint;
 
   /// No description provided for @continuousEmergencyVibration.
   ///
   /// In en, this message translates to:
-  /// **'Continuous Emergency Vibration'**
+  /// **'Continuous Vibration'**
   String get continuousEmergencyVibration;
 
   /// No description provided for @createProfileDesc.
@@ -313,13 +313,13 @@ abstract class AppLocalizations {
   /// No description provided for @criticalAlertHeader.
   ///
   /// In en, this message translates to:
-  /// **'CRITICAL EMERGENCY ALERT'**
+  /// **'CRITICAL ALERT'**
   String get criticalAlertHeader;
 
   /// No description provided for @criticalEmergencyAlert.
   ///
   /// In en, this message translates to:
-  /// **'CRITICAL EMERGENCY ALERT'**
+  /// **'CRITICAL ALERT'**
   String get criticalEmergencyAlert;
 
   /// No description provided for @criticalThreatsDesc.
@@ -487,13 +487,13 @@ abstract class AppLocalizations {
   /// No description provided for @feedbackHint.
   ///
   /// In en, this message translates to:
-  /// **'Share your thoughts or report an unrecognized sound...'**
+  /// **'Share your thoughts or feedback on...'**
   String get feedbackHint;
 
   /// No description provided for @feedbackPrompt.
   ///
   /// In en, this message translates to:
-  /// **'Help us improve on-device acoustic recognition'**
+  /// **'Help us improve by'**
   String get feedbackPrompt;
 
   /// No description provided for @feedbackRating.
@@ -505,13 +505,13 @@ abstract class AppLocalizations {
   /// No description provided for @feedbackSavedSnackbar.
   ///
   /// In en, this message translates to:
-  /// **'Feedback saved locally. Thank you!'**
+  /// **'Feedback received. Thank you!'**
   String get feedbackSavedSnackbar;
 
   /// No description provided for @feedbackStoredLocal.
   ///
   /// In en, this message translates to:
-  /// **'Offline feedback stored on-device'**
+  /// **'Feedback received'**
   String get feedbackStoredLocal;
 
   /// No description provided for @fontSize.
@@ -541,7 +541,7 @@ abstract class AppLocalizations {
   /// No description provided for @formatColor.
   ///
   /// In en, this message translates to:
-  /// **'Vibrant Color Bands'**
+  /// **'Priority Color '**
   String get formatColor;
 
   /// No description provided for @formatIcon.
@@ -583,13 +583,13 @@ abstract class AppLocalizations {
   /// No description provided for @hapticGuideDesc.
   ///
   /// In en, this message translates to:
-  /// **'SoundSee scales vibration rhythm and intensity according to threat severity.'**
+  /// **'SoundSee changes vibration and intensity according to priority levels.'**
   String get hapticGuideDesc;
 
   /// No description provided for @hapticGuideTitle.
   ///
   /// In en, this message translates to:
-  /// **'4-Tier Tactile Waveform Guide'**
+  /// **'4-Tier Vibration Guide'**
   String get hapticGuideTitle;
 
   /// No description provided for @high.
@@ -673,7 +673,7 @@ abstract class AppLocalizations {
   /// No description provided for @labelQuickSuggestions.
   ///
   /// In en, this message translates to:
-  /// **'QUICK SUGGESTIONS'**
+  /// **'SUGGESTIONS'**
   String get labelQuickSuggestions;
 
   /// No description provided for @listeningActive.
@@ -685,19 +685,19 @@ abstract class AppLocalizations {
   /// No description provided for @listeningForSounds.
   ///
   /// In en, this message translates to:
-  /// **'Listening for environmental sounds...'**
+  /// **'Listening for sounds...'**
   String get listeningForSounds;
 
   /// No description provided for @listeningStatus.
   ///
   /// In en, this message translates to:
-  /// **'Listening for environmental sounds...'**
+  /// **'Listening for sounds...'**
   String get listeningStatus;
 
   /// No description provided for @locationAccessDesc.
   ///
   /// In en, this message translates to:
-  /// **'Enables ambient GPS auto-detection to switch between Indoor & Outdoor profiles.'**
+  /// **'Enables GPS auto-detection to switch between Indoor & Outdoor profiles.'**
   String get locationAccessDesc;
 
   /// No description provided for @locationAccessTitle.
@@ -751,7 +751,7 @@ abstract class AppLocalizations {
   /// No description provided for @micAccessDesc.
   ///
   /// In en, this message translates to:
-  /// **'Used strictly for on-device local acoustic classification. No audio recorded or transmitted.'**
+  /// **'Used strictly for on-device local sound classification. No audio recorded or transmitted.'**
   String get micAccessDesc;
 
   /// No description provided for @micAccessTitle.
@@ -823,7 +823,7 @@ abstract class AppLocalizations {
   /// No description provided for @noHistorySub.
   ///
   /// In en, this message translates to:
-  /// **'Detected acoustic events and safety alerts will appear here in chronological order.'**
+  /// **'Detected sounds will appear here.'**
   String get noHistorySub;
 
   /// No description provided for @noRecentSounds.
@@ -895,7 +895,7 @@ abstract class AppLocalizations {
   /// No description provided for @pausedStatus.
   ///
   /// In en, this message translates to:
-  /// **'Acoustic detection paused'**
+  /// **'Sound detection paused'**
   String get pausedStatus;
 
   /// No description provided for @permissionsRequiredWarning.
@@ -913,13 +913,13 @@ abstract class AppLocalizations {
   /// No description provided for @personalLocationsSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Manage your frequent destinations for GPS switching'**
+  /// **'Manage your destinations for GPS switching'**
   String get personalLocationsSubtitle;
 
   /// No description provided for @personalProfile.
   ///
   /// In en, this message translates to:
-  /// **'Personal Profile'**
+  /// **'User Profile'**
   String get personalProfile;
 
   /// No description provided for @phone.
@@ -931,19 +931,19 @@ abstract class AppLocalizations {
   /// No description provided for @placeholderAddress.
   ///
   /// In en, this message translates to:
-  /// **'e.g. 124 Maple Street, Apt 3B'**
+  /// **'Address'**
   String get placeholderAddress;
 
   /// No description provided for @placeholderAge.
   ///
   /// In en, this message translates to:
-  /// **'28'**
+  /// **'Age'**
   String get placeholderAge;
 
   /// No description provided for @placeholderEmail.
   ///
   /// In en, this message translates to:
-  /// **'user@sensoryreach.app'**
+  /// **'Email'**
   String get placeholderEmail;
 
   /// No description provided for @placeholderLocName.
@@ -955,55 +955,55 @@ abstract class AppLocalizations {
   /// No description provided for @placeholderName.
   ///
   /// In en, this message translates to:
-  /// **'Accessibility User'**
+  /// **'Name'**
   String get placeholderName;
 
   /// No description provided for @placeholderPhone.
   ///
   /// In en, this message translates to:
-  /// **'9876543210'**
+  /// **'Phone'**
   String get placeholderPhone;
 
   /// No description provided for @prefColorDesc.
   ///
   /// In en, this message translates to:
-  /// **'Dynamic edge glow matching threat level'**
+  /// **'Color coded screen edges'**
   String get prefColorDesc;
 
   /// No description provided for @prefColorTitle.
   ///
   /// In en, this message translates to:
-  /// **'Vibrant Color bands'**
+  /// **'Priority Colors'**
   String get prefColorTitle;
 
   /// No description provided for @prefIconDesc.
   ///
   /// In en, this message translates to:
-  /// **'Bold pictograms of acoustic sources'**
+  /// **'Easy to understand images depicting sound'**
   String get prefIconDesc;
 
   /// No description provided for @prefIconTitle.
   ///
   /// In en, this message translates to:
-  /// **'Icon-forward cards'**
+  /// **'Visual Sound Icons'**
   String get prefIconTitle;
 
   /// No description provided for @prefPresentationDesc.
   ///
   /// In en, this message translates to:
-  /// **'Select visual channels. Choose at least one format.'**
+  /// **'Choose at least one alert style.'**
   String get prefPresentationDesc;
 
   /// No description provided for @prefPresentationTitle.
   ///
   /// In en, this message translates to:
-  /// **'Alert Presentation'**
+  /// **'Alert Style'**
   String get prefPresentationTitle;
 
   /// No description provided for @prefTextDesc.
   ///
   /// In en, this message translates to:
-  /// **'Crisp written overlay popups'**
+  /// **'Textual Popups'**
   String get prefTextDesc;
 
   /// No description provided for @prefTextTitle.
@@ -1045,7 +1045,7 @@ abstract class AppLocalizations {
   /// No description provided for @privacyDialogBody.
   ///
   /// In en, this message translates to:
-  /// **'SoundSee operates 100% on-device. Audio streams are processed in transient buffers and immediately discarded. No audio is ever recorded, stored, or transmitted to any server.'**
+  /// **'SoundSee operates 100% on-device. Audio streams are processed in transient buffers and immediately discarded. No audio is ever recorded, stored, or transmitted.'**
   String get privacyDialogBody;
 
   /// No description provided for @privacyPolicy.
@@ -1183,13 +1183,13 @@ abstract class AppLocalizations {
   /// No description provided for @savedLocationsHeading.
   ///
   /// In en, this message translates to:
-  /// **'Quick Saved Places'**
+  /// **'Saved Places'**
   String get savedLocationsHeading;
 
   /// No description provided for @savedLocationsOnboardingDesc.
   ///
   /// In en, this message translates to:
-  /// **'Add places like Home, College, or Workplace to keep addresses handy.'**
+  /// **'Add places like Home, College, or Workplace.'**
   String get savedLocationsOnboardingDesc;
 
   /// No description provided for @savedLocationsOptional.
@@ -1219,7 +1219,7 @@ abstract class AppLocalizations {
   /// No description provided for @signOutConfirmDesc.
   ///
   /// In en, this message translates to:
-  /// **'Signing out will clear local cached session data. Do you wish to continue?'**
+  /// **'Signing out will clear user data. Do you wish to continue?'**
   String get signOutConfirmDesc;
 
   /// No description provided for @signOutConfirmTitle.
@@ -1363,19 +1363,19 @@ abstract class AppLocalizations {
   /// No description provided for @testWaveform.
   ///
   /// In en, this message translates to:
-  /// **'Test Waveform'**
+  /// **'Test'**
   String get testWaveform;
 
   /// No description provided for @triggerDetectionEvent.
   ///
   /// In en, this message translates to:
-  /// **'Trigger Detection Event'**
+  /// **'Test Event'**
   String get triggerDetectionEvent;
 
   /// No description provided for @triggerSoundWave.
   ///
   /// In en, this message translates to:
-  /// **'Trigger Sound Wave'**
+  /// **'Test Event'**
   String get triggerSoundWave;
 
   /// No description provided for @updateLocation.
@@ -1387,7 +1387,7 @@ abstract class AppLocalizations {
   /// No description provided for @useGuestProfile.
   ///
   /// In en, this message translates to:
-  /// **'Use Guest Demo Profile'**
+  /// **'Guest'**
   String get useGuestProfile;
 
   /// No description provided for @userAge.
@@ -1405,19 +1405,19 @@ abstract class AppLocalizations {
   /// No description provided for @vibrationGuide.
   ///
   /// In en, this message translates to:
-  /// **'Vibrations Wave Guide'**
+  /// **'Vibrations Guide'**
   String get vibrationGuide;
 
   /// No description provided for @vibrationIntensity.
   ///
   /// In en, this message translates to:
-  /// **'Vibration Intensity & Waveform'**
+  /// **'Vibration Intensity Guide'**
   String get vibrationIntensity;
 
   /// No description provided for @vibrationsWaveGuide.
   ///
   /// In en, this message translates to:
-  /// **'Vibrations Wave Guide'**
+  /// **'Vibrations Guide'**
   String get vibrationsWaveGuide;
 
   /// No description provided for @viewAll.
@@ -1429,25 +1429,25 @@ abstract class AppLocalizations {
   /// No description provided for @waveformActive.
   ///
   /// In en, this message translates to:
-  /// **'Continuous Emergency Vibration Waveform Active'**
+  /// **'Continuous Emergency Vibration Active'**
   String get waveformActive;
 
   /// No description provided for @welcomeDesc.
   ///
   /// In en, this message translates to:
-  /// **'Convert critical environmental sounds into visual patterns and smart haptic vibrations.'**
+  /// **'Building Awareness, One Alert at a Time.'**
   String get welcomeDesc;
 
   /// No description provided for @welcomeSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Real-time acoustic detection, intelligent tactile feedback, and safety alerts designed for deaf & hard-of-hearing individuals.'**
+  /// **'Real-time sound detection, with vibrations as feedback, and alerts designed for hard-of-hearing individuals.'**
   String get welcomeSubtitle;
 
   /// No description provided for @welcomeTitle.
   ///
   /// In en, this message translates to:
-  /// **'Sound Awareness For Everyone'**
+  /// **'Awareness made Accessible'**
   String get welcomeTitle;
 
   /// No description provided for @yourEmail.
@@ -1471,7 +1471,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'System Preferences & Hardware Controls'**
+  /// **'System Preferences & Controls'**
   String get settingsSubtitle;
 }
 

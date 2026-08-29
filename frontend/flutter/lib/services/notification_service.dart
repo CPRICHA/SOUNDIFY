@@ -5,6 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../models/models.dart';
 import 'haptic_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../data/sound_taxonomy.dart';
+import '../l10n/app_localizations.dart';
+import 'package:flutter/services.dart';
 
 /// Central Notification Service managing System-Level Alerts & Full-Screen Intent Delivery
 class NotificationService {
@@ -45,7 +49,8 @@ class NotificationService {
     await _notificationsPlugin.initialize(
       initSettings,
       onDidReceiveNotificationResponse: _handleNotificationResponse,
-      onDidReceiveBackgroundNotificationResponse: _handleBackgroundNotificationResponse,
+      onDidReceiveBackgroundNotificationResponse:
+          _handleBackgroundNotificationResponse,
     );
 
     await _createNotificationChannels();
@@ -54,13 +59,14 @@ class NotificationService {
 
   /// Create dedicated Android notification channels (Critical vs Standard)
   Future<void> _createNotificationChannels() async {
-    final androidPlugin = _notificationsPlugin
-        .resolvePlatformSpecificImplementation<
+    final androidPlugin =
+        _notificationsPlugin.resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>();
 
     if (androidPlugin != null) {
       // 1. Critical Channel with Max Importance, Sound + Vibration, Alarm category
-      final criticalVibrationPattern = Int64List.fromList([0, 250, 50, 250, 50, 250, 50, 250]);
+      final criticalVibrationPattern =
+          Int64List.fromList([0, 250, 50, 250, 50, 250, 50, 250]);
       final criticalChannel = AndroidNotificationChannel(
         criticalChannelId,
         'Critical Sound Alerts',
@@ -99,8 +105,8 @@ class NotificationService {
         await initialize();
       }
 
-      final androidPlugin = _notificationsPlugin
-          .resolvePlatformSpecificImplementation<
+      final androidPlugin =
+          _notificationsPlugin.resolvePlatformSpecificImplementation<
               AndroidFlutterLocalNotificationsPlugin>();
 
       if (androidPlugin != null) {
@@ -111,8 +117,8 @@ class NotificationService {
         return granted ?? false;
       }
 
-      final iOSPlugin = _notificationsPlugin
-          .resolvePlatformSpecificImplementation<
+      final iOSPlugin =
+          _notificationsPlugin.resolvePlatformSpecificImplementation<
               IOSFlutterLocalNotificationsPlugin>();
 
       if (iOSPlugin != null) {
@@ -146,21 +152,91 @@ class NotificationService {
       if (!_isInitialized) {
         await initialize();
       }
+      // Use the same language selected in the app for system notifications
+      final prefs = await SharedPreferences.getInstance();
+      final savedLanguage =
+          (prefs.getString('user_language') ?? 'English').toLowerCase();
+
+      final String langCode;
+      switch (savedLanguage) {
+        case 'hindi':
+        case 'hi':
+          langCode = 'hi';
+          break;
+        case 'kannada':
+        case 'kn':
+          langCode = 'kn';
+          break;
+        default:
+          langCode = 'en';
+      }
+
+      final localizedSoundName =
+          getLocalizedSoundName(sound.id, langCode: langCode);
+
+      final l10n = lookupAppLocalizations(Locale(langCode));
+      ByteArrayAndroidBitmap? notificationImage;
+
+      if (sound.imagePath.isNotEmpty && sound.imagePath.endsWith('.png')) {
+        try {
+          final imageData = await rootBundle.load(sound.imagePath);
+
+          notificationImage = ByteArrayAndroidBitmap(
+            imageData.buffer.asUint8List(),
+          );
+        } catch (e) {
+          if (kDebugMode) {
+            print('Could not load notification image: $e');
+          }
+        }
+      }
+
+      final BigPictureStyleInformation? bigPictureStyle =
+          notificationImage != null
+              ? BigPictureStyleInformation(
+                  notificationImage,
+                  largeIcon: notificationImage,
+                  hideExpandedLargeIcon: false,
+                )
+              : null;
 
       final isCriticalOrHigh = sound.severity == PriorityLevel.critical ||
           sound.severity == PriorityLevel.high;
 
       final id = DateTime.now().millisecondsSinceEpoch.remainder(100000);
-      
+
       // Determine title and body based on textEnabled preference
+      final soundDetectedText = switch (langCode) {
+        'hi' => 'ध्वनि पहचानी गई',
+        'kn' => 'ಧ್ವನಿ ಪತ್ತೆಯಾಗಿದೆ',
+        _ => 'Sound Detected',
+      };
+
+      final alertTriggeredText = switch (langCode) {
+        'hi' => 'अलर्ट सक्रिय हुआ',
+        'kn' => 'ಎಚ್ಚರಿಕೆ ಸಕ್ರಿಯವಾಗಿದೆ',
+        _ => 'Alert Triggered',
+      };
+
       final title = customTitle ??
           (textEnabled
-              ? 'Sound Detected: ${sound.name}'
-              : (iconEnabled ? 'Sound Detected' : 'Alert Triggered'));
+              ? '$soundDetectedText: $localizedSoundName'
+              : (iconEnabled ? soundDetectedText : alertTriggeredText));
+      final localizedPriority = switch (sound.severity) {
+        PriorityLevel.critical => l10n.priorityCritical,
+        PriorityLevel.high => l10n.priorityHigh,
+        PriorityLevel.medium => l10n.priorityMedium,
+        PriorityLevel.low => l10n.priorityLow,
+      };
+
+      final localizedMode = sound.environment == EnvironmentType.indoor
+          ? l10n.indoorMode
+          : l10n.outdoorMode;
+
       final body = customBody ??
           (textEnabled
-              ? 'Priority: ${sound.severity.name.toUpperCase()} • Mode: ${sound.environment.name.toUpperCase()}'
-              : 'Priority: ${sound.severity.name.toUpperCase()}');
+              ? '${l10n.priorityPrefix}: $localizedPriority • $localizedMode'
+              : '${l10n.priorityPrefix}: $localizedPriority');
 
       // Trigger service/isolate level physical tactile vibration immediately
       await _triggerTactileVibration(sound.severity, isMuted: isMuted);
@@ -194,6 +270,8 @@ class NotificationService {
           'Critical Sound Alerts',
           channelDescription:
               'Full-screen takeover intent for critical acoustic emergencies',
+          largeIcon: notificationImage,
+          styleInformation: bigPictureStyle,
           importance: Importance.max,
           priority: Priority.max,
           fullScreenIntent: true,
@@ -211,7 +289,7 @@ class NotificationService {
             ),
             AndroidNotificationAction(
               'action_snooze',
-              'Snooze (5m)',
+              'Snooze (2m)',
               cancelNotification: true,
             ),
           ],
@@ -242,6 +320,8 @@ class NotificationService {
           standardChannelId,
           'Standard Sound Alerts',
           channelDescription: 'Standard notification for moderate sound levels',
+          largeIcon: notificationImage,
+          styleInformation: bigPictureStyle,
           importance: Importance.high,
           priority: Priority.high,
           fullScreenIntent: false,
@@ -286,13 +366,31 @@ class NotificationService {
   }
 
   /// Trigger tactile haptic vibration at the service/isolate level
-  Future<void> _triggerTactileVibration(PriorityLevel severity, {bool isMuted = false}) async {
+  Future<void> _triggerTactileVibration(PriorityLevel severity,
+      {bool isMuted = false}) async {
     await HapticService.triggerVibration(severity, isMuted: isMuted);
   }
 
   /// Handle notification interaction (tap, action button)
-  void _handleNotificationResponse(NotificationResponse response) {
+  void _handleNotificationResponse(NotificationResponse response) async {
     if (response.actionId == 'action_dismiss') {
+      return;
+    }
+
+    if (response.actionId == 'action_snooze') {
+      final prefs = await SharedPreferences.getInstance();
+
+      await prefs.setInt(
+        'snoozed_until',
+        DateTime.now()
+            .add(const Duration(minutes: 2))
+            .millisecondsSinceEpoch,
+      );
+
+      if (kDebugMode) {
+        print('Sound alerts snoozed for 2 minutes.');
+      }
+
       return;
     }
 
@@ -301,7 +399,6 @@ class NotificationService {
         final Map<String, dynamic> data = jsonDecode(response.payload!);
         final sound = SoundLabel.fromJson(data);
 
-        // Open full-screen alert screen via global navigator key
         navigatorKey?.currentState?.pushNamed(
           '/alert',
           arguments: sound,
@@ -322,9 +419,24 @@ class NotificationService {
 
 /// Top-level background notification response handler (required by flutter_local_notifications)
 @pragma('vm:entry-point')
-void _handleBackgroundNotificationResponse(NotificationResponse response) {
-  // Handle background actions such as dismiss / snooze
-  if (kDebugMode) {
-    print('Background notification response: ${response.actionId}');
+Future<void> _handleBackgroundNotificationResponse(
+    NotificationResponse response) async {
+  if (response.actionId == 'action_dismiss') {
+    return;
+  }
+
+  if (response.actionId == 'action_snooze') {
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.setInt(
+      'snoozed_until',
+      DateTime.now()
+          .add(const Duration(minutes: 2))
+          .millisecondsSinceEpoch,
+    );
+
+    if (kDebugMode) {
+      print('Sound alerts snoozed for 2 minutes.');
+    }
   }
 }

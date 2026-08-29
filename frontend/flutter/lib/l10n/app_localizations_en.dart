@@ -42,7 +42,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addressHint => 'Street address or landmark';
 
   @override
-  String get addressPlaceholder => 'e.g. 104 Willow Creek Rd, Apt 4B';
+  String get addressPlaceholder => 'Address';
 
   @override
   String get age => 'Age';
@@ -95,16 +95,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get contactName => 'Contact Name';
 
   @override
-  String get contactNameHint => 'e.g. Dr. Sarah Mitchell';
+  String get contactNameHint => 'Name';
 
   @override
   String get contactPhone => 'Contact Phone';
 
   @override
-  String get contactPhoneHint => 'e.g. +91 98765 43210';
+  String get contactPhoneHint => 'Number';
 
   @override
-  String get continuousEmergencyVibration => 'Continuous Emergency Vibration';
+  String get continuousEmergencyVibration => 'Continuous Vibration';
 
   @override
   String get createProfileDesc =>
@@ -117,10 +117,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get critical => 'Critical';
 
   @override
-  String get criticalAlertHeader => 'CRITICAL EMERGENCY ALERT';
+  String get criticalAlertHeader => 'CRITICAL ALERT';
 
   @override
-  String get criticalEmergencyAlert => 'CRITICAL EMERGENCY ALERT';
+  String get criticalEmergencyAlert => 'CRITICAL ALERT';
 
   @override
   String get criticalThreatsDesc =>
@@ -211,20 +211,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get feedbackCategory => 'Feedback Category';
 
   @override
-  String get feedbackHint =>
-      'Share your thoughts or report an unrecognized sound...';
+  String get feedbackHint => 'Share your thoughts or feedback on...';
 
   @override
-  String get feedbackPrompt => 'Help us improve on-device acoustic recognition';
+  String get feedbackPrompt => 'Help us improve by';
 
   @override
   String get feedbackRating => 'Your Rating';
 
   @override
-  String get feedbackSavedSnackbar => 'Feedback saved locally. Thank you!';
+  String get feedbackSavedSnackbar => 'Feedback received. Thank you!';
 
   @override
-  String get feedbackStoredLocal => 'Offline feedback stored on-device';
+  String get feedbackStoredLocal => 'Feedback received';
 
   @override
   String get fontSize => 'Font Size';
@@ -239,7 +238,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fontSizeSmall => 'Small';
 
   @override
-  String get formatColor => 'Vibrant Color Bands';
+  String get formatColor => 'Priority Color ';
 
   @override
   String get formatIcon => 'Visual Icons';
@@ -262,10 +261,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get hapticGuideDesc =>
-      'SoundSee scales vibration rhythm and intensity according to threat severity.';
+      'SoundSee changes vibration and intensity according to priority levels.';
 
   @override
-  String get hapticGuideTitle => '4-Tier Tactile Waveform Guide';
+  String get hapticGuideTitle => '4-Tier Vibration Guide';
 
   @override
   String get high => 'High';
@@ -309,20 +308,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get labelPhone => 'PHONE *';
 
   @override
-  String get labelQuickSuggestions => 'QUICK SUGGESTIONS';
+  String get labelQuickSuggestions => 'SUGGESTIONS';
 
   @override
   String get listeningActive => 'Listening Active';
 
   @override
-  String get listeningForSounds => 'Listening for environmental sounds...';
+  String get listeningForSounds => 'Listening for sounds...';
 
   @override
-  String get listeningStatus => 'Listening for environmental sounds...';
+  String get listeningStatus => 'Listening for sounds...';
 
   @override
   String get locationAccessDesc =>
-      'Enables ambient GPS auto-detection to switch between Indoor & Outdoor profiles.';
+      'Enables GPS auto-detection to switch between Indoor & Outdoor profiles.';
 
   @override
   String get locationAccessTitle => 'Location Access *';
@@ -352,7 +351,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get micAccessDesc =>
-      'Used strictly for on-device local acoustic classification. No audio recorded or transmitted.';
+      'Used strictly for on-device local sound classification. No audio recorded or transmitted.';
 
   @override
   String get micAccessTitle => 'Microphone Access *';
@@ -388,8 +387,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noHistory => 'No Sound Detections Recorded';
 
   @override
-  String get noHistorySub =>
-      'Detected acoustic events and safety alerts will appear here in chronological order.';
+  String get noHistorySub => 'Detected sounds will appear here.';
 
   @override
   String get noRecentSounds => 'No sounds detected recently';
@@ -425,7 +423,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get outdoorOverride => 'Outdoor Mode Override';
 
   @override
-  String get pausedStatus => 'Acoustic detection paused';
+  String get pausedStatus => 'Sound detection paused';
 
   @override
   String get permissionsRequiredWarning => 'Required permissions are missing';
@@ -435,53 +433,52 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get personalLocationsSubtitle =>
-      'Manage your frequent destinations for GPS switching';
+      'Manage your destinations for GPS switching';
 
   @override
-  String get personalProfile => 'Personal Profile';
+  String get personalProfile => 'User Profile';
 
   @override
   String get phone => 'Phone';
 
   @override
-  String get placeholderAddress => 'e.g. 124 Maple Street, Apt 3B';
+  String get placeholderAddress => 'Address';
 
   @override
-  String get placeholderAge => '28';
+  String get placeholderAge => 'Age';
 
   @override
-  String get placeholderEmail => 'user@sensoryreach.app';
+  String get placeholderEmail => 'Email';
 
   @override
   String get placeholderLocName => 'e.g. Home, Office, Gym';
 
   @override
-  String get placeholderName => 'Accessibility User';
+  String get placeholderName => 'Name';
 
   @override
-  String get placeholderPhone => '9876543210';
+  String get placeholderPhone => 'Phone';
 
   @override
-  String get prefColorDesc => 'Dynamic edge glow matching threat level';
+  String get prefColorDesc => 'Color coded screen edges';
 
   @override
-  String get prefColorTitle => 'Vibrant Color bands';
+  String get prefColorTitle => 'Priority Colors';
 
   @override
-  String get prefIconDesc => 'Bold pictograms of acoustic sources';
+  String get prefIconDesc => 'Easy to understand images depicting sound';
 
   @override
-  String get prefIconTitle => 'Icon-forward cards';
+  String get prefIconTitle => 'Visual Sound Icons';
 
   @override
-  String get prefPresentationDesc =>
-      'Select visual channels. Choose at least one format.';
+  String get prefPresentationDesc => 'Choose at least one alert style.';
 
   @override
-  String get prefPresentationTitle => 'Alert Presentation';
+  String get prefPresentationTitle => 'Alert Style';
 
   @override
-  String get prefTextDesc => 'Crisp written overlay popups';
+  String get prefTextDesc => 'Textual Popups';
 
   @override
   String get prefTextTitle => 'Text notifications';
@@ -503,7 +500,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get privacyDialogBody =>
-      'SoundSee operates 100% on-device. Audio streams are processed in transient buffers and immediately discarded. No audio is ever recorded, stored, or transmitted to any server.';
+      'SoundSee operates 100% on-device. Audio streams are processed in transient buffers and immediately discarded. No audio is ever recorded, stored, or transmitted.';
 
   @override
   String get privacyPolicy => 'Privacy Policy';
@@ -574,11 +571,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get savedLocationsDesc => 'Stored personal address book';
 
   @override
-  String get savedLocationsHeading => 'Quick Saved Places';
+  String get savedLocationsHeading => 'Saved Places';
 
   @override
   String get savedLocationsOnboardingDesc =>
-      'Add places like Home, College, or Workplace to keep addresses handy.';
+      'Add places like Home, College, or Workplace.';
 
   @override
   String get savedLocationsOptional => 'Saved Locations (Optional)';
@@ -594,7 +591,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get signOutConfirmDesc =>
-      'Signing out will clear local cached session data. Do you wish to continue?';
+      'Signing out will clear user data. Do you wish to continue?';
 
   @override
   String get signOutConfirmTitle => 'Sign Out of SoundSee';
@@ -668,19 +665,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get testUpper => 'TEST';
 
   @override
-  String get testWaveform => 'Test Waveform';
+  String get testWaveform => 'Test';
 
   @override
-  String get triggerDetectionEvent => 'Trigger Detection Event';
+  String get triggerDetectionEvent => 'Test Event';
 
   @override
-  String get triggerSoundWave => 'Trigger Sound Wave';
+  String get triggerSoundWave => 'Test Event';
 
   @override
   String get updateLocation => 'Update Location';
 
   @override
-  String get useGuestProfile => 'Use Guest Demo Profile';
+  String get useGuestProfile => 'Guest';
 
   @override
   String get userAge => 'USER AGE';
@@ -689,30 +686,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get verifyUpper => 'VERIFY';
 
   @override
-  String get vibrationGuide => 'Vibrations Wave Guide';
+  String get vibrationGuide => 'Vibrations Guide';
 
   @override
-  String get vibrationIntensity => 'Vibration Intensity & Waveform';
+  String get vibrationIntensity => 'Vibration Intensity Guide';
 
   @override
-  String get vibrationsWaveGuide => 'Vibrations Wave Guide';
+  String get vibrationsWaveGuide => 'Vibrations Guide';
 
   @override
   String get viewAll => 'View All';
 
   @override
-  String get waveformActive => 'Continuous Emergency Vibration Waveform Active';
+  String get waveformActive => 'Continuous Emergency Vibration Active';
 
   @override
-  String get welcomeDesc =>
-      'Convert critical environmental sounds into visual patterns and smart haptic vibrations.';
+  String get welcomeDesc => 'Building Awareness, One Alert at a Time.';
 
   @override
   String get welcomeSubtitle =>
-      'Real-time acoustic detection, intelligent tactile feedback, and safety alerts designed for deaf & hard-of-hearing individuals.';
+      'Real-time sound detection, with vibrations as feedback, and alerts designed for hard-of-hearing individuals.';
 
   @override
-  String get welcomeTitle => 'Sound Awareness For Everyone';
+  String get welcomeTitle => 'Awareness made Accessible';
 
   @override
   String get yourEmail => 'YOUR EMAIL';
@@ -724,5 +720,5 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsTitle => 'Settings & Preferences';
 
   @override
-  String get settingsSubtitle => 'System Preferences & Hardware Controls';
+  String get settingsSubtitle => 'System Preferences & Controls';
 }

@@ -1,3 +1,4 @@
+import '../data/legal_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -349,6 +350,26 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                         isHC: isHC,
                         onChanged: (val) =>
                             setState(() => _termsAccepted = val ?? false),
+                        onInfoTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Terms and Conditions'),
+                              content: const SizedBox(
+                                width: double.maxFinite,
+                                child: SingleChildScrollView(
+                                  child: Text(termsAndConditionsContent),
+                                ),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('Close'),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                       ),
                       _buildCheckboxTile(
                         title: l10n.privacyPolicyTitle,
@@ -356,6 +377,26 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                         isHC: isHC,
                         onChanged: (val) =>
                             setState(() => _privacyAccepted = val ?? false),
+                        onInfoTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Privacy Policy'),
+                              content: const SizedBox(
+                                width: double.maxFinite,
+                                child: SingleChildScrollView(
+                                  child: Text(privacyPolicyContent),
+                                ),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('Close'),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                       ),
 
                       if (_errorMessage != null) ...[
@@ -486,6 +527,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
     required bool value,
     required bool isHC,
     required ValueChanged<bool?> onChanged,
+    VoidCallback? onInfoTap,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
@@ -523,6 +565,19 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                   ),
                 ),
               ),
+              if (onInfoTap != null)
+                IconButton(
+                  onPressed: onInfoTap,
+                  tooltip: 'View details',
+                  visualDensity: VisualDensity.compact,
+                  icon: Icon(
+                    Icons.info_outline_rounded,
+                    size: 21,
+                    color: isHC
+                        ? AppColors.hcText
+                        : const Color(0xFF5B4FE8),
+                  ),
+                ),
             ],
           ),
         ),

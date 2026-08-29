@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/models.dart';
 import '../data/sound_taxonomy.dart';
 import '../services/services.dart';
+import '../services/sound_classifier.dart';
+import '../data/legal_content.dart';
 
 // Riverpod Providers
 final authServiceProvider = Provider<AuthService>((ref) => MockAuthService());
@@ -166,7 +168,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Create Profile')),
+      appBar: AppBar(title: const Text('Create Profile TEST')),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -208,12 +210,78 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 CheckboxListTile(
                   value: _termsAccepted,
                   onChanged: (v) => setState(() => _termsAccepted = v ?? false),
-                  title: const Text('I accept Terms of Service *'),
+                  title: Row(
+                    children: [
+                      const Flexible(
+                        child: Text('I accept Terms of Service *'),
+                      ),
+                      const SizedBox(width: 6),
+                      InkWell(
+                        onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('Terms and Conditions'),
+                                content: const SizedBox(
+                                  width: double.maxFinite,
+                                  child: SingleChildScrollView(
+                                    child: Text(termsAndConditionsContent),
+                                  ),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('Close'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        child: const Icon(
+                          Icons.info_outline_rounded,
+                          size: 20,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 CheckboxListTile(
                   value: _privacyAccepted,
                   onChanged: (v) => setState(() => _privacyAccepted = v ?? false),
-                  title: const Text('I accept Privacy Policy *'),
+                  title: Row(
+                    children: [
+                      const Flexible(
+                        child: Text('I accept Privacy Policy *'),
+                      ),
+                      const SizedBox(width: 6),
+                      InkWell(
+                        onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('Privacy Policy'),
+                                content: const SizedBox(
+                                  width: double.maxFinite,
+                                  child: SingleChildScrollView(
+                                    child: Text(privacyPolicyContent),
+                                  ),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('Close'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        child: const Icon(
+                          Icons.info_outline_rounded,
+                          size: 20,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 32),
                 ElevatedButton(

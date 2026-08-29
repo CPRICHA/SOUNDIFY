@@ -78,11 +78,12 @@ class _SplashScreenState extends State<SplashScreen> {
                           ),
                         ],
                       ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.hearing_outlined,
-                          size: 44,
-                          color: Color(0xFF5B4FE8),
+                      child: ClipOval(
+                        child: Image.asset(
+                          'assets/images/soundsee_logo.png',
+                          width: 84,
+                          height: 84,
+                          fit: BoxFit.cover,
                         ),
                       ),
                     ),
