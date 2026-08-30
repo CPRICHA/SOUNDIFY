@@ -14,14 +14,15 @@ import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
 
-    private val CHANNEL = "com.example.sound_accessibility_app/notifications"
+    private val NOTIFICATION_CHANNEL = "com.example.sound_accessibility_app/notifications"
+    private val GEOFENCE_CHANNEL = "com.example.sound_accessibility_app/geofence"
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
-            CHANNEL
+            NOTIFICATION_CHANNEL
         ).setMethodCallHandler { call, result ->
 
             when (call.method) {
@@ -161,6 +162,31 @@ class MainActivity : FlutterActivity() {
                     }
                 }
 
+                else -> result.notImplemented()
+            }
+        }
+
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            GEOFENCE_CHANNEL
+        ).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "registerGeofences" -> {
+                    val locations = call.argument<List<Map<String, Any>>>("locations") ?: emptyList()
+                    GeofenceBridge.registerGeofences(this, locations)
+                    result.success(true)
+                }
+                "removeGeofence" -> {
+                    val locationId = call.argument<String>("locationId") ?: ""
+                    if (locationId.isNotEmpty()) {
+                        GeofenceBridge.removeGeofence(this, locationId)
+                    }
+                    result.success(true)
+                }
+                "removeAllGeofences" -> {
+                    GeofenceBridge.removeAllGeofences(this)
+                    result.success(true)
+                }
                 else -> result.notImplemented()
             }
         }

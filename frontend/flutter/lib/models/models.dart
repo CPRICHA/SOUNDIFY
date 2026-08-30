@@ -159,6 +159,76 @@ class SavedLocation {
       };
 }
 
+class SavedIndoorLocation {
+  final String id;
+  final String name;
+  final double latitude;
+  final double longitude;
+  final double radiusMeters;
+  final bool enabled;
+  final int createdAt;
+  final int updatedAt;
+
+  SavedIndoorLocation({
+    required this.id,
+    required this.name,
+    required this.latitude,
+    required this.longitude,
+    required this.radiusMeters,
+    this.enabled = true,
+    int? createdAt,
+    int? updatedAt,
+  })  : createdAt = createdAt ?? DateTime.now().millisecondsSinceEpoch,
+        updatedAt = updatedAt ?? DateTime.now().millisecondsSinceEpoch;
+
+  factory SavedIndoorLocation.fromJson(Map<String, dynamic> json) {
+    return SavedIndoorLocation(
+      id: json['id'] as String? ?? '',
+      name: json['name'] as String? ?? 'Unnamed',
+      latitude: (json['latitude'] as num?)?.toDouble() ?? 0.0,
+      longitude: (json['longitude'] as num?)?.toDouble() ?? 0.0,
+      radiusMeters: (json['radiusMeters'] as num?)?.toDouble() ?? 100.0,
+      enabled: json['enabled'] as bool? ?? true,
+      createdAt: json['createdAt'] as int? ?? DateTime.now().millisecondsSinceEpoch,
+      updatedAt: json['updatedAt'] as int? ?? DateTime.now().millisecondsSinceEpoch,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'latitude': latitude,
+        'longitude': longitude,
+        'radiusMeters': radiusMeters,
+        'enabled': enabled,
+        'createdAt': createdAt,
+        'updatedAt': updatedAt,
+      };
+
+  SavedIndoorLocation copyWith({
+    String? id,
+    String? name,
+    double? latitude,
+    double? longitude,
+    double? radiusMeters,
+    bool? enabled,
+    int? createdAt,
+    int? updatedAt,
+  }) {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    return SavedIndoorLocation(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      radiusMeters: radiusMeters ?? this.radiusMeters,
+      enabled: enabled ?? this.enabled,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? now,
+    );
+  }
+}
+
 class UserProfile {
   String id;
   String name;

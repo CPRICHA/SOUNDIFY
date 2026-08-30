@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import '../models/models.dart';
 import '../data/sound_taxonomy.dart';
@@ -9,6 +10,7 @@ import '../services/notification_service.dart';
 import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
 import 'guide_screen.dart';
+import 'indoor_location_map_screen.dart';
 import 'welcome_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -78,6 +80,325 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       );
     }
+  }
+
+  Future<void> _showIndoorLocationEditor({
+    required BuildContext context,
+    required bool isHC,
+    required AppLocalizations l10n,
+    SavedIndoorLocation? existing,
+  }) async {
+    final nameController = TextEditingController(text: existing?.name ?? '');
+    final radiusController = TextEditingController(
+      text: existing == null ? '100' : existing.radiusMeters.toStringAsFixed(0),
+    );
+    double? selectedLatitude = existing?.latitude;
+    double? selectedLongitude = existing?.longitude;
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (modalContext) {
+        return StatefulBuilder(
+          builder: (stateContext, setModalState) {
+            Future<void> useCurrentLocation() async {
+              try {
+                LocationPermission permission = await Geolocator.checkPermission();
+                if (permission == LocationPermission.denied ||
+                    permission == LocationPermission.deniedForever) {
+                  permission = await Geolocator.requestPermission();
+                }
+
+                if (permission == LocationPermission.denied ||
+                    permission == LocationPermission.deniedForever) {
+                  if (modalContext.mounted) {
+                    ScaffoldMessenger.of(modalContext).showSnackBar(
+                      const SnackBar(
+                        content: Text('Location permission was not granted.'),
+                      ),
+                    );
+                  }
+                  return;
+                }
+
+                final position = await Geolocator.getCurrentPosition(
+                  desiredAccuracy: LocationAccuracy.medium,
+                  timeLimit: const Duration(seconds: 10),
+                );
+
+                setModalState(() {
+                  selectedLatitude = position.latitude;
+                  selectedLongitude = position.longitude;
+                });
+
+                if (modalContext.mounted) {
+                  ScaffoldMessenger.of(modalContext).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Current location captured: ${position.latitude.toStringAsFixed(5)}, ${position.longitude.toStringAsFixed(5)}',
+                      ),
+                    ),
+                  );
+                }
+              } catch (_) {
+                if (modalContext.mounted) {
+                  ScaffoldMessenger.of(modalContext).showSnackBar(
+                    const SnackBar(
+                      content: Text('Current location is unavailable right now.'),
+                    ),
+                  );
+                }
+              }
+            }
+
+            Future<void> chooseOnMap() async {
+              final result = await Navigator.of(modalContext).push<Map<String, dynamic>>(
+                MaterialPageRoute(
+                  builder: (_) => IndoorLocationMapPickerScreen(
+                    existing: existing,
+                    initialLatitude: selectedLatitude ?? existing?.latitude,
+                    initialLongitude: selectedLongitude ?? existing?.longitude,
+                  ),
+                ),
+              );
+
+              if (result == null) {
+                return;
+              }
+
+              setModalState(() {
+                selectedLatitude = (result['latitude'] as num?)?.toDouble();
+                selectedLongitude = (result['longitude'] as num?)?.toDouble();
+              });
+
+              if (modalContext.mounted) {
+                ScaffoldMessenger.of(modalContext).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Location selected: ${selectedLatitude!.toStringAsFixed(5)}, ${selectedLongitude!.toStringAsFixed(5)}',
+                    ),
+                  ),
+                );
+              }
+            }
+
+            Future<void> saveLocation() async {
+              final name = nameController.text.trim();
+              final rawRadius = radiusController.text.trim();
+              final parsedRadius = double.tryParse(rawRadius);
+
+              if (name.isEmpty) {
+                ScaffoldMessenger.of(modalContext).showSnackBar(
+                  const SnackBar(content: Text('Please enter a location name.')),
+                );
+                return;
+              }
+
+              if (selectedLatitude == null || selectedLongitude == null) {
+                ScaffoldMessenger.of(modalContext).showSnackBar(
+                  const SnackBar(content: Text('Please choose a location before saving.')),
+                );
+                return;
+              }
+
+              if (parsedRadius == null ||
+                  parsedRadius.isNaN ||
+                  parsedRadius.isInfinite ||
+                  parsedRadius <= 0) {
+                ScaffoldMessenger.of(modalContext).showSnackBar(
+                  const SnackBar(content: Text('Radius must be a number greater than 0 m.')),
+                );
+                return;
+              }
+
+              final now = DateTime.now().millisecondsSinceEpoch;
+              final location = SavedIndoorLocation(
+                id: existing?.id ?? 'loc_${now}',
+                name: name,
+                latitude: selectedLatitude!,
+                longitude: selectedLongitude!,
+                radiusMeters: parsedRadius,
+                enabled: existing?.enabled ?? true,
+                createdAt: existing?.createdAt ?? now,
+                updatedAt: now,
+              );
+
+              final appState = context.read<AppState>();
+              if (existing != null) {
+                await appState.updateIndoorLocation(location);
+              } else {
+                await appState.addIndoorLocation(location);
+              }
+
+              if (modalContext.mounted) {
+                Navigator.of(modalContext).pop();
+              }
+            }
+
+            return Container(
+              padding: EdgeInsets.only(
+                left: 20,
+                right: 20,
+                top: 20,
+                bottom: MediaQuery.of(modalContext).viewInsets.bottom + 20,
+              ),
+              decoration: BoxDecoration(
+                color: isHC ? AppColors.hcBackground : Colors.white,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          existing == null ? 'Add Indoor Location' : 'Edit Indoor Location',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: isHC ? AppColors.hcText : AppColors.textPrimary,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => Navigator.of(modalContext).pop(),
+                          icon: const Icon(Icons.close_rounded),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Name',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.8,
+                        color: isHC ? AppColors.hcText : const Color(0xFF64748B),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    TextField(
+                      controller: nameController,
+                      decoration: InputDecoration(
+                        hintText: 'e.g. Home, Office',
+                        filled: true,
+                        fillColor: isHC ? Colors.white : const Color(0xFFF8FAFC),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: isHC ? AppColors.hcBorder : const Color(0xFFCBD5E1),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: useCurrentLocation,
+                        icon: const Icon(Icons.my_location_rounded, size: 18),
+                        label: const Text('Use My Current Location'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFEEF2FF),
+                          foregroundColor: const Color(0xFF5B4FE8),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Center(
+                      child: Text(
+                        'OR',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: isHC ? AppColors.hcText : const Color(0xFF64748B),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: chooseOnMap,
+                        icon: const Icon(Icons.map_rounded, size: 18),
+                        label: const Text('Choose on Map'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFE2F6E8),
+                          foregroundColor: const Color(0xFF0F766E),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    if (selectedLatitude != null && selectedLongitude != null)
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: isHC ? Colors.white : const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: isHC ? AppColors.hcBorder : const Color(0xFFCBD5E1),
+                          ),
+                        ),
+                        child: Text(
+                          'Location selected\n${selectedLatitude!.toStringAsFixed(5)}, ${selectedLongitude!.toStringAsFixed(5)}',
+                          style: TextStyle(
+                            color: isHC ? AppColors.hcText : AppColors.textPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Radius',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.8,
+                        color: isHC ? AppColors.hcText : const Color(0xFF64748B),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    TextField(
+                      controller: radiusController,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      decoration: InputDecoration(
+                        hintText: '100',
+                        filled: true,
+                        fillColor: isHC ? Colors.white : const Color(0xFFF8FAFC),
+                        suffixText: 'm',
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: isHC ? AppColors.hcBorder : const Color(0xFFCBD5E1),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: saveLocation,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: isHC ? AppColors.hcText : const Color(0xFF5B4FE8),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                        ),
+                        child: const Text('Save'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   void _showAddLocationModal(BuildContext context, bool isHC, AppLocalizations l10n) {
@@ -1405,6 +1726,124 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   },
                 ),
               ],
+            ],
+          ),
+          const SizedBox(height: 14),
+
+          // Indoor Locations card
+          _buildCard(
+            isHC: isHC,
+            headerIcon: Icons.home_work_outlined,
+            title: 'INDOOR LOCATIONS',
+            headerAction: InkWell(
+              onTap: () => _showIndoorLocationEditor(
+                context: context,
+                isHC: isHC,
+                l10n: l10n,
+              ),
+              child: Text(
+                '+ Add Indoor Location',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  color: isHC ? AppColors.hcText : const Color(0xFF5B4FE8),
+                ),
+              ),
+            ),
+            children: [
+              if (state.indoorLocations.isEmpty)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  child: Text(
+                    'No indoor locations yet.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isHC ? AppColors.hcText : const Color(0xFF64748B),
+                    ),
+                  ),
+                )
+              else
+                ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: state.indoorLocations.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 8),
+                  itemBuilder: (context, idx) {
+                    final loc = state.indoorLocations[idx];
+                    return Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: isHC ? Colors.white : const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: isHC ? AppColors.hcBorder : const Color(0xFFE2E8F0),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.home_rounded,
+                            size: 18,
+                            color: Color(0xFF5B4FE8),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  loc.name,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: isHC ? AppColors.hcText : const Color(0xFF0F172A),
+                                  ),
+                                ),
+                                Text(
+                                  '${loc.radiusMeters.round()} m',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: isHC ? AppColors.hcText : const Color(0xFF64748B),
+                                  ),
+                                ),
+                                Text(
+                                  loc.enabled ? 'Enabled' : 'Disabled',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: loc.enabled ? const Color(0xFF16A34A) : const Color(0xFF94A3B8),
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Switch.adaptive(
+                            value: loc.enabled,
+                            onChanged: (value) async {
+                              await state.setIndoorLocationEnabled(loc.id, value);
+                            },
+                          ),
+                          IconButton(
+                            onPressed: () => _showIndoorLocationEditor(
+                              context: context,
+                              isHC: isHC,
+                              l10n: l10n,
+                              existing: loc,
+                            ),
+                            icon: const Icon(Icons.edit_outlined, size: 18),
+                          ),
+                          IconButton(
+                            onPressed: () async {
+                              await state.deleteIndoorLocation(loc.id);
+                            },
+                            icon: const Icon(Icons.delete_outline_rounded, size: 18),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
             ],
           ),
           const SizedBox(height: 14),

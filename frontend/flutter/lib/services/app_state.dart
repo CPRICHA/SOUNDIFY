@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/models.dart';
 import '../data/sound_taxonomy.dart';
+import 'environment_manager.dart';
+import 'indoor_location_repository.dart';
 import 'notification_service.dart';
 
 class AppState extends ChangeNotifier {
@@ -15,6 +17,9 @@ class AppState extends ChangeNotifier {
   SoundLabel? _lastDetectedSound;
   double? _lastDetectedConfidence;
   final List<SoundEvent> _history = [];
+  final IndoorLocationRepository _indoorLocationRepository = IndoorLocationRepository();
+  final EnvironmentManager _environmentManager = EnvironmentManager();
+  List<SavedIndoorLocation> _indoorLocations = [];
   String _selectedSimSoundId = soundTaxonomy.first.id;
   int _currentTabIndex = 0; // 0: Home, 1: History, 2: Settings
   bool _isOnboarded = false;
@@ -24,6 +29,23 @@ class AppState extends ChangeNotifier {
   AppState() {
     _loadFromPreferences();
     _listenToFirebaseAuth();
+    _initializeEnvironmentMonitoring();
+  }
+
+  Future<void> _initializeEnvironmentMonitoring() async {
+    await _environmentManager.initialize();
+    _environmentManager.locationManager.setNativeGeofenceListener((ids, transition) async {
+      if (ids.isEmpty) {
+        return;
+      }
+      await _environmentManager.refreshFromLastKnownOrCurrent();
+      notifyListeners();
+    });
+    await _environmentManager.locationManager.consumePendingGeofenceEvent();
+    await _environmentManager.locationManager.syncEnabledGeofences(_indoorLocations);
+    _environmentManager.addListener(() {
+      notifyListeners();
+    });
   }
 
   void _listenToFirebaseAuth() {
@@ -56,6 +78,10 @@ class AppState extends ChangeNotifier {
   SoundLabel? get lastDetectedSound => _lastDetectedSound;
   double? get lastDetectedConfidence => _lastDetectedConfidence;
   List<SoundEvent> get history => List.unmodifiable(_history);
+  List<SavedIndoorLocation> get indoorLocations => List.unmodifiable(_indoorLocations);
+  EnvironmentState get currentEnvironment => _environmentManager.currentEnvironment;
+  SavedIndoorLocation? get activeIndoorLocation => _environmentManager.activeIndoorLocation;
+  String? get activeLocationId => _environmentManager.activeLocationId;
   String get selectedSimSoundId => _selectedSimSoundId;
   int get currentTabIndex => _currentTabIndex;
   bool get isOnboarded => _isOnboarded;
@@ -142,6 +168,7 @@ class AppState extends ChangeNotifier {
       _userProfile.gpsAutoDetect = gpsAutoDetect;
       _userProfile.muteLowAlerts = muteLow;
       _userProfile.muteMediumAlerts = muteMedium;
+      _indoorLocations = await _indoorLocationRepository.getAllLocations();
       if (outdoorOverride) {
         _environmentMode = EnvironmentType.outdoor;
       }
@@ -239,6 +266,40 @@ class AppState extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('soundsee_onboarded', false);
     } catch (_) {}
+  }
+
+  Future<void> refreshIndoorLocations() async {
+    _indoorLocations = await _indoorLocationRepository.getAllLocations();
+    await _environmentManager.locationManager.syncEnabledGeofences(_indoorLocations);
+    notifyListeners();
+  }
+
+  Future<void> refreshEnvironmentFromLocation() async {
+    final position = await _environmentManager.locationManager.resolveCurrentPosition();
+    if (position != null) {
+      await _environmentManager.updateFromPosition(position);
+    }
+    notifyListeners();
+  }
+
+  Future<void> addIndoorLocation(SavedIndoorLocation location) async {
+    await _indoorLocationRepository.addLocation(location);
+    await refreshIndoorLocations();
+  }
+
+  Future<void> updateIndoorLocation(SavedIndoorLocation location) async {
+    await _indoorLocationRepository.updateLocation(location);
+    await refreshIndoorLocations();
+  }
+
+  Future<void> deleteIndoorLocation(String id) async {
+    await _indoorLocationRepository.deleteLocation(id);
+    await refreshIndoorLocations();
+  }
+
+  Future<void> setIndoorLocationEnabled(String id, bool enabled) async {
+    await _indoorLocationRepository.setLocationEnabled(id, enabled);
+    await refreshIndoorLocations();
   }
 
   void addSavedLocation(SavedLocation location) {
