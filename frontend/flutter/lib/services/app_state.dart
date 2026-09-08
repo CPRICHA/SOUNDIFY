@@ -17,7 +17,8 @@ class AppState extends ChangeNotifier {
   SoundLabel? _lastDetectedSound;
   double? _lastDetectedConfidence;
   final List<SoundEvent> _history = [];
-  final IndoorLocationRepository _indoorLocationRepository = IndoorLocationRepository();
+  final IndoorLocationRepository _indoorLocationRepository =
+      IndoorLocationRepository();
   final EnvironmentManager _environmentManager = EnvironmentManager();
   List<SavedIndoorLocation> _indoorLocations = [];
   String _selectedSimSoundId = soundTaxonomy.first.id;
@@ -34,7 +35,8 @@ class AppState extends ChangeNotifier {
 
   Future<void> _initializeEnvironmentMonitoring() async {
     await _environmentManager.initialize();
-    _environmentManager.locationManager.setNativeGeofenceListener((ids, transition) async {
+    _environmentManager.locationManager
+        .setNativeGeofenceListener((ids, transition) async {
       if (ids.isEmpty) {
         return;
       }
@@ -42,14 +44,16 @@ class AppState extends ChangeNotifier {
       notifyListeners();
     });
     await _environmentManager.locationManager.consumePendingGeofenceEvent();
-    await _environmentManager.locationManager.syncEnabledGeofences(_indoorLocations);
+    await _environmentManager.locationManager
+        .syncEnabledGeofences(_indoorLocations);
     _environmentManager.addListener(() {
       notifyListeners();
     });
   }
 
   void _listenToFirebaseAuth() {
-    _firebaseAuthSubscription = FirebaseAuth.instance.authStateChanges().listen((user) {
+    _firebaseAuthSubscription =
+        FirebaseAuth.instance.authStateChanges().listen((user) {
       if (user == null) {
         _userProfile.id = 'guest_user';
         notifyListeners();
@@ -78,9 +82,12 @@ class AppState extends ChangeNotifier {
   SoundLabel? get lastDetectedSound => _lastDetectedSound;
   double? get lastDetectedConfidence => _lastDetectedConfidence;
   List<SoundEvent> get history => List.unmodifiable(_history);
-  List<SavedIndoorLocation> get indoorLocations => List.unmodifiable(_indoorLocations);
-  EnvironmentState get currentEnvironment => _environmentManager.currentEnvironment;
-  SavedIndoorLocation? get activeIndoorLocation => _environmentManager.activeIndoorLocation;
+  List<SavedIndoorLocation> get indoorLocations =>
+      List.unmodifiable(_indoorLocations);
+  EnvironmentState get currentEnvironment =>
+      _environmentManager.currentEnvironment;
+  SavedIndoorLocation? get activeIndoorLocation =>
+      _environmentManager.activeIndoorLocation;
   String? get activeLocationId => _environmentManager.activeLocationId;
   String get selectedSimSoundId => _selectedSimSoundId;
   int get currentTabIndex => _currentTabIndex;
@@ -190,10 +197,12 @@ class AppState extends ChangeNotifier {
       await prefs.setString('user_email', _userProfile.email);
       await prefs.setInt('user_age', _userProfile.age);
       if (_userProfile.emergencyContactName != null) {
-        await prefs.setString('user_em_name', _userProfile.emergencyContactName!);
+        await prefs.setString(
+            'user_em_name', _userProfile.emergencyContactName!);
       }
       if (_userProfile.emergencyContactPhone != null) {
-        await prefs.setString('user_em_phone', _userProfile.emergencyContactPhone!);
+        await prefs.setString(
+            'user_em_phone', _userProfile.emergencyContactPhone!);
       }
       await prefs.setString('user_language', _userProfile.language);
       await prefs.setString('user_font_size', _userProfile.textSize);
@@ -202,7 +211,8 @@ class AppState extends ChangeNotifier {
       await prefs.setBool('gps_auto_detect', _userProfile.gpsAutoDetect);
       await prefs.setBool('mute_low_alerts', _userProfile.muteLowAlerts);
       await prefs.setBool('mute_medium_alerts', _userProfile.muteMediumAlerts);
-      await prefs.setBool('outdoor_mode', _environmentMode == EnvironmentType.outdoor);
+      await prefs.setBool(
+          'outdoor_mode', _environmentMode == EnvironmentType.outdoor);
     } catch (e) {
       if (kDebugMode) {
         print('Error saving profile: $e');
@@ -223,42 +233,6 @@ class AppState extends ChangeNotifier {
     } catch (_) {}
   }
 
-  Future<void> completeOnboardingAsGuest() async {
-    _userProfile = UserProfile(
-      id: 'usr_guest_demo',
-      name: 'John Doe',
-      age: 28,
-      phone: '+1 (555) 019-2834',
-      email: 'deekshakuselan23@gmail.com',
-      micAccess: true,
-      termsAccepted: true,
-      privacyPolicyAccepted: true,
-      outputPreferences: const ['text', 'icon', 'color'],
-      emergencyContactName: 'Dr. Sarah Mitchell',
-      emergencyContactPhone: '+1 (555) 911-0000',
-      muteLowAlerts: false,
-      gpsAutoDetect: true,
-      savedLocations: [
-        SavedLocation(
-          id: 'loc_home',
-          name: 'Home',
-          address: '124 Maple Street, Apt 3B',
-          createdAt: DateTime.now().millisecondsSinceEpoch - 100000,
-        ),
-        SavedLocation(
-          id: 'loc_work',
-          name: 'Office',
-          address: '742 Evergreen Tech Park, Tower B',
-          createdAt: DateTime.now().millisecondsSinceEpoch - 50000,
-        ),
-      ],
-      language: 'English',
-      textSize: 'medium',
-      highContrast: false,
-    );
-    await completeOnboarding();
-  }
-
   Future<void> resetOnboarding() async {
     _isOnboarded = false;
     notifyListeners();
@@ -270,12 +244,14 @@ class AppState extends ChangeNotifier {
 
   Future<void> refreshIndoorLocations() async {
     _indoorLocations = await _indoorLocationRepository.getAllLocations();
-    await _environmentManager.locationManager.syncEnabledGeofences(_indoorLocations);
+    await _environmentManager.locationManager
+        .syncEnabledGeofences(_indoorLocations);
     notifyListeners();
   }
 
   Future<void> refreshEnvironmentFromLocation() async {
-    final position = await _environmentManager.locationManager.resolveCurrentPosition();
+    final position =
+        await _environmentManager.locationManager.resolveCurrentPosition();
     if (position != null) {
       await _environmentManager.updateFromPosition(position);
     }
@@ -347,7 +323,8 @@ class AppState extends ChangeNotifier {
       notifyListeners();
       return;
     }
-    if (sound.severity == PriorityLevel.medium && _userProfile.muteMediumAlerts) {
+    if (sound.severity == PriorityLevel.medium &&
+        _userProfile.muteMediumAlerts) {
       notifyListeners();
       return;
     }

@@ -85,7 +85,7 @@ object GeofenceBridge {
     fun removeGeofence(context: Context, locationId: String) {
         val client = getClient(context) ?: return
         val pendingIntent = getPendingIntent(context)
-        client.removeGeofences(listOf(locationId), pendingIntent)
+        client.removeGeofences(listOf(locationId))
             .addOnSuccessListener {
                 Log.d(TAG, "Removed geofence $locationId")
             }

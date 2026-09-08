@@ -113,50 +113,6 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 12),
-
-                  // Secondary: Use Guest Demo Profile
-                  SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: OutlinedButton(
-                      onPressed: () async {
-                        await state.completeOnboardingAsGuest();
-                        if (context.mounted) {
-                          Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(
-                              builder: (_) => const MainNavigationShell(),
-                            ),
-                            (route) => false,
-                          );
-                        }
-                      },
-                      style: OutlinedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor:
-                            isHC ? AppColors.hcText : const Color(0xFF5B4FE8),
-                        side: BorderSide(
-                          color: isHC
-                              ? AppColors.hcBorder
-                              : const Color(0xFFE2E8F0),
-                          width: isHC ? 2 : 1.5,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                      child: Text(
-                        l10n.useGuestProfile,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight:
-                              isHC ? FontWeight.w800 : FontWeight.w700,
-                          color: isHC
-                              ? AppColors.hcText
-                              : const Color(0xFF475569),
-                        ),
-                      ),
-                    ),
-                  ),
                 ],
               ),
               const SizedBox(height: 8),

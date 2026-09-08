@@ -677,9 +677,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updateLocation => 'Update Location';
 
   @override
-  String get useGuestProfile => 'Guest';
-
-  @override
   String get userAge => 'USER AGE';
 
   @override

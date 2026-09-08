@@ -1384,12 +1384,6 @@ abstract class AppLocalizations {
   /// **'Update Location'**
   String get updateLocation;
 
-  /// No description provided for @useGuestProfile.
-  ///
-  /// In en, this message translates to:
-  /// **'Guest'**
-  String get useGuestProfile;
-
   /// No description provided for @userAge.
   ///
   /// In en, this message translates to:

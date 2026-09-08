@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:crypto/crypto.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,7 +27,8 @@ class FeedbackService {
     Future<void> Function(Map<String, dynamic> payload)? submitToFirestore,
     Future<void> Function(Map<String, dynamic> payload)? syncQueuedFeedback,
   })  : _firestore = firestore ?? _safeFirestoreInstance(),
-        _connectivityChecker = connectivityChecker ?? _defaultConnectivityChecker,
+        _connectivityChecker =
+            connectivityChecker ?? _defaultConnectivityChecker,
         _submitToFirestoreOverride = submitToFirestore ??
             ((payload) => _defaultSubmitToFirestore(
                   firestore ?? _safeFirestoreInstance(),
@@ -74,9 +77,9 @@ class FeedbackService {
 
     final docId = payload['id'] as String? ?? _buildDocumentId(payload);
     await firestore.collection('feedback').doc(docId).set(
-      payload,
-      SetOptions(merge: true),
-    );
+          payload,
+          SetOptions(merge: true),
+        );
   }
 
   static Future<void> _defaultSyncQueuedFeedback(
@@ -89,9 +92,9 @@ class FeedbackService {
 
     final docId = payload['id'] as String? ?? _buildDocumentId(payload);
     await firestore.collection('feedback').doc(docId).set(
-      payload,
-      SetOptions(merge: true),
-    );
+          payload,
+          SetOptions(merge: true),
+        );
   }
 
   static String _buildDocumentId(Map<String, dynamic> payload) {
@@ -188,9 +191,8 @@ class FeedbackService {
 
   Future<void> _savePendingQueue(List<Map<String, dynamic>> items) async {
     final prefs = await SharedPreferences.getInstance();
-    final serialized = items
-        .map((item) => jsonEncode(item))
-        .toList(growable: false);
+    final serialized =
+        items.map((item) => jsonEncode(item)).toList(growable: false);
     await prefs.setStringList(_pendingQueueKey, serialized);
   }
 

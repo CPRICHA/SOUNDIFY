@@ -680,9 +680,6 @@ class AppLocalizationsHi extends AppLocalizations {
   String get updateLocation => 'स्थान अपडेट करें';
 
   @override
-  String get useGuestProfile => 'अतिथि डेमो प्रोफ़ाइल का उपयोग करें';
-
-  @override
   String get userAge => 'उपयोगकर्ता की आयु';
 
   @override

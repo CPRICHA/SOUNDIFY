@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -16,12 +17,14 @@ void main() async {
     );
   } on UnsupportedError catch (_) {
     if (kDebugMode) {
-      print('Firebase config not available on this platform yet; running in offline-safe mode.');
+      print(
+          'Firebase config not available on this platform yet; running in offline-safe mode.');
     }
   }
 
   // Initialize notification service, channels, and intent listeners before app launches
-  await NotificationService.instance.initialize(navKey: SensoryReachApp.navigatorKey);
+  await NotificationService.instance
+      .initialize(navKey: SensoryReachApp.navigatorKey);
 
   unawaited(FeedbackService.instance.syncPendingFeedback());
   Timer.periodic(const Duration(minutes: 2), (_) async {
@@ -30,4 +33,3 @@ void main() async {
 
   runApp(const SensoryReachApp());
 }
-

@@ -683,9 +683,6 @@ class AppLocalizationsKn extends AppLocalizations {
   String get updateLocation => 'ಸ್ಥಳವನ್ನು ನವೀಕರಿಸಿ';
 
   @override
-  String get useGuestProfile => 'ಅತಿಥಿ ಡೆಮೊ ಪ್ರೊಫೈಲ್ ಬಳಸಿ';
-
-  @override
   String get userAge => 'ಬಳಕೆದಾರರ ವಯಸ್ಸು';
 
   @override
