@@ -17,6 +17,12 @@ class AppState extends ChangeNotifier {
   double? _lastDetectedConfidence;
   final List<SoundEvent> _history = [];
   Timer? _historyCleanupTimer;
+
+  // 5-second timer for the detected sound display.
+  // This only controls the UI display and does not
+  // stop or restart the sound classification service.
+  Timer? _detectionDisplayTimer;
+
   String _selectedSimSoundId = soundTaxonomy.first.id;
   int _currentTabIndex = 0; // 0: Home, 1: History, 2: Settings
   bool _isOnboarded = false;
@@ -515,7 +521,7 @@ class AppState extends ChangeNotifier {
   }
 
   // ==========================================================
-  // SOUND DETECTION + NOTIFICATION COOLDOWN
+  // SOUND DETECTION + HISTORY + NOTIFICATION COOLDOWN
   // ==========================================================
 
   void triggerSoundEvent(
@@ -525,6 +531,28 @@ class AppState extends ChangeNotifier {
     _lastDetectedSound = sound;
     _lastDetectedConfidence = confidence;
     _isListening = true;
+
+    // --------------------------------------------------------
+    // Keep the detected sound visible for 5 seconds.
+    //
+    // This timer controls ONLY the UI display.
+    // It does NOT stop or restart sound classification.
+    //
+    // If another sound is detected before 5 seconds,
+    // the timer is reset and the new sound gets its own
+    // full 5-second display period.
+    // --------------------------------------------------------
+
+    _detectionDisplayTimer?.cancel();
+
+    _detectionDisplayTimer = Timer(
+      const Duration(seconds: 5),
+      () {
+        _lastDetectedSound = null;
+        _lastDetectedConfidence = null;
+        notifyListeners();
+      },
+    );
 
     // --------------------------------------------------------
     // Check mute rules
@@ -543,44 +571,13 @@ class AppState extends ChangeNotifier {
     }
 
     // --------------------------------------------------------
-    // Add detection to history
+    // Determine cooldown for this sound.
     //
-    // IMPORTANT:
-    // Notification cooldown does NOT affect history.
-    // Every confirmed detection is still recorded.
-    // --------------------------------------------------------
-
-    final newEvent = SoundEvent(
-      id:
-          'evt_${DateTime.now().millisecondsSinceEpoch}',
-      soundId: sound.id,
-      userId: _userProfile.id,
-      label: sound.name,
-      severity: sound.severity,
-      mode: sound.environment,
-      timestamp: DateTime.now(),
-    );
-
-    _history.insert(0, newEvent);
-
-    // Keep only sounds detected within the
-    // last 1 hour.
-    final oneHourAgo =
-        DateTime.now().subtract(
-      const Duration(hours: 1),
-    );
-
-    _history.removeWhere(
-      (event) =>
-          event.timestamp.isBefore(oneHourAgo),
-    );
-
-    _saveHistory();
-
-    notifyListeners();
-
-    // --------------------------------------------------------
-    // Determine notification cooldown
+    // The same cooldown values are used for both:
+    // 1. History / Recents
+    // 2. Notifications
+    //
+    // The actual cooldown tracking remains independent.
     // --------------------------------------------------------
 
     final Duration cooldown;
@@ -607,11 +604,117 @@ class AppState extends ChangeNotifier {
         break;
     }
 
+    final now = DateTime.now();
+
     // --------------------------------------------------------
-    // Check this SOUND'S own cooldown
+    // HISTORY COOLDOWN
+    // --------------------------------------------------------
+    //
+    // Check the most recent History entry for THIS sound.
+    //
+    // Different sounds have independent cooldowns.
+    //
+    // Example:
+    // Dog Bark at 2:00
+    // Dog Bark at 2:01 -> suppressed
+    // Doorbell at 2:01 -> allowed
+    //
+    // Because History is persisted, this also works after
+    // restarting the application.
     // --------------------------------------------------------
 
-    final now = DateTime.now();
+    SoundEvent? lastHistoryEvent;
+
+    for (final event in _history) {
+      if (event.soundId == sound.id) {
+        lastHistoryEvent = event;
+        break;
+      }
+    }
+
+    bool historySuppressed = false;
+
+    if (lastHistoryEvent != null) {
+      final elapsed =
+          now.difference(lastHistoryEvent.timestamp);
+
+      if (elapsed < cooldown) {
+        historySuppressed = true;
+
+        if (kDebugMode) {
+          final remaining =
+              cooldown - elapsed;
+
+          print(
+            'History suppressed for '
+            '${sound.name}. '
+            'Cooldown remaining: '
+            '${remaining.inMinutes}m '
+            '${remaining.inSeconds % 60}s',
+          );
+        }
+      }
+    }
+
+    // --------------------------------------------------------
+    // Add detection to History ONLY if its cooldown expired.
+    // --------------------------------------------------------
+
+    if (!historySuppressed) {
+      final newEvent = SoundEvent(
+        id:
+            'evt_${DateTime.now().millisecondsSinceEpoch}',
+        soundId: sound.id,
+        userId: _userProfile.id,
+        label: sound.name,
+        severity: sound.severity,
+        mode: sound.environment,
+        timestamp: now,
+      );
+
+      _history.insert(0, newEvent);
+
+      if (kDebugMode) {
+        print(
+          'History entry added for '
+          '${sound.name}. '
+          'Cooldown: '
+          '${cooldown.inMinutes} minutes.',
+        );
+      }
+    }
+
+    // --------------------------------------------------------
+    // Keep only sounds detected within the
+    // last 1 hour.
+    // --------------------------------------------------------
+
+    final oneHourAgo =
+        DateTime.now().subtract(
+      const Duration(hours: 1),
+    );
+
+    _history.removeWhere(
+      (event) =>
+          event.timestamp.isBefore(oneHourAgo),
+    );
+
+    _saveHistory();
+
+    // IMPORTANT:
+    // notifyListeners() happens even when History is suppressed.
+    //
+    // This means the main 5-second detection display still
+    // updates normally for every confirmed sound.
+    notifyListeners();
+
+    // --------------------------------------------------------
+    // NOTIFICATION COOLDOWN
+    // --------------------------------------------------------
+    //
+    // Notification cooldown is intentionally independent
+    // from History cooldown.
+    // --------------------------------------------------------
 
     final lastNotification =
         _lastNotificationTimes[sound.id];
@@ -705,6 +808,9 @@ class AppState extends ChangeNotifier {
   }
 
   void clearDetectedSound() {
+    _detectionDisplayTimer?.cancel();
+    _detectionDisplayTimer = null;
+
     _lastDetectedSound = null;
     _lastDetectedConfidence = null;
     notifyListeners();
@@ -834,6 +940,7 @@ class AppState extends ChangeNotifier {
   @override
   void dispose() {
     _historyCleanupTimer?.cancel();
+    _detectionDisplayTimer?.cancel();
     _firebaseAuthSubscription?.cancel();
     super.dispose();
   }

@@ -49,7 +49,6 @@ class _HomeScreenState extends State<HomeScreen> {
           // Clear any previously displayed sound and return
           // to the normal listening state.
           if (sound == null) {
-            currentState.clearDetectedSound();
             return;
           }
 
@@ -101,7 +100,6 @@ class _HomeScreenState extends State<HomeScreen> {
               // NO SOUND
               // ------------------------------------------------
               if (sound == null) {
-                currentState.clearDetectedSound();
                 return;
               }
 
@@ -466,8 +464,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                         // --------------------------------
                                         if (sound ==
                                             null) {
-                                          currentState
-                                              .clearDetectedSound();
                                           return;
                                         }
 
