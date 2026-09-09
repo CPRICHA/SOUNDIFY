@@ -18,7 +18,7 @@ class AppState extends ChangeNotifier {
   final List<SoundEvent> _history = [];
   Timer? _historyCleanupTimer;
 
-  // 5-second timer for the detected sound display.
+  // 10-second timer for the detected sound display.
   // This only controls the UI display and does not
   // stop or restart the sound classification service.
   Timer? _detectionDisplayTimer;
@@ -30,17 +30,28 @@ class AppState extends ChangeNotifier {
   StreamSubscription<User?>? _firebaseAuthSubscription;
 
   // ----------------------------------------------------------
-  // Notification cooldown tracking
+  // Detection cooldown tracking
   // ----------------------------------------------------------
   //
-  // Each sound has its own notification timer.
+  // Each sound has its own detection/output cooldown.
   //
   // Example:
   // Dog Bark  -> its own cooldown
   // Doorbell  -> its own cooldown
   // Siren     -> its own cooldown
   //
-  // A notification for one sound does NOT affect another sound.
+  // A detection of one sound does NOT affect another sound.
+  //
+  final Map<String, DateTime> _lastDetectionTimes = {};
+
+  // ----------------------------------------------------------
+  // Notification cooldown tracking
+  // ----------------------------------------------------------
+  //
+  // Each sound has its own notification timer.
+  //
+  // Notification cooldown remains separate from the
+  // detection/output cooldown.
   //
   final Map<String, DateTime> _lastNotificationTimes = {};
 
@@ -528,28 +539,111 @@ class AppState extends ChangeNotifier {
     SoundLabel sound, [
     double? confidence,
   ]) {
+    // --------------------------------------------------------
+    // Determine cooldown for this sound.
+    //
+    // These values control the complete confirmed-sound
+    // output cooldown:
+    //
+    // Low      -> 5 minutes
+    // Medium   -> 3 minutes
+    // High     -> 2 minutes
+    // Critical -> 1 minute
+    // --------------------------------------------------------
+
+    final Duration cooldown;
+
+    switch (sound.severity) {
+      case PriorityLevel.low:
+        cooldown =
+            const Duration(minutes: 5);
+        break;
+
+      case PriorityLevel.medium:
+        cooldown =
+            const Duration(minutes: 3);
+        break;
+
+      case PriorityLevel.high:
+        cooldown =
+            const Duration(minutes: 2);
+        break;
+
+      case PriorityLevel.critical:
+        cooldown =
+            const Duration(minutes: 1);
+        break;
+    }
+
+    final now = DateTime.now();
+
+    // --------------------------------------------------------
+    // DETECTION / OUTPUT COOLDOWN
+    // --------------------------------------------------------
+    //
+    // This is checked BEFORE updating the main-screen output.
+    //
+    // If the same sound is still within its cooldown:
+    // - Do NOT show it on the main screen.
+    // - Do NOT restart the 10-second display timer.
+    // - Do NOT add it to History.
+    // - Do NOT send a notification.
+    //
+    // Different sounds have independent cooldowns.
+    // The classifier itself continues listening normally.
+    // --------------------------------------------------------
+
+    final lastDetection =
+        _lastDetectionTimes[sound.id];
+
+    if (lastDetection != null) {
+      final elapsed =
+          now.difference(lastDetection);
+
+      if (elapsed < cooldown) {
+        if (kDebugMode) {
+          final remaining =
+              cooldown - elapsed;
+
+          print(
+            'Detection suppressed for '
+            '${sound.name}. '
+            'Cooldown remaining: '
+            '${remaining.inMinutes}m '
+            '${remaining.inSeconds % 60}s',
+          );
+        }
+
+        return;
+      }
+    }
+
+    // This sound is allowed through the detection cooldown.
+    _lastDetectionTimes[sound.id] = now;
+
+    // --------------------------------------------------------
+    // MAIN DETECTION OUTPUT
+    // --------------------------------------------------------
+
     _lastDetectedSound = sound;
     _lastDetectedConfidence = confidence;
     _isListening = true;
 
     // --------------------------------------------------------
-    // Keep the detected sound visible for 5 seconds.
+    // Keep the detected sound visible for 10 seconds.
     //
     // This timer controls ONLY the UI display.
     // It does NOT stop or restart sound classification.
-    //
-    // If another sound is detected before 5 seconds,
-    // the timer is reset and the new sound gets its own
-    // full 5-second display period.
     // --------------------------------------------------------
 
     _detectionDisplayTimer?.cancel();
 
     _detectionDisplayTimer = Timer(
-      const Duration(seconds: 5),
+      const Duration(seconds: 10),
       () {
         _lastDetectedSound = null;
         _lastDetectedConfidence = null;
+        _detectionDisplayTimer = null;
         notifyListeners();
       },
     );
@@ -571,56 +665,14 @@ class AppState extends ChangeNotifier {
     }
 
     // --------------------------------------------------------
-    // Determine cooldown for this sound.
-    //
-    // The same cooldown values are used for both:
-    // 1. History / Recents
-    // 2. Notifications
-    //
-    // The actual cooldown tracking remains independent.
-    // --------------------------------------------------------
-
-    final Duration cooldown;
-
-    switch (sound.severity) {
-      case PriorityLevel.low:
-        cooldown =
-            const Duration(minutes: 10);
-        break;
-
-      case PriorityLevel.medium:
-        cooldown =
-            const Duration(minutes: 7);
-        break;
-
-      case PriorityLevel.high:
-        cooldown =
-            const Duration(minutes: 2);
-        break;
-
-      case PriorityLevel.critical:
-        cooldown =
-            const Duration(minutes: 2);
-        break;
-    }
-
-    final now = DateTime.now();
-
-    // --------------------------------------------------------
     // HISTORY COOLDOWN
     // --------------------------------------------------------
     //
-    // Check the most recent History entry for THIS sound.
+    // The detection/output cooldown above already prevents
+    // repeated confirmed detections from reaching this point.
     //
-    // Different sounds have independent cooldowns.
-    //
-    // Example:
-    // Dog Bark at 2:00
-    // Dog Bark at 2:01 -> suppressed
-    // Doorbell at 2:01 -> allowed
-    //
-    // Because History is persisted, this also works after
-    // restarting the application.
+    // This History check is intentionally retained as an
+    // additional safeguard for persisted History entries.
     // --------------------------------------------------------
 
     SoundEvent? lastHistoryEvent;
@@ -701,19 +753,15 @@ class AppState extends ChangeNotifier {
 
     _saveHistory();
 
-    // IMPORTANT:
-    // notifyListeners() happens even when History is suppressed.
-    //
-    // This means the main 5-second detection display still
-    // updates normally for every confirmed sound.
     notifyListeners();
 
     // --------------------------------------------------------
     // NOTIFICATION COOLDOWN
     // --------------------------------------------------------
     //
-    // Notification cooldown is intentionally independent
-    // from History cooldown.
+    // Notification cooldown remains independently tracked.
+    // The output-level cooldown above already prevents the
+    // same sound from reaching this section while cooling down.
     // --------------------------------------------------------
 
     final lastNotification =
