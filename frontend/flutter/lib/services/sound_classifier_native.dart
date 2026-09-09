@@ -23,17 +23,38 @@ class TFLiteSoundClassificationService
   bool _processing = false;
 
   // ----------------------------------------------------------
-  // Silence detection
+  // Prediction confirmation
   // ----------------------------------------------------------
   //
-  // If the RMS energy of the 3-second recording is below this
-  // threshold, the recording is treated as silence.
+  // We do NOT immediately display every model prediction.
   //
-  // Silence is NOT treated as a SoundLabel.
-  // Instead, null is sent to the UI so that any previous
-  // detected sound can be cleared and the app returns to
-  // listening mode.
+  // Three consecutive predictions are collected.
   //
+  // Example:
+  //
+  //   Dog Bark
+  //   Doorbell
+  //   Dog Bark
+  //
+  // → Dog Bark is confirmed because it appears 2/3 times.
+  //
+  // If there is no majority:
+  //
+  //   Dog Bark
+  //   Doorbell
+  //   Siren
+  //
+  // → No sound is displayed.
+  //
+  static const int _requiredPredictions = 3;
+  static const int _requiredMajority = 2;
+
+  final List<SoundLabel> _predictionBuffer = [];
+
+  // ----------------------------------------------------------
+  // Silence detection
+  // ----------------------------------------------------------
+
   static const double _silenceRmsThreshold = 0.01;
 
   @override
@@ -71,6 +92,9 @@ class TFLiteSoundClassificationService
     }
 
     _isListening = true;
+
+    // Start with a clean prediction buffer.
+    _predictionBuffer.clear();
 
     // Run first recording immediately.
     await _captureAndClassify(onSoundDetected);
@@ -155,10 +179,10 @@ class TFLiteSoundClassificationService
           'AIISH V6 offline: silence detected',
         );
 
-        // null means "there is no sound to display".
-        //
-        // The UI should clear the previous detected sound
-        // and return to its normal listening state.
+        // Clear any previous predictions.
+        _predictionBuffer.clear();
+
+        // Silence means there is nothing to display.
         onSoundDetected(null, 0.0);
 
         return;
@@ -166,9 +190,6 @@ class TFLiteSoundClassificationService
 
       // ------------------------------------------------------
       // 4. Run YAMNet
-      //
-      // 3 seconds / YAMNet framing produces 6 frames
-      // with 1024-dimensional embeddings.
       // ------------------------------------------------------
 
       final yamnetOutput = List.generate(
@@ -183,8 +204,6 @@ class TFLiteSoundClassificationService
 
       // ------------------------------------------------------
       // 5. Mean-pool YAMNet embeddings
-      //
-      // Same operation used during AIISH model training.
       // ------------------------------------------------------
 
       final meanEmbedding = List<double>.filled(
@@ -201,11 +220,6 @@ class TFLiteSoundClassificationService
 
       // ------------------------------------------------------
       // 6. Run AIISH V6 classifier
-      //
-      // V6 has 26 classes:
-      //
-      //   0 - 24 : existing sound classes
-      //   25     : No Sound
       // ------------------------------------------------------
 
       final classifierInput = [
@@ -266,32 +280,29 @@ class TFLiteSoundClassificationService
         'Pressure Cooker Whistle',  // 17
         'Siren',                    // 18
         'Street Music',              // 19
-        'Temple Bell',              // 20
-        'Train Horn',               // 21
-        'Utensils',                 // 22
-        'Vehicle Horn',             // 23
+        'Temple Bell',               // 20
+        'Train Horn',                // 21
+        'Utensils',                  // 22
+        'Vehicle Horn',              // 23
         'Water Running',             // 24
-        'No Sound',                 // 25
+        'No Sound',                  // 25
       ];
 
       final predictedClass =
           modelClasses[bestIndex];
 
       // ------------------------------------------------------
-      // 9. Handle AIISH V6 "No Sound" prediction
-      // ------------------------------------------------------
-      //
-      // Even though the RMS silence check happens before
-      // classification, keep this additional protection.
-      //
-      // "No Sound" is NEVER converted into a SoundLabel.
-      // It simply clears the current UI detection.
+      // 9. Handle "No Sound"
       // ------------------------------------------------------
 
       if (predictedClass == 'No Sound') {
         print(
           'AIISH V6 offline: model predicted No Sound',
         );
+
+        // Any No Sound prediction breaks the current
+        // confirmation sequence.
+        _predictionBuffer.clear();
 
         onSoundDetected(null, 0.0);
 
@@ -300,9 +311,6 @@ class TFLiteSoundClassificationService
 
       // ------------------------------------------------------
       // 10. Map model classes to application sound IDs
-      //
-      // IMPORTANT:
-      // "No Sound" is intentionally NOT included here.
       // ------------------------------------------------------
 
       const modelOutputToSoundId =
@@ -398,7 +406,7 @@ class TFLiteSoundClassificationService
       }
 
       // ------------------------------------------------------
-      // 11. Log prediction
+      // 11. Log raw prediction
       // ------------------------------------------------------
 
       print(
@@ -407,24 +415,101 @@ class TFLiteSoundClassificationService
         '(${(confidence * 100).toStringAsFixed(1)}%)',
       );
 
+      if (matchedSound == null) {
+        return;
+      }
+
       // ------------------------------------------------------
-      // 12. Trigger application callback
-      //
-      // Normal sound:
-      //     matchedSound != null
-      //     → send sound to UI
-      //
-      // No Sound:
-      //     handled above
-      //     → send null
+      // 12. Add prediction to confirmation buffer
       // ------------------------------------------------------
 
-      if (matchedSound != null) {
-        onSoundDetected(
-          matchedSound,
-          confidence,
+      _predictionBuffer.add(matchedSound);
+
+      print(
+        'Prediction buffer: '
+        '${_predictionBuffer.map((s) => s.name).join(', ')}',
+      );
+
+      // ------------------------------------------------------
+      // 13. Wait until we have 3 predictions
+      // ------------------------------------------------------
+
+      if (_predictionBuffer.length <
+          _requiredPredictions) {
+        print(
+          'Waiting for more predictions '
+          '(${_predictionBuffer.length}/$_requiredPredictions)',
         );
+
+        return;
       }
+
+      // ------------------------------------------------------
+      // 14. Find majority sound
+      // ------------------------------------------------------
+
+      final counts =
+          <String, int>{};
+
+      final soundById =
+          <String, SoundLabel>{};
+
+      for (final sound in _predictionBuffer) {
+        counts[sound.id] =
+            (counts[sound.id] ?? 0) + 1;
+
+        soundById[sound.id] = sound;
+      }
+
+      String? majoritySoundId;
+      var highestCount = 0;
+
+      for (final entry in counts.entries) {
+        if (entry.value > highestCount) {
+          highestCount = entry.value;
+          majoritySoundId = entry.key;
+        }
+      }
+
+      final confirmedSound =
+          majoritySoundId != null
+              ? soundById[majoritySoundId]
+              : null;
+
+      // ------------------------------------------------------
+      // 15. Clear buffer after evaluation
+      // ------------------------------------------------------
+
+      _predictionBuffer.clear();
+
+      // ------------------------------------------------------
+      // 16. Only display if 2/3 agree
+      // ------------------------------------------------------
+
+      if (confirmedSound == null ||
+          highestCount < _requiredMajority) {
+        print(
+          'No majority detected. '
+          'No sound displayed.',
+        );
+
+        return;
+      }
+
+      print(
+        'CONFIRMED SOUND: '
+        '${confirmedSound.name} '
+        '($highestCount/$_requiredPredictions)',
+      );
+
+      // ------------------------------------------------------
+      // 17. Send ONLY confirmed sound to the application
+      // ------------------------------------------------------
+
+      onSoundDetected(
+        confirmedSound,
+        confidence,
+      );
     } catch (e) {
       print(
         'AIISH V6 offline inference error: $e',
@@ -565,6 +650,9 @@ class TFLiteSoundClassificationService
 
     _timer?.cancel();
     _timer = null;
+
+    // Clear unfinished predictions.
+    _predictionBuffer.clear();
 
     if (await _recorder.isRecording()) {
       await _recorder.stop();
