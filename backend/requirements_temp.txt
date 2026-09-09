@@ -1,0 +1,17 @@
+tensorflow==2.21.0
+tensorflow-hub==0.16.1
+setuptools==80.9.0
+librosa
+numpy
+pandas
+matplotlib
+scikit-learn
+scipy
+soundfile
+audioread
+tqdm
+kagglehub
+jupyter
+ipykernel
+flask
+werkzeug

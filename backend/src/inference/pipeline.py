@@ -3,7 +3,7 @@ Reusable AIISH inference pipeline.
 
 Pipeline:
     Audio File → load_audio() → YAMNet → Mean Embedding (1024)
-    → AIISH_v2.tflite → Prediction
+    → AIISH_v6.tflite → Prediction
 """
 
 from __future__ import annotations
@@ -20,8 +20,8 @@ from src.model.yamnet_loader import load_yamnet
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
-TFLITE_MODEL = REPO_ROOT / "models" / "AIISH_v2.tflite"
-LABEL_PATH = REPO_ROOT / "data" / "mappings" / "unified_labels.json"
+TFLITE_MODEL = REPO_ROOT / "models" / "AIISH_v6.tflite"
+LABEL_PATH = REPO_ROOT / "data" / "mappings" / "unified_labels_v6.json"
 MODEL_DISPLAY_NAME = TFLITE_MODEL.name
 
 EXPECTED_CLASS_COUNT = 25
@@ -31,14 +31,14 @@ _pipeline: "InferencePipeline | None" = None
 
 
 def load_labels(label_path: Path) -> list[str]:
-    """Load index → class name mapping used by AIISH_v2."""
+    """Load index → class name mapping used by AIISH_v6."""
     with open(label_path, "r", encoding="utf-8") as f:
         label_map = json.load(f)
     return [label_map[str(i)] for i in range(len(label_map))]
 
 
 def load_tflite_interpreter(model_path: Path):
-    """Create and allocate a TFLite interpreter for AIISH_v2."""
+    """Create and allocate a TFLite interpreter for AIISH_v6."""
     interpreter = tf.lite.Interpreter(model_path=str(model_path))
     interpreter.allocate_tensors()
     return interpreter
@@ -81,7 +81,7 @@ class InferencePipeline:
             - load_audio() for mono 16 kHz preprocessing
             - YAMNet for 1024-d frame embeddings
             - mean pooling (same as training)
-            - AIISH_v2.tflite for classification
+            - AIISH_v6.tflite for classification
         """
         start = time.perf_counter()
 
