@@ -1667,18 +1667,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      final testSound = soundTaxonomy.firstWhere(
-                        (s) => s.severity == PriorityLevel.critical,
-                        orElse: () => soundTaxonomy.first,
-                      );
-                      state.triggerSoundEvent(testSound);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('${l10n.dispatchedSystemAlert}: ${getLocalizedSoundName(testSound.id, context: context)}'),
-                          duration: const Duration(seconds: 2),
-                        ),
-                      );
-                    },
+  final testSound = soundTaxonomy.firstWhere(
+    (s) =>
+        s.getPriority(state.environmentMode) ==
+        PriorityLevel.critical,
+    orElse: () => soundTaxonomy.first,
+  );
+
+  state.triggerSoundEvent(testSound);
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(
+        '${l10n.dispatchedSystemAlert}: '
+        '${getLocalizedSoundName(
+          testSound.id,
+          context: context,
+        )}',
+      ),
+      duration: const Duration(seconds: 2),
+    ),
+  );
+},
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF5B4FE8),
                       foregroundColor: Colors.white,

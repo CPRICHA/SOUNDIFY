@@ -536,286 +536,303 @@ class AppState extends ChangeNotifier {
   // ==========================================================
 
   void triggerSoundEvent(
-    SoundLabel sound, [
-    double? confidence,
-  ]) {
-    // --------------------------------------------------------
-    // Determine cooldown for this sound.
-    //
-    // These values control the complete confirmed-sound
-    // output cooldown:
-    //
-    // Low      -> 5 minutes
-    // Medium   -> 3 minutes
-    // High     -> 2 minutes
-    // Critical -> 1 minute
-    // --------------------------------------------------------
+  SoundLabel sound, [
+  double? confidence,
+]) {
+  // --------------------------------------------------------
+  // Determine the priority based on the CURRENT environment
+  // mode.
+  //
+  // Indoor mode  -> use indoorSeverity
+  // Outdoor mode -> use outdoorSeverity
+  // --------------------------------------------------------
 
-    final Duration cooldown;
+  final currentPriority =
+      sound.getPriority(_environmentMode);
 
-    switch (sound.severity) {
-      case PriorityLevel.low:
-        cooldown =
-            const Duration(minutes: 5);
-        break;
+  // --------------------------------------------------------
+  // Determine cooldown based on the current mode-specific
+  // priority.
+  //
+  // Low      -> 5 minutes
+  // Medium   -> 3 minutes
+  // High     -> 2 minutes
+  // Critical -> 1 minute
+  // --------------------------------------------------------
 
-      case PriorityLevel.medium:
-        cooldown =
-            const Duration(minutes: 3);
-        break;
+  final Duration cooldown;
 
-      case PriorityLevel.high:
-        cooldown =
-            const Duration(minutes: 2);
-        break;
+  switch (currentPriority) {
+    case PriorityLevel.low:
+      cooldown =
+          const Duration(minutes: 5);
+      break;
 
-      case PriorityLevel.critical:
-        cooldown =
-            const Duration(minutes: 1);
-        break;
-    }
+    case PriorityLevel.medium:
+      cooldown =
+          const Duration(minutes: 3);
+      break;
 
-    final now = DateTime.now();
+    case PriorityLevel.high:
+      cooldown =
+          const Duration(minutes: 2);
+      break;
 
-    // --------------------------------------------------------
-    // DETECTION / OUTPUT COOLDOWN
-    // --------------------------------------------------------
-    //
-    // This is checked BEFORE updating the main-screen output.
-    //
-    // If the same sound is still within its cooldown:
-    // - Do NOT show it on the main screen.
-    // - Do NOT restart the 10-second display timer.
-    // - Do NOT add it to History.
-    // - Do NOT send a notification.
-    //
-    // Different sounds have independent cooldowns.
-    // The classifier itself continues listening normally.
-    // --------------------------------------------------------
+    case PriorityLevel.critical:
+      cooldown =
+          const Duration(minutes: 1);
+      break;
+  }
 
-    final lastDetection =
-        _lastDetectionTimes[sound.id];
+  final now = DateTime.now();
 
-    if (lastDetection != null) {
-      final elapsed =
-          now.difference(lastDetection);
+  // --------------------------------------------------------
+  // DETECTION / OUTPUT COOLDOWN
+  // --------------------------------------------------------
+  //
+  // Each sound has its own cooldown.
+  //
+  // If the same sound is still within its cooldown:
+  // - Do NOT show it on the main screen.
+  // - Do NOT restart the 10-second display timer.
+  // - Do NOT add it to History.
+  // - Do NOT send a notification.
+  //
+  // Different sounds have independent cooldowns.
+  // --------------------------------------------------------
 
-      if (elapsed < cooldown) {
-        if (kDebugMode) {
-          final remaining =
-              cooldown - elapsed;
+  final lastDetection =
+      _lastDetectionTimes[sound.id];
 
-          print(
-            'Detection suppressed for '
-            '${sound.name}. '
-            'Cooldown remaining: '
-            '${remaining.inMinutes}m '
-            '${remaining.inSeconds % 60}s',
-          );
-        }
+  if (lastDetection != null) {
+    final elapsed =
+        now.difference(lastDetection);
 
-        return;
+    if (elapsed < cooldown) {
+      if (kDebugMode) {
+        final remaining =
+            cooldown - elapsed;
+
+        print(
+          'Detection suppressed for '
+          '${sound.name}. '
+          'Priority: ${currentPriority.name}. '
+          'Cooldown remaining: '
+          '${remaining.inMinutes}m '
+          '${remaining.inSeconds % 60}s',
+        );
       }
-    }
 
-    // This sound is allowed through the detection cooldown.
-    _lastDetectionTimes[sound.id] = now;
-
-    // --------------------------------------------------------
-    // MAIN DETECTION OUTPUT
-    // --------------------------------------------------------
-
-    _lastDetectedSound = sound;
-    _lastDetectedConfidence = confidence;
-    _isListening = true;
-
-    // --------------------------------------------------------
-    // Keep the detected sound visible for 10 seconds.
-    //
-    // This timer controls ONLY the UI display.
-    // It does NOT stop or restart sound classification.
-    // --------------------------------------------------------
-
-    _detectionDisplayTimer?.cancel();
-
-    _detectionDisplayTimer = Timer(
-      const Duration(seconds: 10),
-      () {
-        _lastDetectedSound = null;
-        _lastDetectedConfidence = null;
-        _detectionDisplayTimer = null;
-        notifyListeners();
-      },
-    );
-
-    // --------------------------------------------------------
-    // Check mute rules
-    // --------------------------------------------------------
-
-    if (sound.severity == PriorityLevel.low &&
-        _userProfile.muteLowAlerts) {
-      notifyListeners();
       return;
     }
+  }
 
-    if (sound.severity == PriorityLevel.medium &&
-        _userProfile.muteMediumAlerts) {
+  // This sound is allowed through the detection cooldown.
+  _lastDetectionTimes[sound.id] = now;
+
+  // --------------------------------------------------------
+  // MAIN DETECTION OUTPUT
+  // --------------------------------------------------------
+
+  _lastDetectedSound = sound;
+  _lastDetectedConfidence = confidence;
+  _isListening = true;
+
+  // --------------------------------------------------------
+  // Keep the detected sound visible for 10 seconds.
+  //
+  // This timer controls ONLY the UI display.
+  // It does NOT stop or restart sound classification.
+  // --------------------------------------------------------
+
+  _detectionDisplayTimer?.cancel();
+
+  _detectionDisplayTimer = Timer(
+    const Duration(seconds: 10),
+    () {
+      _lastDetectedSound = null;
+      _lastDetectedConfidence = null;
+      _detectionDisplayTimer = null;
       notifyListeners();
-      return;
+    },
+  );
+
+  // --------------------------------------------------------
+  // Check mute rules using the CURRENT MODE priority.
+  // --------------------------------------------------------
+
+  if (currentPriority == PriorityLevel.low &&
+      _userProfile.muteLowAlerts) {
+    notifyListeners();
+    return;
+  }
+
+  if (currentPriority == PriorityLevel.medium &&
+      _userProfile.muteMediumAlerts) {
+    notifyListeners();
+    return;
+  }
+
+  // --------------------------------------------------------
+  // HISTORY COOLDOWN
+  // --------------------------------------------------------
+  //
+  // The detection/output cooldown above already prevents
+  // repeated confirmed detections from reaching this point.
+  //
+  // This History check remains as an additional safeguard.
+  // --------------------------------------------------------
+
+  SoundEvent? lastHistoryEvent;
+
+  for (final event in _history) {
+    if (event.soundId == sound.id &&
+    event.mode == _environmentMode)  {
+      lastHistoryEvent = event;
+      break;
     }
+  }
 
-    // --------------------------------------------------------
-    // HISTORY COOLDOWN
-    // --------------------------------------------------------
-    //
-    // The detection/output cooldown above already prevents
-    // repeated confirmed detections from reaching this point.
-    //
-    // This History check is intentionally retained as an
-    // additional safeguard for persisted History entries.
-    // --------------------------------------------------------
+  bool historySuppressed = false;
 
-    SoundEvent? lastHistoryEvent;
+  if (lastHistoryEvent != null) {
+    final elapsed =
+        now.difference(lastHistoryEvent.timestamp);
 
-    for (final event in _history) {
-      if (event.soundId == sound.id) {
-        lastHistoryEvent = event;
-        break;
-      }
-    }
-
-    bool historySuppressed = false;
-
-    if (lastHistoryEvent != null) {
-      final elapsed =
-          now.difference(lastHistoryEvent.timestamp);
-
-      if (elapsed < cooldown) {
-        historySuppressed = true;
-
-        if (kDebugMode) {
-          final remaining =
-              cooldown - elapsed;
-
-          print(
-            'History suppressed for '
-            '${sound.name}. '
-            'Cooldown remaining: '
-            '${remaining.inMinutes}m '
-            '${remaining.inSeconds % 60}s',
-          );
-        }
-      }
-    }
-
-    // --------------------------------------------------------
-    // Add detection to History ONLY if its cooldown expired.
-    // --------------------------------------------------------
-
-    if (!historySuppressed) {
-      final newEvent = SoundEvent(
-        id:
-            'evt_${DateTime.now().millisecondsSinceEpoch}',
-        soundId: sound.id,
-        userId: _userProfile.id,
-        label: sound.name,
-        severity: sound.severity,
-        mode: sound.environment,
-        timestamp: now,
-      );
-
-      _history.insert(0, newEvent);
+    if (elapsed < cooldown) {
+      historySuppressed = true;
 
       if (kDebugMode) {
+        final remaining =
+            cooldown - elapsed;
+
         print(
-          'History entry added for '
+          'History suppressed for '
           '${sound.name}. '
-          'Cooldown: '
-          '${cooldown.inMinutes} minutes.',
+          'Priority: ${currentPriority.name}. '
+          'Cooldown remaining: '
+          '${remaining.inMinutes}m '
+          '${remaining.inSeconds % 60}s',
         );
       }
     }
+  }
 
-    // --------------------------------------------------------
-    // Keep only sounds detected within the
-    // last 1 hour.
-    // --------------------------------------------------------
+  // --------------------------------------------------------
+  // Add detection to History ONLY if its cooldown expired.
+  // --------------------------------------------------------
 
-    final oneHourAgo =
-        DateTime.now().subtract(
-      const Duration(hours: 1),
+  if (!historySuppressed) {
+    final newEvent = SoundEvent(
+      id:
+          'evt_${DateTime.now().millisecondsSinceEpoch}',
+      soundId: sound.id,
+      userId: _userProfile.id,
+      label: sound.name,
+
+      // IMPORTANT:
+      // Store the priority that applied when the sound
+      // was actually detected.
+      severity: currentPriority,
+
+      // IMPORTANT:
+      // Store the mode in which the detection happened,
+      // NOT the taxonomy's original environment field.
+      mode: _environmentMode,
+
+      timestamp: now,
     );
 
-    _history.removeWhere(
-      (event) =>
-          event.timestamp.isBefore(oneHourAgo),
-    );
-
-    _saveHistory();
-
-    notifyListeners();
-
-    // --------------------------------------------------------
-    // NOTIFICATION COOLDOWN
-    // --------------------------------------------------------
-    //
-    // Notification cooldown remains independently tracked.
-    // The output-level cooldown above already prevents the
-    // same sound from reaching this section while cooling down.
-    // --------------------------------------------------------
-
-    final lastNotification =
-        _lastNotificationTimes[sound.id];
-
-    if (lastNotification != null) {
-      final elapsed =
-          now.difference(lastNotification);
-
-      if (elapsed < cooldown) {
-        if (kDebugMode) {
-          final remaining =
-              cooldown - elapsed;
-
-          print(
-            'Notification suppressed for '
-            '${sound.name}. '
-            'Cooldown remaining: '
-            '${remaining.inMinutes}m '
-            '${remaining.inSeconds % 60}s',
-          );
-        }
-
-        return;
-      }
-    }
-
-    // --------------------------------------------------------
-    // Notification is allowed
-    // --------------------------------------------------------
-
-    _lastNotificationTimes[sound.id] =
-        now;
+    _history.insert(0, newEvent);
 
     if (kDebugMode) {
       print(
-        'Notification allowed for '
+        'History entry added for '
         '${sound.name}. '
-        'Priority: ${sound.severity.name}. '
+        'Mode: ${_environmentMode.name}. '
+        'Priority: ${currentPriority.name}. '
         'Cooldown: '
         '${cooldown.inMinutes} minutes.',
       );
     }
+  }
 
-    NotificationService.instance.showSoundAlert(
-      sound,
-      textEnabled:
-          _userProfile.isTextEnabled,
-      iconEnabled:
-          _userProfile.isIconEnabled,
-      colorEnabled:
-          _userProfile.isColorEnabled,
+  // --------------------------------------------------------
+  // Keep only sounds detected within the last 1 hour.
+  // --------------------------------------------------------
+
+  final oneHourAgo =
+      DateTime.now().subtract(
+    const Duration(hours: 1),
+  );
+
+  _history.removeWhere(
+    (event) =>
+        event.timestamp.isBefore(oneHourAgo),
+  );
+
+  _saveHistory();
+
+  notifyListeners();
+
+  // --------------------------------------------------------
+  // NOTIFICATION COOLDOWN
+  // --------------------------------------------------------
+
+  final lastNotification =
+      _lastNotificationTimes[sound.id];
+
+  if (lastNotification != null) {
+    final elapsed =
+        now.difference(lastNotification);
+
+    if (elapsed < cooldown) {
+      if (kDebugMode) {
+        final remaining =
+            cooldown - elapsed;
+
+        print(
+          'Notification suppressed for '
+          '${sound.name}. '
+          'Priority: ${currentPriority.name}. '
+          'Cooldown remaining: '
+          '${remaining.inMinutes}m '
+          '${remaining.inSeconds % 60}s',
+        );
+      }
+
+      return;
+    }
+  }
+
+  // --------------------------------------------------------
+  // Notification is allowed.
+  // --------------------------------------------------------
+
+  _lastNotificationTimes[sound.id] = now;
+
+  if (kDebugMode) {
+    print(
+      'Notification allowed for '
+      '${sound.name}. '
+      'Mode: ${_environmentMode.name}. '
+      'Priority: ${currentPriority.name}. '
+      'Cooldown: '
+      '${cooldown.inMinutes} minutes.',
     );
   }
+
+  NotificationService.instance.showSoundAlert(
+  sound,
+  mode: _environmentMode,
+  textEnabled:
+      _userProfile.isTextEnabled,
+  iconEnabled:
+      _userProfile.isIconEnabled,
+  colorEnabled:
+      _userProfile.isColorEnabled,
+);
+}
 
   /// Toggles an output preference
   /// ('text', 'icon', 'color') ensuring that

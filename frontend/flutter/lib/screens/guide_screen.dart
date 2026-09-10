@@ -20,6 +20,7 @@ class GuideScreen extends StatefulWidget {
 class _GuideScreenState extends State<GuideScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+
   final Map<PriorityLevel, bool> _isVibratingMap = {
     PriorityLevel.critical: false,
     PriorityLevel.high: false,
@@ -33,16 +34,19 @@ class _GuideScreenState extends State<GuideScreen>
   @override
   void initState() {
     super.initState();
+
     _tabController = TabController(
       length: 2,
       vsync: this,
       initialIndex: widget.initialTabIndex,
     );
+
     _checkHardware();
   }
 
   Future<void> _checkHardware() async {
     final available = await HapticService.hasVibrator();
+
     if (mounted) {
       setState(() {
         _hasVibrator = available;
@@ -65,7 +69,10 @@ class _GuideScreenState extends State<GuideScreen>
     await HapticService.testPattern(severity);
 
     final duration = HapticService.getFallbackDuration(severity);
-    await Future.delayed(Duration(milliseconds: duration + 100));
+
+    await Future.delayed(
+      Duration(milliseconds: duration + 100),
+    );
 
     if (mounted) {
       setState(() {
@@ -74,28 +81,88 @@ class _GuideScreenState extends State<GuideScreen>
     }
   }
 
+  String _getLocalizedSeverity(
+    PriorityLevel severity,
+    AppLocalizations l10n,
+  ) {
+    switch (severity) {
+      case PriorityLevel.critical:
+        return l10n.priorityCritical;
+      case PriorityLevel.high:
+        return l10n.priorityHigh;
+      case PriorityLevel.medium:
+        return l10n.priorityMedium;
+      case PriorityLevel.low:
+        return l10n.priorityLow;
+    }
+  }
+
+  Widget _buildPriorityBadge(
+    PriorityLevel priority,
+    AppLocalizations l10n, {
+    bool compact = false,
+  }) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: compact ? 7 : 10,
+        vertical: compact ? 3 : 4,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.getSeverityBg(priority),
+        borderRadius: BorderRadius.circular(compact ? 7 : 10),
+        border: Border.all(
+          color: AppColors.getSeverityBorder(priority),
+        ),
+      ),
+      child: Text(
+        _getLocalizedSeverity(priority, l10n),
+        style: TextStyle(
+          fontSize: compact ? 9 : 11,
+          fontWeight: FontWeight.w800,
+          color: AppColors.getSeverityColor(priority),
+        ),
+      ),
+    );
+  }
+
   void _showSoundDetail(
-      BuildContext context, SoundLabel sound, AppLocalizations l10n) {
+    BuildContext context,
+    SoundLabel sound,
+    AppLocalizations l10n,
+  ) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(24),
+        ),
       ),
       builder: (ctx) {
         final localizedName =
             getLocalizedSoundName(sound.id, context: context);
+
         final localizedCategory =
             getLocalizedCategoryName(sound.category, context: context);
+
         final isHC = context.watch<AppState>().userProfile.highContrast;
 
         return StatefulBuilder(
           builder: (bottomCtx, setModalState) {
-            final isVib = _isVibratingMap[sound.severity] ?? false;
+            final indoorPriority = sound.indoorSeverity;
+            final outdoorPriority = sound.outdoorSeverity;
+
+            final isVib =
+                _isVibratingMap[indoorPriority] ?? false;
 
             return Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+              padding: const EdgeInsets.fromLTRB(
+                20,
+                16,
+                20,
+                32,
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -110,17 +177,27 @@ class _GuideScreenState extends State<GuideScreen>
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 18),
+
+                  // --------------------------------------------------------
+                  // Sound Header
+                  // --------------------------------------------------------
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
                         width: 54,
                         height: 54,
                         decoration: BoxDecoration(
-                          color: AppColors.getSeverityBg(sound.severity),
+                          color: AppColors.getSeverityBg(
+                            indoorPriority,
+                          ),
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: AppColors.getSeverityBorder(sound.severity),
+                            color: AppColors.getSeverityBorder(
+                              indoorPriority,
+                            ),
                             width: 2,
                           ),
                         ),
@@ -128,15 +205,20 @@ class _GuideScreenState extends State<GuideScreen>
                           child: Icon(
                             _getIconForSound(sound.id),
                             size: 28,
-                            color: AppColors.getSeverityColor(sound.severity,
-                                highContrast: isHC),
+                            color: AppColors.getSeverityColor(
+                              indoorPriority,
+                              highContrast: isHC,
+                            ),
                           ),
                         ),
                       ),
+
                       const SizedBox(width: 14),
+
                       Expanded(
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment:
+                              CrossAxisAlignment.start,
                           children: [
                             Text(
                               localizedName,
@@ -148,9 +230,11 @@ class _GuideScreenState extends State<GuideScreen>
                                     : AppColors.textPrimary,
                               ),
                             ),
+
                             const SizedBox(height: 4),
+
                             Text(
-                              '$localizedCategory • ${sound.environment == EnvironmentType.indoor ? l10n.indoorMode : l10n.outdoorMode}',
+                              localizedCategory,
                               style: TextStyle(
                                 fontSize: 12,
                                 color: isHC
@@ -162,31 +246,105 @@ class _GuideScreenState extends State<GuideScreen>
                           ],
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppColors.getSeverityBg(sound.severity),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: AppColors.getSeverityBorder(sound.severity),
+                    ],
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  // --------------------------------------------------------
+                  // Indoor / Outdoor Priority
+                  // --------------------------------------------------------
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: AppColors.getSeverityBg(
+                              indoorPriority,
+                            ),
+                            borderRadius:
+                                BorderRadius.circular(12),
+                            border: Border.all(
+                              color: AppColors.getSeverityBorder(
+                                indoorPriority,
+                              ),
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment:
+                                CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                l10n.indoorMode,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: isHC
+                                      ? AppColors.hcText
+                                      : AppColors.textSecondary,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              _buildPriorityBadge(
+                                indoorPriority,
+                                l10n,
+                                compact: false,
+                              ),
+                            ],
                           ),
                         ),
-                        child: Text(
-                          _getLocalizedSeverity(sound.severity, l10n),
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.getSeverityColor(sound.severity,
-                                highContrast: isHC),
+                      ),
+
+                      const SizedBox(width: 10),
+
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: AppColors.getSeverityBg(
+                              outdoorPriority,
+                            ),
+                            borderRadius:
+                                BorderRadius.circular(12),
+                            border: Border.all(
+                              color: AppColors.getSeverityBorder(
+                                outdoorPriority,
+                              ),
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment:
+                                CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                l10n.outdoorMode,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: isHC
+                                      ? AppColors.hcText
+                                      : AppColors.textSecondary,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              _buildPriorityBadge(
+                                outdoorPriority,
+                                l10n,
+                                compact: false,
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 20),
 
+                  // --------------------------------------------------------
                   // Waveform Visual Box
+                  // --------------------------------------------------------
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(14),
@@ -196,11 +354,14 @@ class _GuideScreenState extends State<GuideScreen>
                           : const Color(0xFFF8FAFC),
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
-                        color: isHC ? AppColors.hcBorder : const Color(0xFFE2E8F0),
+                        color: isHC
+                            ? AppColors.hcBorder
+                            : const Color(0xFFE2E8F0),
                       ),
                     ),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment:
+                          CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
@@ -211,7 +372,9 @@ class _GuideScreenState extends State<GuideScreen>
                                   ? AppColors.hcText
                                   : const Color(0xFF5B4FE8),
                             ),
+
                             const SizedBox(width: 6),
+
                             Text(
                               l10n.vibrationIntensity,
                               style: TextStyle(
@@ -224,9 +387,13 @@ class _GuideScreenState extends State<GuideScreen>
                             ),
                           ],
                         ),
+
                         const SizedBox(height: 6),
+
                         Text(
-                          HapticService.getWaveformVisual(sound.severity),
+                          HapticService.getWaveformVisual(
+                            indoorPriority,
+                          ),
                           style: TextStyle(
                             fontSize: 12,
                             fontFamily: 'monospace',
@@ -236,12 +403,29 @@ class _GuideScreenState extends State<GuideScreen>
                                 : const Color(0xFF4338CA),
                           ),
                         ),
+
                         const SizedBox(height: 4),
+
                         Text(
                           HapticService.getPatternDescription(
-                              sound.severity, context),
+                            indoorPriority,
+                            context,
+                          ),
                           style: TextStyle(
                             fontSize: 12,
+                            color: isHC
+                                ? AppColors.hcText
+                                : const Color(0xFF64748B),
+                          ),
+                        ),
+
+                        const SizedBox(height: 6),
+
+                        Text(
+                          'Pattern shown for Indoor priority',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontStyle: FontStyle.italic,
                             color: isHC
                                 ? AppColors.hcText
                                 : const Color(0xFF64748B),
@@ -250,16 +434,23 @@ class _GuideScreenState extends State<GuideScreen>
                       ],
                     ),
                   ),
+
                   const SizedBox(height: 18),
 
-                  // Actions: Test Vibration & Trigger Detection
+                  // --------------------------------------------------------
+                  // Actions
+                  // --------------------------------------------------------
                   Row(
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
                           onPressed: () async {
                             setModalState(() {});
-                            await _testTier(sound.severity);
+
+                            await _testTier(
+                              indoorPriority,
+                            );
+
                             setModalState(() {});
                           },
                           icon: Icon(
@@ -269,14 +460,19 @@ class _GuideScreenState extends State<GuideScreen>
                             size: 18,
                           ),
                           label: Text(
-                            isVib ? 'Vibrating...' : l10n.testWaveform,
+                            isVib
+                                ? 'Vibrating...'
+                                : l10n.testWaveform,
                             style: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
                           style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            padding:
+                                const EdgeInsets.symmetric(
+                              vertical: 14,
+                            ),
                             foregroundColor: isHC
                                 ? AppColors.hcText
                                 : const Color(0xFF5B4FE8),
@@ -287,20 +483,29 @@ class _GuideScreenState extends State<GuideScreen>
                               width: 1.5,
                             ),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius:
+                                  BorderRadius.circular(12),
                             ),
                           ),
                         ),
                       ),
+
                       const SizedBox(width: 10),
+
                       Expanded(
                         child: ElevatedButton.icon(
                           onPressed: () {
                             Navigator.of(ctx).pop();
-                            final state = context.read<AppState>();
+
+                            final state =
+                                context.read<AppState>();
+
                             state.triggerSoundEvent(sound);
                           },
-                          icon: const Icon(Icons.play_arrow_rounded, size: 18),
+                          icon: const Icon(
+                            Icons.play_arrow_rounded,
+                            size: 18,
+                          ),
                           label: Text(
                             l10n.triggerDetectionEvent,
                             style: const TextStyle(
@@ -309,13 +514,17 @@ class _GuideScreenState extends State<GuideScreen>
                             ),
                           ),
                           style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            padding:
+                                const EdgeInsets.symmetric(
+                              vertical: 14,
+                            ),
                             backgroundColor: isHC
                                 ? AppColors.hcBorder
                                 : const Color(0xFF5B4FE8),
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius:
+                                  BorderRadius.circular(12),
                             ),
                           ),
                         ),
@@ -333,70 +542,101 @@ class _GuideScreenState extends State<GuideScreen>
 
   IconData _getIconForSound(String id) {
     final lower = id.toLowerCase();
+
     if (lower.contains('fire') ||
         lower.contains('alarm') ||
         lower.contains('smoke')) {
       return Icons.local_fire_department_rounded;
     }
-    if (lower.contains('glass')) return Icons.broken_image_rounded;
-    if (lower.contains('pressure') || lower.contains('cooker')) {
+
+    if (lower.contains('glass')) {
+      return Icons.broken_image_rounded;
+    }
+
+    if (lower.contains('pressure') ||
+        lower.contains('cooker')) {
       return Icons.soup_kitchen_rounded;
     }
-    if (lower.contains('water') || lower.contains('pump') || lower.contains('rain')) {
+
+    if (lower.contains('water') ||
+        lower.contains('pump') ||
+        lower.contains('rain')) {
       return Icons.water_drop_rounded;
     }
-    if (lower.contains('microwave')) return Icons.microwave_rounded;
-    if (lower.contains('mixer') || lower.contains('grinder')) {
+
+    if (lower.contains('microwave')) {
+      return Icons.microwave_rounded;
+    }
+
+    if (lower.contains('mixer') ||
+        lower.contains('grinder')) {
       return Icons.blender_rounded;
     }
-    if (lower.contains('doorbell') || lower.contains('bell')) {
+
+    if (lower.contains('doorbell') ||
+        lower.contains('bell')) {
       return Icons.doorbell_rounded;
     }
-    if (lower.contains('knock') || lower.contains('door')) {
+
+    if (lower.contains('knock') ||
+        lower.contains('door')) {
       return Icons.meeting_room_rounded;
     }
-    if (lower.contains('baby') || lower.contains('crying')) {
+
+    if (lower.contains('baby') ||
+        lower.contains('crying')) {
       return Icons.child_care_rounded;
     }
-    if (lower.contains('distress') || lower.contains('scream')) {
+
+    if (lower.contains('distress') ||
+        lower.contains('scream')) {
       return Icons.warning_amber_rounded;
     }
+
     if (lower.contains('siren') ||
         lower.contains('police') ||
         lower.contains('ambulance')) {
       return Icons.emergency_rounded;
     }
-    if (lower.contains('train')) return Icons.train_rounded;
+
+    if (lower.contains('train')) {
+      return Icons.train_rounded;
+    }
+
     if (lower.contains('vehicle') ||
         lower.contains('car') ||
         lower.contains('horn') ||
         lower.contains('auto')) {
       return Icons.directions_car_rounded;
     }
-    if (lower.contains('blast') || lower.contains('explosion')) {
+
+    if (lower.contains('blast') ||
+        lower.contains('explosion')) {
       return Icons.dangerous_rounded;
     }
-    if (lower.contains('cracker')) return Icons.celebration_rounded;
-    if (lower.contains('dog')) return Icons.pets_rounded;
-    if (lower.contains('cat')) return Icons.pets_rounded;
-    if (lower.contains('thunder')) return Icons.thunderstorm_rounded;
-    if (lower.contains('speech') || lower.contains('crowd')) {
+
+    if (lower.contains('cracker')) {
+      return Icons.celebration_rounded;
+    }
+
+    if (lower.contains('dog')) {
+      return Icons.pets_rounded;
+    }
+
+    if (lower.contains('cat')) {
+      return Icons.pets_rounded;
+    }
+
+    if (lower.contains('thunder')) {
+      return Icons.thunderstorm_rounded;
+    }
+
+    if (lower.contains('speech') ||
+        lower.contains('crowd')) {
       return Icons.record_voice_over_rounded;
     }
-    return Icons.volume_up_rounded;
-  }
 
-  String _getLocalizedSeverity(PriorityLevel severity, AppLocalizations l10n) {
-    switch (severity) {
-      case PriorityLevel.critical:
-        return l10n.priorityCritical;
-      case PriorityLevel.high:
-        return l10n.priorityHigh;
-      case PriorityLevel.medium:
-        return l10n.priorityMedium;
-      case PriorityLevel.low:
-        return l10n.priorityLow;
-    }
+    return Icons.volume_up_rounded;
   }
 
   @override
@@ -437,61 +677,95 @@ class _GuideScreenState extends State<GuideScreen>
     ];
 
     final filteredTaxonomy = soundTaxonomy.where((s) {
-      if (_searchQuery.isEmpty) return true;
+      if (_searchQuery.isEmpty) {
+        return true;
+      }
+
       final query = _searchQuery.toLowerCase();
-      final name = getLocalizedSoundName(s.id, context: context).toLowerCase();
-      final cat =
-          getLocalizedCategoryName(s.category, context: context).toLowerCase();
+
+      final name = getLocalizedSoundName(
+        s.id,
+        context: context,
+      ).toLowerCase();
+
+      final cat = getLocalizedCategoryName(
+        s.category,
+        context: context,
+      ).toLowerCase();
+
       return name.contains(query) || cat.contains(query);
     }).toList();
 
     return Scaffold(
-      backgroundColor: isHC ? AppColors.hcBackground : AppColors.background,
+      backgroundColor:
+          isHC ? AppColors.hcBackground : AppColors.background,
+
       appBar: AppBar(
         title: Text(
           l10n.hapticGuideTitle,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w800,
-            color: isHC ? AppColors.hcText : AppColors.textPrimary,
+            color: isHC
+                ? AppColors.hcText
+                : AppColors.textPrimary,
           ),
         ),
+
         bottom: TabBar(
           controller: _tabController,
-          labelColor: isHC ? AppColors.hcText : const Color(0xFF5B4FE8),
-          unselectedLabelColor: const Color(0xFF64748B),
-          indicatorColor: isHC ? AppColors.hcText : const Color(0xFF5B4FE8),
+          labelColor: isHC
+              ? AppColors.hcText
+              : const Color(0xFF5B4FE8),
+          unselectedLabelColor:
+              const Color(0xFF64748B),
+          indicatorColor: isHC
+              ? AppColors.hcText
+              : const Color(0xFF5B4FE8),
           tabs: [
             Tab(
-              icon: const Icon(Icons.vibration_rounded, size: 20),
+              icon: const Icon(
+                Icons.vibration_rounded,
+                size: 20,
+              ),
               text: l10n.vibrationGuide,
             ),
             Tab(
-              icon: const Icon(Icons.grid_view_rounded, size: 20),
+              icon: const Icon(
+                Icons.grid_view_rounded,
+                size: 20,
+              ),
               text: 'Sound Taxonomy (33)',
             ),
           ],
         ),
       ),
+
       body: TabBarView(
         controller: _tabController,
         children: [
-          // Tab 1: Vibrations Wave Guide
+          // ================================================================
+          // TAB 1: VIBRATIONS WAVE GUIDE
+          // ================================================================
           ListView(
             padding: const EdgeInsets.all(16),
             children: [
               // Hardware status banner
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                margin: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
+                margin:
+                    const EdgeInsets.only(bottom: 16),
                 decoration: BoxDecoration(
                   color: isHC
                       ? Colors.white
                       : (_hasVibrator
                           ? const Color(0xFFF0FDF4)
                           : const Color(0xFFFEF2F2)),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius:
+                      BorderRadius.circular(14),
                   border: Border.all(
                     color: isHC
                         ? AppColors.hcBorder
@@ -512,18 +786,22 @@ class _GuideScreenState extends State<GuideScreen>
                           ? const Color(0xFF16A34A)
                           : const Color(0xFFDC2626),
                     ),
+
                     const SizedBox(width: 10),
+
                     Expanded(
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment:
+                            CrossAxisAlignment.start,
                         children: [
                           Text(
                             _hasVibrator
-                              ? 'Tactile Vibration Engine Ready'
-                              : 'Vibration Simulation Active',
+                                ? 'Tactile Vibration Engine Ready'
+                                : 'Vibration Simulation Active',
                             style: TextStyle(
                               fontSize: 13,
-                              fontWeight: FontWeight.w700,
+                              fontWeight:
+                                  FontWeight.w700,
                               color: isHC
                                   ? AppColors.hcText
                                   : (_hasVibrator
@@ -531,11 +809,13 @@ class _GuideScreenState extends State<GuideScreen>
                                       : const Color(0xFFB91C1C)),
                             ),
                           ),
+
                           const SizedBox(height: 2),
+
                           Text(
                             _hasVibrator
-                              ? 'Tap "Test Waveform" on any tier to feel its physical vibration pattern.'
-                              : 'Connected physical devices will trigger tactile patterns scaled by severity.',
+                                ? 'Tap "Test Waveform" on any tier to feel its physical vibration pattern.'
+                                : 'Connected physical devices will trigger tactile patterns scaled by severity.',
                             style: TextStyle(
                               fontSize: 11,
                               color: isHC
@@ -555,88 +835,135 @@ class _GuideScreenState extends State<GuideScreen>
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: isHC ? AppColors.hcText : AppColors.textPrimary,
+                  color: isHC
+                      ? AppColors.hcText
+                      : AppColors.textPrimary,
                 ),
               ),
+
               const SizedBox(height: 4),
+
               Text(
                 l10n.hapticGuideDesc,
                 style: TextStyle(
                   fontSize: 12,
-                  color: isHC ? AppColors.hcText : AppColors.textSecondary,
+                  color: isHC
+                      ? AppColors.hcText
+                      : AppColors.textSecondary,
                 ),
               ),
+
               const SizedBox(height: 16),
 
               // 4 Priority Tier Cards
               ...tiers.map((tier) {
-                final severity = tier['severity'] as PriorityLevel;
-                final isVibrating = _isVibratingMap[severity] ?? false;
+                final severity =
+                    tier['severity'] as PriorityLevel;
+
+                final isVibrating =
+                    _isVibratingMap[severity] ?? false;
 
                 return Container(
-                  margin: const EdgeInsets.only(bottom: 14),
+                  margin: const EdgeInsets.only(
+                    bottom: 14,
+                  ),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius:
+                        BorderRadius.circular(16),
                     border: Border.all(
                       color: isVibrating
-                          ? AppColors.getSeverityColor(severity)
-                          : (isHC ? AppColors.hcBorder : AppColors.border),
-                      width: isVibrating ? 2 : (isHC ? 2 : 1),
+                          ? AppColors.getSeverityColor(
+                              severity,
+                            )
+                          : (isHC
+                              ? AppColors.hcBorder
+                              : AppColors.border),
+                      width: isVibrating
+                          ? 2
+                          : (isHC ? 2 : 1),
                     ),
                     boxShadow: isVibrating
                         ? [
                             BoxShadow(
-                              color: AppColors.getSeverityColor(severity)
-                                  .withOpacity(0.2),
+                              color:
+                                  AppColors.getSeverityColor(
+                                severity,
+                              ).withOpacity(0.2),
                               blurRadius: 10,
-                              offset: const Offset(0, 4),
+                              offset:
+                                  const Offset(0, 4),
                             ),
                           ]
                         : null,
                   ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
                             child: Text(
                               tier['title'] as String,
                               style: TextStyle(
                                 fontSize: 14,
-                                fontWeight: FontWeight.w800,
+                                fontWeight:
+                                    FontWeight.w800,
                                 color: isHC
                                     ? AppColors.hcText
                                     : AppColors.textPrimary,
                               ),
                             ),
                           ),
+
                           Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 4),
+                            padding:
+                                const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
-                              color: AppColors.getSeverityBg(severity),
-                              borderRadius: BorderRadius.circular(8),
+                              color:
+                                  AppColors.getSeverityBg(
+                                severity,
+                              ),
+                              borderRadius:
+                                  BorderRadius.circular(
+                                8,
+                              ),
                               border: Border.all(
-                                  color:
-                                      AppColors.getSeverityBorder(severity)),
+                                color: AppColors
+                                    .getSeverityBorder(
+                                  severity,
+                                ),
+                              ),
                             ),
                             child: Text(
-                              _getLocalizedSeverity(severity, l10n),
+                              _getLocalizedSeverity(
+                                severity,
+                                l10n,
+                              ),
                               style: TextStyle(
                                 fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.getSeverityColor(severity,
-                                    highContrast: isHC),
+                                fontWeight:
+                                    FontWeight.w800,
+                                color: AppColors
+                                    .getSeverityColor(
+                                  severity,
+                                  highContrast: isHC,
+                                ),
                               ),
                             ),
                           ),
                         ],
                       ),
+
                       const SizedBox(height: 8),
+
                       Text(
                         tier['desc'] as String,
                         style: TextStyle(
@@ -647,58 +974,74 @@ class _GuideScreenState extends State<GuideScreen>
                           height: 1.4,
                         ),
                       ),
+
                       const SizedBox(height: 12),
 
                       // Waveform Box
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.all(12),
+                        padding:
+                            const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: isHC
                               ? const Color(0xFFF1F5F9)
                               : const Color(0xFFF8FAFC),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius:
+                              BorderRadius.circular(12),
                           border: Border.all(
                             color: isHC
                                 ? AppColors.hcBorder
-                                : const Color(0xFFE2E8F0),
+                                : const Color(
+                                    0xFFE2E8F0,
+                                  ),
                           ),
                         ),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment:
+                              CrossAxisAlignment.start,
                           children: [
                             Text(
                               '${l10n.pulsePatternLabel} ${tier['pattern']}',
                               style: TextStyle(
                                 fontSize: 11,
                                 fontFamily: 'monospace',
-                                fontWeight: FontWeight.w700,
+                                fontWeight:
+                                    FontWeight.w700,
                                 color: isHC
                                     ? AppColors.hcText
-                                    : const Color(0xFF4338CA),
+                                    : const Color(
+                                        0xFF4338CA,
+                                      ),
                               ),
                             ),
+
                             const SizedBox(height: 2),
+
                             Text(
                               tier['timing'] as String,
                               style: TextStyle(
                                 fontSize: 10,
                                 color: isHC
                                     ? AppColors.hcText
-                                    : const Color(0xFF64748B),
+                                    : const Color(
+                                        0xFF64748B,
+                                      ),
                               ),
                             ),
                           ],
                         ),
                       ),
+
                       const SizedBox(height: 14),
 
                       // Test Waveform Button
                       SizedBox(
                         width: double.infinity,
                         height: 44,
-                        child: ElevatedButton.icon(
-                          onPressed: () => _testTier(severity),
+                        child:
+                            ElevatedButton.icon(
+                          onPressed: () =>
+                              _testTier(severity),
                           icon: Icon(
                             isVibrating
                                 ? Icons.waves_rounded
@@ -711,18 +1054,30 @@ class _GuideScreenState extends State<GuideScreen>
                                 : l10n.testWaveform,
                             style: const TextStyle(
                               fontSize: 13,
-                              fontWeight: FontWeight.w700,
+                              fontWeight:
+                                  FontWeight.w700,
                             ),
                           ),
-                          style: ElevatedButton.styleFrom(
+                          style:
+                              ElevatedButton.styleFrom(
                             backgroundColor: isVibrating
-                                ? AppColors.getSeverityColor(severity)
+                                ? AppColors
+                                    .getSeverityColor(
+                                    severity,
+                                  )
                                 : (isHC
                                     ? AppColors.hcText
-                                    : const Color(0xFF5B4FE8)),
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                                    : const Color(
+                                        0xFF5B4FE8,
+                                      )),
+                            foregroundColor:
+                                Colors.white,
+                            shape:
+                                RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.circular(
+                                12,
+                              ),
                             ),
                           ),
                         ),
@@ -734,11 +1089,18 @@ class _GuideScreenState extends State<GuideScreen>
             ],
           ),
 
-          // Tab 2: 33 Sound Taxonomy Classes
+          // ================================================================
+          // TAB 2: SOUND TAXONOMY
+          // ================================================================
           Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                padding: const EdgeInsets.fromLTRB(
+                  16,
+                  16,
+                  16,
+                  8,
+                ),
                 child: TextField(
                   onChanged: (val) {
                     setState(() {
@@ -746,72 +1108,144 @@ class _GuideScreenState extends State<GuideScreen>
                     });
                   },
                   decoration: InputDecoration(
-                    hintText: 'Search 33 sound classes...',
-                    prefixIcon: const Icon(Icons.search_rounded, size: 20),
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 12),
+                    hintText:
+                        'Search 33 sound classes...',
+                    prefixIcon: const Icon(
+                      Icons.search_rounded,
+                      size: 20,
+                    ),
+                    contentPadding:
+                        const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
                     filled: true,
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius:
+                          BorderRadius.circular(12),
                       borderSide: BorderSide(
-                        color: isHC ? AppColors.hcBorder : AppColors.border,
+                        color: isHC
+                            ? AppColors.hcBorder
+                            : AppColors.border,
                       ),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                    enabledBorder:
+                        OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(12),
                       borderSide: BorderSide(
-                        color: isHC ? AppColors.hcBorder : AppColors.border,
+                        color: isHC
+                            ? AppColors.hcBorder
+                            : AppColors.border,
                       ),
                     ),
                   ),
                 ),
               ),
+
               Expanded(
                 child: ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-                  itemCount: filteredTaxonomy.length,
-                  itemBuilder: (context, index) {
-                    final s = filteredTaxonomy[index];
+                  padding:
+                      const EdgeInsets.fromLTRB(
+                    16,
+                    8,
+                    16,
+                    24,
+                  ),
+                  itemCount:
+                      filteredTaxonomy.length,
+                  itemBuilder:
+                      (context, index) {
+                    final s =
+                        filteredTaxonomy[index];
+
                     final localizedName =
-                        getLocalizedSoundName(s.id, context: context);
+                        getLocalizedSoundName(
+                      s.id,
+                      context: context,
+                    );
+
                     final localizedCategory =
-                        getLocalizedCategoryName(s.category, context: context);
+                        getLocalizedCategoryName(
+                      s.category,
+                      context: context,
+                    );
+
+                    final indoorPriority =
+                        s.indoorSeverity;
+
+                    final outdoorPriority =
+                        s.outdoorSeverity;
 
                     return Container(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      decoration: BoxDecoration(
+                      margin:
+                          const EdgeInsets.only(
+                        bottom: 8,
+                      ),
+                      decoration:
+                          BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius:
+                            BorderRadius.circular(
+                          14,
+                        ),
                         border: Border.all(
-                          color: isHC ? AppColors.hcBorder : AppColors.border,
+                          color: isHC
+                              ? AppColors.hcBorder
+                              : AppColors.border,
                           width: isHC ? 2 : 1,
                         ),
                       ),
                       child: ListTile(
-                        onTap: () => _showSoundDetail(context, s, l10n),
+                        onTap: () =>
+                            _showSoundDetail(
+                          context,
+                          s,
+                          l10n,
+                        ),
+
                         leading: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: AppColors.getSeverityBg(s.severity),
-                            borderRadius: BorderRadius.circular(10),
+                          padding:
+                              const EdgeInsets.all(
+                            8,
+                          ),
+                          decoration:
+                              BoxDecoration(
+                            color: AppColors
+                                .getSeverityBg(
+                              indoorPriority,
+                            ),
+                            borderRadius:
+                                BorderRadius.circular(
+                              10,
+                            ),
                           ),
                           child: Icon(
-                            _getIconForSound(s.id),
+                            _getIconForSound(
+                              s.id,
+                            ),
                             size: 20,
-                            color: AppColors.getSeverityColor(s.severity,
-                                highContrast: isHC),
+                            color: AppColors
+                                .getSeverityColor(
+                              indoorPriority,
+                              highContrast: isHC,
+                            ),
                           ),
                         ),
+
                         title: Text(
                           localizedName,
                           style: TextStyle(
                             fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color:
-                                isHC ? AppColors.hcText : AppColors.textPrimary,
+                            fontWeight:
+                                FontWeight.w700,
+                            color: isHC
+                                ? AppColors.hcText
+                                : AppColors.textPrimary,
                           ),
                         ),
+
                         subtitle: Text(
                           localizedCategory,
                           style: TextStyle(
@@ -821,22 +1255,69 @@ class _GuideScreenState extends State<GuideScreen>
                                 : AppColors.textSecondary,
                           ),
                         ),
-                        trailing: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: AppColors.getSeverityBg(s.severity),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            _getLocalizedSeverity(s.severity, l10n),
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w800,
-                              color: AppColors.getSeverityColor(s.severity,
-                                  highContrast: isHC),
+
+                        trailing: Column(
+                          mainAxisAlignment:
+                              MainAxisAlignment.center,
+                          crossAxisAlignment:
+                              CrossAxisAlignment.end,
+                          children: [
+                            Row(
+                              mainAxisSize:
+                                  MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'I',
+                                  style: TextStyle(
+                                    fontSize: 9,
+                                    fontWeight:
+                                        FontWeight.w800,
+                                    color: isHC
+                                        ? AppColors.hcText
+                                        : AppColors
+                                            .textSecondary,
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 4,
+                                ),
+                                _buildPriorityBadge(
+                                  indoorPriority,
+                                  l10n,
+                                  compact: true,
+                                ),
+                              ],
                             ),
-                          ),
+
+                            const SizedBox(height: 3),
+
+                            Row(
+                              mainAxisSize:
+                                  MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'O',
+                                  style: TextStyle(
+                                    fontSize: 9,
+                                    fontWeight:
+                                        FontWeight.w800,
+                                    color: isHC
+                                        ? AppColors.hcText
+                                        : AppColors
+                                            .textSecondary,
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 4,
+                                ),
+                                _buildPriorityBadge(
+                                  outdoorPriority,
+                                  l10n,
+                                  compact: true,
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                     );
@@ -852,20 +1333,29 @@ class _GuideScreenState extends State<GuideScreen>
 }
 
 /// Helper to display the Vibrations Wave Guide as an interactive bottom sheet
-void showVibrationWaveGuideSheet(BuildContext context) {
+void showVibrationWaveGuideSheet(
+  BuildContext context,
+) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
     builder: (_) => Container(
-      height: MediaQuery.of(context).size.height * 0.85,
+      height:
+          MediaQuery.of(context).size.height * 0.85,
       decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(24),
+        ),
       ),
       child: ClipRRect(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        child: const GuideScreen(initialTabIndex: 0),
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(24),
+        ),
+        child: const GuideScreen(
+          initialTabIndex: 0,
+        ),
       ),
     ),
   );

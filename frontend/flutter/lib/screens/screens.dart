@@ -2,24 +2,40 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/models.dart';
 import '../data/sound_taxonomy.dart';
-import '../services/services.dart' hide SoundClassificationService, TFLiteSoundClassificationService;
+import '../services/services.dart'
+    hide SoundClassificationService, TFLiteSoundClassificationService;
 import '../services/sound_classifier.dart';
 import '../data/legal_content.dart';
 
 // Riverpod Providers
-final authServiceProvider = Provider<AuthService>((ref) => FirebaseAuthService());
-final classificationServiceProvider = Provider<SoundClassificationService>((ref) => TFLiteSoundClassificationService());
-final historyServiceProvider = Provider<HistorySyncService>((ref) => HiveHistorySyncService());
-final emergencyServiceProvider = Provider<EmergencyService>((ref) => MockEmergencyService());
+final authServiceProvider =
+    Provider<AuthService>((ref) => FirebaseAuthService());
+
+final classificationServiceProvider =
+    Provider<SoundClassificationService>(
+  (ref) => TFLiteSoundClassificationService(),
+);
+
+final historyServiceProvider =
+    Provider<HistorySyncService>((ref) => HiveHistorySyncService());
+
+final emergencyServiceProvider =
+    Provider<EmergencyService>((ref) => MockEmergencyService());
 
 final authStateProvider = StreamProvider<UserProfile?>((ref) {
   return ref.watch(authServiceProvider).authStateChanges;
 });
 
-final currentModeProvider = StateProvider<String>((ref) => 'indoor'); // 'indoor' or 'outdoor'
+final currentModeProvider =
+    StateProvider<String>((ref) => 'indoor'); // 'indoor' or 'outdoor'
+
 final isListeningProvider = StateProvider<bool>((ref) => true);
-final userPreferencesProvider = StateProvider<List<String>>((ref) => ['text', 'icon', 'color']);
-final lastDetectedSoundProvider = StateProvider<SoundLabel?>((ref) => null);
+
+final userPreferencesProvider =
+    StateProvider<List<String>>((ref) => ['text', 'icon', 'color']);
+
+final lastDetectedSoundProvider =
+    StateProvider<SoundLabel?>((ref) => null);
 
 /// -------------------------------------------------------------
 /// 1. SPLASH SCREEN
@@ -35,10 +51,13 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
+
     Future.delayed(const Duration(seconds: 2), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const AuthLandingScreen()),
+        MaterialPageRoute(
+          builder: (context) => const AuthLandingScreen(),
+        ),
       );
     });
   }
@@ -57,7 +76,11 @@ class _SplashScreenState extends State<SplashScreen> {
                 color: Colors.white,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.hearing, size: 72, color: Colors.indigo),
+              child: const Icon(
+                Icons.hearing,
+                size: 72,
+                color: Colors.indigo,
+              ),
             ),
             const SizedBox(height: 24),
             const Text(
@@ -100,25 +123,37 @@ class AuthLandingScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Icon(Icons.account_circle, size: 100, color: Colors.indigo),
+              const Icon(
+                Icons.account_circle,
+                size: 100,
+                color: Colors.indigo,
+              ),
               const SizedBox(height: 32),
               const Text(
                 'Welcome to SoundSee',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 12),
               const Text(
                 'Your safe, visual companion for environmental sound safety.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, color: Colors.grey),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey,
+                ),
               ),
               const SizedBox(height: 48),
               ElevatedButton(
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const OnboardingScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => const OnboardingScreen(),
+                    ),
                   );
                 },
                 child: const Text('Sign Up'),
@@ -139,7 +174,10 @@ class AuthLandingScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16.0),
                   ),
                 ),
-                child: const Text('Sign In', style: TextStyle(fontSize: 16)),
+                child: const Text(
+                  'Sign In',
+                  style: TextStyle(fontSize: 16),
+                ),
               ),
             ],
           ),
@@ -148,7 +186,6 @@ class AuthLandingScreen extends StatelessWidget {
     );
   }
 }
-
 
 /// -------------------------------------------------------------
 /// SIGN IN SCREEN
@@ -163,6 +200,7 @@ class SignInScreen extends ConsumerStatefulWidget {
 class _SignInScreenState extends ConsumerState<SignInScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+
   bool _loading = false;
 
   Future<void> _signIn() async {
@@ -170,17 +208,20 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
 
     try {
       final user = await ref.read(authServiceProvider).signIn(
-        _emailController.text.trim(),
-        _passwordController.text,
-      );
+            _emailController.text.trim(),
+            _passwordController.text,
+          );
 
       if (!mounted) return;
 
       if (user != null) {
         print('[AUTH] SIGN IN SUCCESS: ${user.id} / ${user.email}');
+
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
+          MaterialPageRoute(
+            builder: (_) => const HomeScreen(),
+          ),
           (route) => false,
         );
       }
@@ -236,7 +277,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: _loading ? null : _signIn,
-              child: Text(_loading ? 'Signing In...' : 'Sign In'),
+              child: Text(
+                _loading ? 'Signing In...' : 'Sign In',
+              ),
             ),
           ],
         ),
@@ -252,11 +295,13 @@ class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({Key? key}) : super(key: key);
 
   @override
-  ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
+  ConsumerState<OnboardingScreen> createState() =>
+      _OnboardingScreenState();
 }
 
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final _formKey = GlobalKey<FormState>();
+
   final _nameController = TextEditingController();
   final _ageController = TextEditingController();
   final _phoneController = TextEditingController();
@@ -270,7 +315,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Create Profile TEST')),
+      appBar: AppBar(
+        title: const Text('Create Profile TEST'),
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -281,27 +328,41 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               children: [
                 TextFormField(
                   controller: _nameController,
-                  decoration: const InputDecoration(labelText: 'Name *', border: OutlineInputBorder()),
-                  validator: (v) => v!.isEmpty ? 'Name is required' : null,
+                  decoration: const InputDecoration(
+                    labelText: 'Name *',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (v) =>
+                      v!.isEmpty ? 'Name is required' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _ageController,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Age *', border: OutlineInputBorder()),
-                  validator: (v) => v!.isEmpty ? 'Age is required' : null,
+                  decoration: const InputDecoration(
+                    labelText: 'Age *',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (v) =>
+                      v!.isEmpty ? 'Age is required' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
-                  decoration: const InputDecoration(labelText: 'Emergency Phone', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: 'Emergency Phone',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(labelText: 'Email', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -318,12 +379,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 const SizedBox(height: 24),
                 CheckboxListTile(
                   value: _micAccess,
-                  onChanged: (v) => setState(() => _micAccess = v ?? false),
+                  onChanged: (v) =>
+                      setState(() => _micAccess = v ?? false),
                   title: const Text('Enable Microphone Access'),
                 ),
                 CheckboxListTile(
                   value: _termsAccepted,
-                  onChanged: (v) => setState(() => _termsAccepted = v ?? false),
+                  onChanged: (v) =>
+                      setState(() => _termsAccepted = v ?? false),
                   title: Row(
                     children: [
                       const Flexible(
@@ -332,25 +395,30 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       const SizedBox(width: 6),
                       InkWell(
                         onTap: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: const Text('Terms and Conditions'),
-                                content: const SizedBox(
-                                  width: double.maxFinite,
-                                  child: SingleChildScrollView(
-                                    child: Text(termsAndConditionsContent),
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text(
+                                'Terms and Conditions',
+                              ),
+                              content: const SizedBox(
+                                width: double.maxFinite,
+                                child: SingleChildScrollView(
+                                  child: Text(
+                                    termsAndConditionsContent,
                                   ),
                                 ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: const Text('Close'),
-                                  ),
-                                ],
                               ),
-                            );
-                          },
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context),
+                                  child: const Text('Close'),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                         child: const Icon(
                           Icons.info_outline_rounded,
                           size: 20,
@@ -361,7 +429,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 ),
                 CheckboxListTile(
                   value: _privacyAccepted,
-                  onChanged: (v) => setState(() => _privacyAccepted = v ?? false),
+                  onChanged: (v) =>
+                      setState(() => _privacyAccepted = v ?? false),
                   title: Row(
                     children: [
                       const Flexible(
@@ -370,25 +439,28 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       const SizedBox(width: 6),
                       InkWell(
                         onTap: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: const Text('Privacy Policy'),
-                                content: const SizedBox(
-                                  width: double.maxFinite,
-                                  child: SingleChildScrollView(
-                                    child: Text(privacyPolicyContent),
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Privacy Policy'),
+                              content: const SizedBox(
+                                width: double.maxFinite,
+                                child: SingleChildScrollView(
+                                  child: Text(
+                                    privacyPolicyContent,
                                   ),
                                 ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: const Text('Close'),
-                                  ),
-                                ],
                               ),
-                            );
-                          },
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context),
+                                  child: const Text('Close'),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                         child: const Icon(
                           Icons.info_outline_rounded,
                           size: 20,
@@ -405,7 +477,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         !_privacyAccepted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Please fill required fields and accept terms.'),
+                          content: Text(
+                            'Please fill required fields and accept terms.',
+                          ),
                         ),
                       );
                       return;
@@ -415,7 +489,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       final profile = UserProfile(
                         id: '',
                         name: _nameController.text.trim(),
-                        age: int.tryParse(_ageController.text.trim()) ?? 0,
+                        age: int.tryParse(
+                              _ageController.text.trim(),
+                            ) ??
+                            0,
                         phone: _phoneController.text.trim(),
                         email: _emailController.text.trim(),
                         micAccess: _micAccess,
@@ -423,10 +500,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         privacyPolicyAccepted: _privacyAccepted,
                       );
 
-                      final user = await ref.read(authServiceProvider).signUp(
-                        profile,
-                        _passwordController.text,
-                      );
+                      final user = await ref
+                          .read(authServiceProvider)
+                          .signUp(
+                            profile,
+                            _passwordController.text,
+                          );
 
                       if (!mounted) return;
 
@@ -434,7 +513,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const OutputPreferenceScreen(),
+                            builder: (_) =>
+                                const OutputPreferenceScreen(),
                           ),
                         );
                       }
@@ -444,7 +524,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                            e.toString().replaceFirst('Exception: ', ''),
+                            e.toString().replaceFirst(
+                                  'Exception: ',
+                                  '',
+                                ),
                           ),
                         ),
                       );
@@ -480,10 +563,16 @@ class OutputPreferenceScreen extends ConsumerWidget {
           children: [
             const Text(
               'How should SoundSee alert you?',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 8),
-            const Text('Pick at least one format. You can select multiple.', style: TextStyle(color: Colors.grey)),
+            const Text(
+              'Pick at least one format. You can select multiple.',
+              style: TextStyle(color: Colors.grey),
+            ),
             const SizedBox(height: 32),
             _buildPrefTile(
               ref,
@@ -518,7 +607,9 @@ class OutputPreferenceScreen extends ConsumerWidget {
                   : () {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => const HomeScreen()),
+                        MaterialPageRoute(
+                          builder: (context) => const HomeScreen(),
+                        ),
                       );
                     },
               child: const Text('Complete Setup'),
@@ -538,49 +629,85 @@ class OutputPreferenceScreen extends ConsumerWidget {
     required bool isSelected,
   }) {
     return Card(
-      color: isSelected ? Colors.indigo.shade50 : Colors.white,
+      color: isSelected
+          ? Colors.indigo.shade50
+          : Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: isSelected ? Colors.indigo : Colors.transparent, width: 1.5),
+        side: BorderSide(
+          color: isSelected
+              ? Colors.indigo
+              : Colors.transparent,
+          width: 1.5,
+        ),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: () {
-          final list = List<String>.from(ref.read(userPreferencesProvider));
+          final list = List<String>.from(
+            ref.read(userPreferencesProvider),
+          );
+
           if (list.contains(id)) {
             list.remove(id);
           } else {
             list.add(id);
           }
+
           ref.read(userPreferencesProvider.notifier).state = list;
         },
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Row(
             children: [
-              Icon(icon, size: 40, color: isSelected ? Colors.indigo : Colors.grey),
+              Icon(
+                icon,
+                size: 40,
+                color: isSelected
+                    ? Colors.indigo
+                    : Colors.grey,
+              ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                    Text(desc, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    Text(
+                      desc,
+                      style: const TextStyle(
+                        color: Colors.grey,
+                        fontSize: 12,
+                      ),
+                    ),
                   ],
                 ),
               ),
               Checkbox(
                 value: isSelected,
                 onChanged: (_) {
-                  final list = List<String>.from(ref.read(userPreferencesProvider));
+                  final list = List<String>.from(
+                    ref.read(userPreferencesProvider),
+                  );
+
                   if (list.contains(id)) {
                     list.remove(id);
                   } else {
                     list.add(id);
                   }
-                  ref.read(userPreferencesProvider.notifier).state = list;
+
+                  ref
+                      .read(userPreferencesProvider.notifier)
+                      .state = list;
                 },
-              )
+              ),
             ],
           ),
         ),
@@ -594,8 +721,10 @@ class OutputPreferenceScreen extends ConsumerWidget {
 /// -------------------------------------------------------------
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
-   @override
-  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+
+  @override
+  ConsumerState<HomeScreen> createState() =>
+      _HomeScreenState();
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
@@ -604,7 +733,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     super.initState();
 
     Future.microtask(() async {
-      final service = ref.read(classificationServiceProvider);
+      final service =
+          ref.read(classificationServiceProvider);
 
       try {
         await service.initializeModel();
@@ -612,12 +742,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         await service.startListening((sound, confidence) {
           if (!mounted) return;
 
-          ref.read(lastDetectedSoundProvider.notifier).state = sound;
+          ref.read(lastDetectedSoundProvider.notifier).state =
+              sound;
 
           print(
-            'Detected in HomeScreen: ${sound.name} '
-            '${(confidence * 100).toStringAsFixed(1)}%',
-          );
+  'Detected in HomeScreen: ${sound?.name ?? 'Unknown'} '
+  '${(confidence * 100).toStringAsFixed(1)}%',
+);
         });
       } catch (e) {
         print('Failed to start AIISH detection: $e');
@@ -645,14 +776,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             icon: const Icon(Icons.history),
             onPressed: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const DetailedHistoryScreen()),
+              MaterialPageRoute(
+                builder: (context) =>
+                    const DetailedHistoryScreen(),
+              ),
             ),
           ),
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              MaterialPageRoute(
+                builder: (context) =>
+                    const SettingsScreen(),
+              ),
             ),
           ),
         ],
@@ -661,44 +798,73 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment:
+                CrossAxisAlignment.stretch,
             children: [
               // Mode Toggler & GPS status row
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment:
+                    MainAxisAlignment.spaceBetween,
                 children: [
                   Row(
                     children: [
                       Icon(
-                        mode == 'indoor' ? Icons.home : Icons.park,
+                        mode == 'indoor'
+                            ? Icons.home
+                            : Icons.park,
                         color: Colors.indigo,
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        mode == 'indoor' ? 'Indoor Mode' : 'Outdoor Mode',
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        mode == 'indoor'
+                            ? 'Indoor Mode'
+                            : 'Outdoor Mode',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ],
                   ),
-                  Row(
-                    children: const [
-                      Icon(Icons.gps_fixed, size: 16, color: Colors.green),
+                  const Row(
+                    children: [
+                      Icon(
+                        Icons.gps_fixed,
+                        size: 16,
+                        color: Colors.green,
+                      ),
                       SizedBox(width: 4),
-                      Text('GPS Active', style: TextStyle(color: Colors.green, fontSize: 12)),
+                      Text(
+                        'GPS Active',
+                        style: TextStyle(
+                          color: Colors.green,
+                          fontSize: 12,
+                        ),
+                      ),
                     ],
-                  )
+                  ),
                 ],
               ),
               const SizedBox(height: 16),
+
               // Segmented Control
               Row(
                 children: [
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () => ref.read(currentModeProvider.notifier).state = 'indoor',
+                      onPressed: () =>
+                          ref
+                              .read(
+                                currentModeProvider.notifier,
+                              )
+                              .state = 'indoor',
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: mode == 'indoor' ? Colors.indigo : Colors.grey.shade200,
-                        foregroundColor: mode == 'indoor' ? Colors.white : Colors.black87,
+                        backgroundColor: mode == 'indoor'
+                            ? Colors.indigo
+                            : Colors.grey.shade200,
+                        foregroundColor: mode == 'indoor'
+                            ? Colors.white
+                            : Colors.black87,
                       ),
                       child: const Text('Indoor'),
                     ),
@@ -706,10 +872,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () => ref.read(currentModeProvider.notifier).state = 'outdoor',
+                      onPressed: () =>
+                          ref
+                              .read(
+                                currentModeProvider.notifier,
+                              )
+                              .state = 'outdoor',
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: mode == 'outdoor' ? Colors.indigo : Colors.grey.shade200,
-                        foregroundColor: mode == 'outdoor' ? Colors.white : Colors.black87,
+                        backgroundColor: mode == 'outdoor'
+                            ? Colors.indigo
+                            : Colors.grey.shade200,
+                        foregroundColor: mode == 'outdoor'
+                            ? Colors.white
+                            : Colors.black87,
                       ),
                       child: const Text('Outdoor'),
                     ),
@@ -717,6 +892,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 ],
               ),
               const Spacer(),
+
               // Centered listening ring
               Center(
                 child: Column(
@@ -724,12 +900,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     Stack(
                       alignment: Alignment.center,
                       children: [
-                        // Animated Listening Ripple Circles (Static representation here)
                         Container(
                           width: 200,
                           height: 200,
                           decoration: BoxDecoration(
-                            color: Colors.indigo.withOpacity(0.1),
+                            color:
+                                Colors.indigo.withOpacity(0.1),
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -737,7 +913,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           width: 160,
                           height: 160,
                           decoration: BoxDecoration(
-                            color: Colors.indigo.withOpacity(0.2),
+                            color:
+                                Colors.indigo.withOpacity(0.2),
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -758,59 +935,104 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                     const SizedBox(height: 24),
                     Text(
-                      listening ? 'Listening for environment...' : 'Paused',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey),
+                      listening
+                          ? 'Listening for environment...'
+                          : 'Paused',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey,
+                      ),
                     ),
                   ],
                 ),
               ),
               const Spacer(),
-              
+
               // Outdoor safety auxiliary triggers (Dynamic)
-              if (mode == 'outdoor' && lastSound != null && lastSound.severity == PriorityLevel.critical) ...[
+              if (mode == 'outdoor' &&
+                  lastSound != null &&
+                  lastSound.getPriority(
+                        EnvironmentType.outdoor,
+                      ) ==
+                      PriorityLevel.critical) ...[
                 Row(
                   children: [
                     Expanded(
                       child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                        ),
                         onPressed: () {
-                          ref.read(emergencyServiceProvider).triggerEmergencyAlert(
-                            'user_123',
-                            'Dispatched safety SMS to primary contact',
-                            'CALL_EMERGENCY',
-                          );
+                          ref
+                              .read(
+                                emergencyServiceProvider,
+                              )
+                              .triggerEmergencyAlert(
+                                'user_123',
+                                'Dispatched safety SMS to primary contact',
+                                'CALL_EMERGENCY',
+                              );
                         },
-                        icon: const Icon(Icons.phone, color: Colors.white),
-                        label: const Text('Call Emergency', style: TextStyle(color: Colors.white)),
+                        icon: const Icon(
+                          Icons.phone,
+                          color: Colors.white,
+                        ),
+                        label: const Text(
+                          'Call Emergency',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                        ),
                         onPressed: () {},
-                        icon: const Icon(Icons.safety_check, color: Colors.white),
-                        label: const Text('Reached Safe', style: TextStyle(color: Colors.white)),
+                        icon: const Icon(
+                          Icons.safety_check,
+                          color: Colors.white,
+                        ),
+                        label: const Text(
+                          'Reached Safe',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 16),
               ],
-              
+
               // Small history overview
-              const Text('Recent Alerts', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              const Text(
+                'Recent Alerts',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
               const SizedBox(height: 8),
               Container(
                 height: 100,
                 decoration: BoxDecoration(
                   color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius:
+                      BorderRadius.circular(16),
                 ),
                 child: const Center(
-                  child: Text('No recent critical events logged', style: TextStyle(color: Colors.grey)),
+                  child: Text(
+                    'No recent critical events logged',
+                    style: TextStyle(color: Colors.grey),
+                  ),
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -824,25 +1046,40 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 /// -------------------------------------------------------------
 class AlertBannerText extends StatelessWidget {
   final String text;
-  const AlertBannerText({Key? key, required this.text}) : super(key: key);
+
+  const AlertBannerText({
+    Key? key,
+    required this.text,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 12,
+      ),
       decoration: BoxDecoration(
         color: Colors.red.shade50,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.red.shade300),
+        border: Border.all(
+          color: Colors.red.shade300,
+        ),
       ),
       child: Row(
         children: [
-          const Icon(Icons.warning, color: Colors.red),
+          const Icon(
+            Icons.warning,
+            color: Colors.red,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.red,
+              ),
             ),
           ),
         ],
@@ -853,17 +1090,25 @@ class AlertBannerText extends StatelessWidget {
 
 class AlertBannerIcon extends StatelessWidget {
   final SoundLabel sound;
-  const AlertBannerIcon({Key? key, required this.sound}) : super(key: key);
+  final EnvironmentType mode;
+
+  const AlertBannerIcon({
+    Key? key,
+    required this.sound,
+    required this.mode,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     Color severityColor = Colors.green;
     IconData severityShape = Icons.circle;
 
-    if (sound.severity == PriorityLevel.critical) {
+    final currentPriority = sound.getPriority(mode);
+
+    if (currentPriority == PriorityLevel.critical) {
       severityColor = Colors.red;
       severityShape = Icons.warning;
-    } else if (sound.severity == PriorityLevel.high) {
+    } else if (currentPriority == PriorityLevel.high) {
       severityColor = Colors.orange;
       severityShape = Icons.warning;
     }
@@ -873,7 +1118,12 @@ class AlertBannerIcon extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10)],
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 10,
+          ),
+        ],
       ),
       child: Row(
         children: [
@@ -881,21 +1131,43 @@ class AlertBannerIcon extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.indigo.shade50,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius:
+                  BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.hearing, color: Colors.indigo, size: 28),
+            child: const Icon(
+              Icons.hearing,
+              color: Colors.indigo,
+              size: 28,
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
               children: [
-                Text(sound.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                Text(sound.category, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                Text(
+                  sound.name,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  sound.category,
+                  style: const TextStyle(
+                    color: Colors.grey,
+                    fontSize: 12,
+                  ),
+                ),
               ],
             ),
           ),
-          Icon(severityShape, color: severityColor, size: 32),
+          Icon(
+            severityShape,
+            color: severityColor,
+            size: 32,
+          ),
         ],
       ),
     );
@@ -909,32 +1181,68 @@ class DetailedHistoryScreen extends ConsumerWidget {
   const DetailedHistoryScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(
+    BuildContext context,
+    WidgetRef ref,
+  ) {
+    final modeString = ref.watch(currentModeProvider);
+
+    final mode = modeString == 'indoor'
+        ? EnvironmentType.indoor
+        : EnvironmentType.outdoor;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Alert History')),
+      appBar: AppBar(
+        title: const Text('Alert History'),
+      ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: soundTaxonomy.length,
         itemBuilder: (context, index) {
           final item = soundTaxonomy[index];
+
           IconData severityIcon = Icons.circle;
           Color sevColor = Colors.green;
 
-          if (item.severity == PriorityLevel.critical) {
+          final currentPriority =
+              item.getPriority(mode);
+
+          if (currentPriority ==
+              PriorityLevel.critical) {
             severityIcon = Icons.warning_amber;
             sevColor = Colors.red;
-          } else if (item.severity == PriorityLevel.high) {
+          } else if (currentPriority ==
+              PriorityLevel.high) {
             severityIcon = Icons.warning_amber;
             sevColor = Colors.amber;
           }
 
           return Card(
-            margin: const EdgeInsets.only(bottom: 12),
+            margin:
+                const EdgeInsets.only(bottom: 12),
             child: ListTile(
-              leading: Icon(severityIcon, color: sevColor, size: 28),
-              title: Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: Text('${item.category} • ${item.environment.name.toUpperCase()}'),
-              trailing: const Text('Just now', style: TextStyle(color: Colors.grey, fontSize: 12)),
+              leading: Icon(
+                severityIcon,
+                color: sevColor,
+                size: 28,
+              ),
+              title: Text(
+                item.name,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              subtitle: Text(
+                '${item.category} • '
+                '${mode.name.toUpperCase()}',
+              ),
+              trailing: const Text(
+                'Just now',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 12,
+                ),
+              ),
             ),
           );
         },
@@ -952,15 +1260,21 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Vibration Preferences')),
+      appBar: AppBar(
+        title: const Text('Vibration Preferences'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment:
+              CrossAxisAlignment.stretch,
           children: [
             const Text(
               'Haptic Vibration Guide',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 8),
             const Text(
@@ -968,27 +1282,32 @@ class SettingsScreen extends StatelessWidget {
               style: TextStyle(color: Colors.grey),
             ),
             const SizedBox(height: 32),
-            
             _buildVibrationRow(
               title: 'Critical Severity Vibration',
-              desc: 'Continuous intense pulses (250ms on, 50ms off) to ensure maximum safety.',
-              intensity: 'High Intensity (Emergency)',
+              desc:
+                  'Continuous intense pulses (250ms on, 50ms off) to ensure maximum safety.',
+              intensity:
+                  'High Intensity (Emergency)',
               waveform: '⌂⌂⌂⌂⌂⌂⌂⌂⌂⌂',
               color: Colors.red,
             ),
             const SizedBox(height: 16),
             _buildVibrationRow(
               title: 'Attention Severity Vibration',
-              desc: 'Double beat pattern (100ms pulse, 100ms pause, 100ms pulse) for general awareness.',
-              intensity: 'Medium Intensity',
+              desc:
+                  'Double beat pattern (100ms pulse, 100ms pause, 100ms pulse) for general awareness.',
+              intensity:
+                  'Medium Intensity',
               waveform: '⌴⌴  ⌴⌴  ⌴⌴',
               color: Colors.orange,
             ),
             const SizedBox(height: 16),
             _buildVibrationRow(
               title: 'Low Severity Vibration',
-              desc: 'Single light tap (50ms duration) for quiet background indicators.',
-              intensity: 'Low Intensity (Ambient)',
+              desc:
+                  'Single light tap (50ms duration) for quiet background indicators.',
+              intensity:
+                  'Low Intensity (Ambient)',
               waveform: ' .   .   . ',
               color: Colors.green,
             ),
@@ -1009,25 +1328,57 @@ class SettingsScreen extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment:
+              CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                Icon(Icons.vibration, color: color),
+                Icon(
+                  Icons.vibration,
+                  color: color,
+                ),
                 const SizedBox(width: 8),
-                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 8),
-            Text(desc, style: const TextStyle(color: Colors.grey, fontSize: 13)),
+            Text(
+              desc,
+              style: const TextStyle(
+                color: Colors.grey,
+                fontSize: 13,
+              ),
+            ),
             const SizedBox(height: 12),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment:
+                  MainAxisAlignment.spaceBetween,
               children: [
-                Text(intensity, style: TextStyle(color: color, fontWeight: FontWeight.w500, fontSize: 12)),
-                Text(waveform, style: TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.bold, color: color, fontSize: 14)),
+                Text(
+                  intensity,
+                  style: TextStyle(
+                    color: color,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 12,
+                  ),
+                ),
+                Text(
+                  waveform,
+                  style: TextStyle(
+                    fontFamily: 'monospace',
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                    fontSize: 14,
+                  ),
+                ),
               ],
-            )
+            ),
           ],
         ),
       ),

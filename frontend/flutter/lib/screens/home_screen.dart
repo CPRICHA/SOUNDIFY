@@ -46,8 +46,6 @@ class _HomeScreenState extends State<HomeScreen> {
           // --------------------------------------------------
           // null means the model detected silence.
           // Do NOT display anything.
-          // Clear any previously displayed sound and return
-          // to the normal listening state.
           if (sound == null) {
             return;
           }
@@ -80,6 +78,16 @@ class _HomeScreenState extends State<HomeScreen> {
     final colorEnabled = state.colorEnabled;
     final lastSound = state.lastDetectedSound;
     final isListening = state.isListening;
+
+    // --------------------------------------------------------
+    // Determine the priority of the currently displayed sound
+    // based on the CURRENT environment mode.
+    //
+    // Indoor  -> indoorSeverity
+    // Outdoor -> outdoorSeverity
+    // --------------------------------------------------------
+    final currentPriority =
+        lastSound?.getPriority(state.environmentMode);
 
     if (_previousListeningState != isListening) {
       _previousListeningState = isListening;
@@ -117,10 +125,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final l10n = AppLocalizations.of(context)!;
 
+    // --------------------------------------------------------
+    // Main detection border uses the CURRENT MODE priority.
+    // --------------------------------------------------------
     final Color? detectionBorderColor =
         lastSound != null && colorEnabled
             ? AppColors.getSeverityColor(
-                lastSound.severity,
+                currentPriority!,
                 highContrast: isHC,
               )
             : null;
@@ -333,8 +344,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ? (colorEnabled
                                               ? AppColors
                                                   .getSeverityBg(
-                                                      lastSound
-                                                          .severity)
+                                                      currentPriority!)
                                                   .withOpacity(
                                                       0.4)
                                               : (isHC
@@ -347,8 +357,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   .black12
                                               : AppColors
                                                   .primaryLight
-                                                  .withOpacity(
-                                                      0.5)),
+                                                  .withOpacity(0.5)),
                                   border:
                                       Border.all(
                                     color:
@@ -357,8 +366,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             ? (colorEnabled
                                                 ? AppColors
                                                     .getSeverityBorder(
-                                                        lastSound
-                                                            .severity)
+                                                        currentPriority!)
                                                 : (isHC
                                                     ? AppColors
                                                         .hcBorder
@@ -405,8 +413,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             ? (colorEnabled
                                                 ? AppColors
                                                     .getSeverityBorder(
-                                                        lastSound
-                                                            .severity)
+                                                        currentPriority!)
                                                 : (isHC
                                                     ? AppColors
                                                         .hcBorder
@@ -539,7 +546,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         color:
                                                             colorEnabled
                                                                 ? AppColors.getSeverityColor(
-                                                                    lastSound.severity,
+                                                                    currentPriority!,
                                                                     highContrast:
                                                                         isHC,
                                                                   )
@@ -564,7 +571,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         null
                                                     ? (colorEnabled
                                                         ? AppColors.getSeverityColor(
-                                                            lastSound.severity,
+                                                            currentPriority!,
                                                             highContrast:
                                                                 isHC,
                                                           )
@@ -667,8 +674,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             color: colorEnabled
                                 ? AppColors
                                     .getSeverityBg(
-                                        lastSound
-                                            .severity)
+                                        currentPriority!)
                                 : const Color(
                                     0xFFF1F5F9),
                             border:
@@ -676,8 +682,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               color: colorEnabled
                                   ? AppColors
                                       .getSeverityBorder(
-                                          lastSound
-                                              .severity)
+                                          currentPriority!)
                                   : const Color(
                                       0xFFE2E8F0),
                             ),
@@ -687,7 +692,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         12),
                           ),
                           child: Text(
-                            '${l10n.priorityPrefix}: ${_getLocalizedSeverity(lastSound.severity, l10n)}',
+                            '${l10n.priorityPrefix}: ${_getLocalizedSeverity(currentPriority!, l10n)}',
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight:
@@ -695,8 +700,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               color: colorEnabled
                                   ? AppColors
                                       .getSeverityColor(
-                                      lastSound
-                                          .severity,
+                                      currentPriority!,
                                       highContrast:
                                           isHC,
                                     )

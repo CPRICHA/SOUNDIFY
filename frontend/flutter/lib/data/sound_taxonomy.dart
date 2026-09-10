@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/models.dart';
+import '../l10n/app_localizations.dart';
 
 const List<String> taxonomyCategories = [
   'Home Safety & Household Awareness',
@@ -127,41 +128,6 @@ const Map<String, Map<String, String>> categoryTranslations = {
   },
 };
 
-/// Resolves sound name localized via BuildContext or direct language code
-String getLocalizedSoundName(String soundIdOrName, {BuildContext? context, String? langCode}) {
-  final code = langCode ?? (context != null ? Localizations.localeOf(context).languageCode : 'en');
-  
-  // Try matching by exact ID
-  if (soundClassTranslations[code]?.containsKey(soundIdOrName) == true) {
-    return soundClassTranslations[code]![soundIdOrName]!;
-  }
-  
-  // Try finding SoundLabel by ID or Name
-  final label = soundTaxonomy.firstWhere(
-    (s) => s.id == soundIdOrName || s.name.toLowerCase() == soundIdOrName.toLowerCase(),
-    orElse: () => SoundLabel(
-      id: soundIdOrName,
-      name: soundIdOrName,
-      environment: EnvironmentType.indoor,
-      category: 'General',
-      severity: PriorityLevel.low,
-      imagePath: '',
-    ),
-  );
-
-  return soundClassTranslations[code]?[label.id] ??
-         soundClassTranslations['en']?[label.id] ??
-         label.name;
-}
-
-/// Resolves category localized
-String getLocalizedCategoryName(String category, {BuildContext? context, String? langCode}) {
-  final code = langCode ?? (context != null ? Localizations.localeOf(context).languageCode : 'en');
-  return categoryTranslations[code]?[category] ??
-         categoryTranslations['en']?[category] ??
-         category;
-}
-
 /// Complete list of the 25 AIISH model sound classes
 const List<SoundLabel> soundTaxonomy = [
   // AIISH model classes not present in the original UI taxonomy
@@ -170,7 +136,8 @@ const List<SoundLabel> soundTaxonomy = [
     name: 'Air Conditioner',
     environment: EnvironmentType.indoor,
     category: 'Home Safety & Household Awareness',
-    severity: PriorityLevel.low,
+    indoorSeverity: PriorityLevel.low,
+    outdoorSeverity: PriorityLevel.low,
     imagePath: 'assets/images/sounds/air_conditioner.png',
     iconName: 'ac_unit',
   ),
@@ -179,7 +146,8 @@ const List<SoundLabel> soundTaxonomy = [
     name: 'Crowded Place/People Talking',
     environment: EnvironmentType.outdoor,
     category: 'Environmental Awareness',
-    severity: PriorityLevel.low,
+    indoorSeverity: PriorityLevel.medium,
+    outdoorSeverity: PriorityLevel.medium,
     imagePath: 'assets/images/sounds/people_talking.png',
     iconName: 'groups',
   ),
@@ -188,7 +156,8 @@ const List<SoundLabel> soundTaxonomy = [
     name: 'Engine Idling',
     environment: EnvironmentType.outdoor,
     category: 'Road Safety',
-    severity: PriorityLevel.medium,
+    indoorSeverity: PriorityLevel.low,
+    outdoorSeverity: PriorityLevel.medium,
     imagePath: 'assets/images/sounds/engine_idling.png',
     iconName: 'directions_car',
   ),
@@ -197,7 +166,8 @@ const List<SoundLabel> soundTaxonomy = [
     name: 'Street Music',
     environment: EnvironmentType.outdoor,
     category: 'Environmental Awareness',
-    severity: PriorityLevel.low,
+    indoorSeverity: PriorityLevel.low,
+    outdoorSeverity: PriorityLevel.low,
     imagePath: 'assets/images/sounds/street_music.png',
     iconName: 'music_note',
   ),
@@ -208,7 +178,8 @@ const List<SoundLabel> soundTaxonomy = [
     name: 'Alarm (Fire / Smoke)',
     environment: EnvironmentType.indoor,
     category: 'Home Safety & Household Awareness',
-    severity: PriorityLevel.critical,
+    indoorSeverity: PriorityLevel.critical,
+    outdoorSeverity: PriorityLevel.critical,
     imagePath: 'assets/images/sounds/alarm_fire_smoke.png',
     iconName: 'local_fire_department',
   ),
@@ -217,7 +188,8 @@ const List<SoundLabel> soundTaxonomy = [
     name: 'Glass Breaking',
     environment: EnvironmentType.indoor,
     category: 'Home Safety & Household Awareness',
-    severity: PriorityLevel.critical,
+    indoorSeverity: PriorityLevel.critical,
+    outdoorSeverity: PriorityLevel.critical,
     imagePath: 'assets/images/sounds/glass_breaking.png',
     iconName: 'gavel',
   ),
@@ -226,7 +198,8 @@ const List<SoundLabel> soundTaxonomy = [
     name: 'Pressure Cooker Whistle',
     environment: EnvironmentType.indoor,
     category: 'Home Safety & Household Awareness',
-    severity: PriorityLevel.high,
+    indoorSeverity: PriorityLevel.high,
+    outdoorSeverity: PriorityLevel.low,
     imagePath: 'assets/images/sounds/pressure_cooker.png',
     iconName: 'air',
   ),
@@ -235,7 +208,8 @@ const List<SoundLabel> soundTaxonomy = [
     name: 'Water Running',
     environment: EnvironmentType.indoor,
     category: 'Home Safety & Household Awareness',
-    severity: PriorityLevel.high,
+    indoorSeverity: PriorityLevel.high,
+    outdoorSeverity: PriorityLevel.low,
     imagePath: 'assets/images/sounds/water_running.png',
     iconName: 'water_drop',
   ),
@@ -244,7 +218,8 @@ const List<SoundLabel> soundTaxonomy = [
     name: 'Microwave Oven Beep',
     environment: EnvironmentType.indoor,
     category: 'Home Safety & Household Awareness',
-    severity: PriorityLevel.high,
+    indoorSeverity: PriorityLevel.high,
+    outdoorSeverity: PriorityLevel.low,
     imagePath: 'assets/images/sounds/microwave_beep.png',
     iconName: 'microwave',
   ),
@@ -253,7 +228,8 @@ const List<SoundLabel> soundTaxonomy = [
     name: 'Mixer / Grinder',
     environment: EnvironmentType.indoor,
     category: 'Home Safety & Household Awareness',
-    severity: PriorityLevel.medium,
+    indoorSeverity: PriorityLevel.medium,
+    outdoorSeverity: PriorityLevel.low,
     imagePath: 'assets/images/sounds/mixer_grinder.png',
     iconName: 'electric_bolt',
   ),
@@ -262,7 +238,8 @@ const List<SoundLabel> soundTaxonomy = [
     name: 'Utensils',
     environment: EnvironmentType.indoor,
     category: 'Home Safety & Household Awareness',
-    severity: PriorityLevel.medium,
+    indoorSeverity: PriorityLevel.medium,
+    outdoorSeverity: PriorityLevel.low,
     imagePath: 'assets/images/sounds/utensils.png',
     iconName: 'restaurant',
   ),
@@ -273,7 +250,8 @@ const List<SoundLabel> soundTaxonomy = [
     name: 'Doorbell',
     environment: EnvironmentType.indoor,
     category: 'Visitor Awareness',
-    severity: PriorityLevel.medium,
+    indoorSeverity: PriorityLevel.medium,
+    outdoorSeverity: PriorityLevel.low,
     imagePath: 'assets/images/sounds/doorbell.png',
     iconName: 'notifications_active',
   ),
@@ -282,7 +260,8 @@ const List<SoundLabel> soundTaxonomy = [
     name: 'Door Knock',
     environment: EnvironmentType.indoor,
     category: 'Visitor Awareness',
-    severity: PriorityLevel.medium,
+    indoorSeverity: PriorityLevel.medium,
+    outdoorSeverity: PriorityLevel.low,
     imagePath: 'assets/images/sounds/door_knock.png',
     iconName: 'meeting_room',
   ),
@@ -293,7 +272,8 @@ const List<SoundLabel> soundTaxonomy = [
     name: 'Baby Crying',
     environment: EnvironmentType.indoor,
     category: 'Human Communication',
-    severity: PriorityLevel.high,
+    indoorSeverity: PriorityLevel.high,
+    outdoorSeverity: PriorityLevel.medium,
     imagePath: 'assets/images/sounds/baby_crying.png',
     iconName: 'child_care',
   ),
@@ -304,7 +284,8 @@ const List<SoundLabel> soundTaxonomy = [
     name: 'Siren (Ambulance/Police/Fire Brigade)',
     environment: EnvironmentType.outdoor,
     category: 'Emergency Vehicles',
-    severity: PriorityLevel.critical,
+    indoorSeverity: PriorityLevel.critical,
+    outdoorSeverity: PriorityLevel.critical,
     imagePath: 'assets/images/sounds/siren_emergency.png',
     iconName: 'emergency',
   ),
@@ -315,7 +296,8 @@ const List<SoundLabel> soundTaxonomy = [
     name: 'Train Horn',
     environment: EnvironmentType.outdoor,
     category: 'Road Safety',
-    severity: PriorityLevel.critical,
+    indoorSeverity: PriorityLevel.high,
+    outdoorSeverity: PriorityLevel.critical,
     imagePath: 'assets/images/sounds/train_horn.png',
     iconName: 'train',
   ),
@@ -324,7 +306,8 @@ const List<SoundLabel> soundTaxonomy = [
     name: 'Vehicle Horn (Car/Bike/Bus/Truck)',
     environment: EnvironmentType.outdoor,
     category: 'Road Safety',
-    severity: PriorityLevel.high,
+    indoorSeverity: PriorityLevel.medium,
+    outdoorSeverity: PriorityLevel.high,
     imagePath: 'assets/images/sounds/vehicle_horn.png',
     iconName: 'directions_car',
   ),
@@ -333,7 +316,8 @@ const List<SoundLabel> soundTaxonomy = [
     name: 'Approaching Vehicles',
     environment: EnvironmentType.outdoor,
     category: 'Road Safety',
-    severity: PriorityLevel.high,
+    indoorSeverity: PriorityLevel.medium,
+    outdoorSeverity: PriorityLevel.high,
     imagePath: 'assets/images/sounds/approaching_vehicles.png',
     iconName: 'speed',
   ),
@@ -344,7 +328,8 @@ const List<SoundLabel> soundTaxonomy = [
     name: 'Blasts',
     environment: EnvironmentType.outdoor,
     category: 'Public Safety',
-    severity: PriorityLevel.critical,
+    indoorSeverity: PriorityLevel.critical,
+    outdoorSeverity: PriorityLevel.critical,
     imagePath: 'assets/images/sounds/blasts.png',
     iconName: 'warning_amber',
   ),
@@ -353,7 +338,8 @@ const List<SoundLabel> soundTaxonomy = [
     name: 'Fire Crackers',
     environment: EnvironmentType.outdoor,
     category: 'Public Safety',
-    severity: PriorityLevel.high,
+    indoorSeverity: PriorityLevel.medium,
+    outdoorSeverity: PriorityLevel.high,
     imagePath: 'assets/images/sounds/fire_crackers.png',
     iconName: 'flare',
   ),
@@ -362,7 +348,8 @@ const List<SoundLabel> soundTaxonomy = [
     name: 'Construction Sounds',
     environment: EnvironmentType.outdoor,
     category: 'Public Safety',
-    severity: PriorityLevel.medium,
+    indoorSeverity: PriorityLevel.low,
+    outdoorSeverity: PriorityLevel.medium,
     imagePath: 'assets/images/sounds/construction_sounds.png',
     iconName: 'construction',
   ),
@@ -373,7 +360,8 @@ const List<SoundLabel> soundTaxonomy = [
     name: 'Dog Bark',
     environment: EnvironmentType.outdoor,
     category: 'Environmental Awareness',
-    severity: PriorityLevel.medium,
+    indoorSeverity: PriorityLevel.medium,
+    outdoorSeverity: PriorityLevel.medium,
     imagePath: 'assets/images/sounds/dog_bark.png',
     iconName: 'pets',
   ),
@@ -382,7 +370,8 @@ const List<SoundLabel> soundTaxonomy = [
     name: 'Cat Meow',
     environment: EnvironmentType.outdoor,
     category: 'Environmental Awareness',
-    severity: PriorityLevel.low,
+    indoorSeverity: PriorityLevel.low,
+    outdoorSeverity: PriorityLevel.low,
     imagePath: 'assets/images/sounds/cat_meowing.png',
     iconName: 'pets',
   ),
@@ -391,7 +380,8 @@ const List<SoundLabel> soundTaxonomy = [
     name: 'Temple Bell',
     environment: EnvironmentType.outdoor,
     category: 'Environmental Awareness',
-    severity: PriorityLevel.low,
+    indoorSeverity: PriorityLevel.low,
+    outdoorSeverity: PriorityLevel.low,
     imagePath: 'assets/images/sounds/temple_bell.png',
     iconName: 'notifications',
   ),
@@ -400,8 +390,36 @@ const List<SoundLabel> soundTaxonomy = [
     name: 'Cow Mooing',
     environment: EnvironmentType.outdoor,
     category: 'Environmental Awareness',
-    severity: PriorityLevel.low,
+    indoorSeverity: PriorityLevel.low,
+    outdoorSeverity: PriorityLevel.low,
     imagePath: 'assets/images/sounds/cow_mooing.png',
     iconName: 'cruelty_free',
   ),
 ];
+String getLocalizedSoundName(
+  String soundId, {
+  required BuildContext context,
+}) {
+  final l10n = AppLocalizations.of(context);
+
+  if (l10n == null) {
+    return soundId;
+  }
+
+  final language = Localizations.localeOf(context).languageCode;
+
+  return soundClassTranslations[language]?[soundId] ??
+      soundClassTranslations['en']?[soundId] ??
+      soundId;
+}
+
+String getLocalizedCategoryName(
+  String category, {
+  required BuildContext context,
+}) {
+  final language = Localizations.localeOf(context).languageCode;
+
+  return categoryTranslations[language]?[category] ??
+      categoryTranslations['en']?[category] ??
+      category;
+}
