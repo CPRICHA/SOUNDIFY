@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "360494384501",
+    "project_id": "aiish-ea208",
+    "storage_bucket": "aiish-ea208.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:360494384501:android:189151d078630aaf447f3c",
+        "android_client_info": {
+          "package_name": "com.example.sound_accessibility_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBRe2Nr-hHk3PKzNWf8b5tuYM81MhsAMHk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

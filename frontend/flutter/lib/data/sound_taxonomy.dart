@@ -15,7 +15,7 @@ const List<String> taxonomyCategories = [
 const Map<String, Map<String, String>> soundClassTranslations = {
   'en': {
     'air_conditioner': 'Air Conditioner',
-    'children_playing': 'Children Playing',
+    'children_playing': 'Crowded Place/People Talking',
     'engine_idling': 'Engine Idling',
     'street_music': 'Street Music',
     'alarm_fire_smoke': 'Alarm (Fire / Smoke)',
@@ -42,7 +42,7 @@ const Map<String, Map<String, String>> soundClassTranslations = {
   },
   'hi': {
     'air_conditioner': 'एयर कंडीशनर',
-    'children_playing': 'बच्चों के खेलने की आवाज़',
+    'children_playing': 'लोगों की बातचीत',
     'engine_idling': 'इंजन आइडलिंग',
     'street_music': 'सड़क का संगीत',
     'alarm_fire_smoke': 'अलार्म (आग / धुआँ)',
@@ -69,7 +69,7 @@ const Map<String, Map<String, String>> soundClassTranslations = {
   },
   'kn': {
     'air_conditioner': 'ಏರ್ ಕಂಡೀಷನರ್',
-    'children_playing': 'ಮಕ್ಕಳು ಆಟವಾಡುವುದು',
+    'children_playing': 'ಜನರ ಮಾತುಕತೆ',
     'engine_idling': 'ಎಂಜಿನ್ ಐಡ್ಲಿಂಗ್',
     'street_music': 'ಬೀದಿ ಸಂಗೀತ',
     'alarm_fire_smoke': 'ಅಲಾರಾಂ (ಬೆಂಕಿ / ಹೊಗೆ)',
@@ -176,11 +176,11 @@ const List<SoundLabel> soundTaxonomy = [
   ),
   SoundLabel(
     id: 'children_playing',
-    name: 'Children Playing',
+    name: 'Crowded Place/People Talking',
     environment: EnvironmentType.outdoor,
     category: 'Environmental Awareness',
     severity: PriorityLevel.low,
-    imagePath: 'assets/images/sounds/children_playing.png',
+    imagePath: 'assets/images/sounds/people_talking.png',
     iconName: 'groups',
   ),
   SoundLabel(

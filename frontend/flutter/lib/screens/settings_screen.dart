@@ -1927,10 +1927,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               // Microphone sampling
               Row(
                 children: [
-                  const Icon(
-                    Icons.mic_rounded,
+                  Icon(
+                    state.isListening
+                        ? Icons.mic_rounded
+                        : Icons.mic_off_rounded,
                     size: 20,
-                    color: Color(0xFF10B981),
+                    color: state.isListening
+                        ? const Color(0xFF10B981)
+                        : const Color(0xFFEF4444),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
@@ -1948,31 +1952,57 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ),
                         Text(
-                          l10n.accessGranted,
-                          style: const TextStyle(
+                          state.isListening
+                              ? 'Sound detection is active'
+                              : 'Sound detection is turned off',
+                          style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF059669),
+                            color: state.isListening
+                                ? const Color(0xFF059669)
+                                : const Color(0xFFEF4444),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFD1FAE5),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      '✓ ${l10n.activeUpper}',
-                      style: const TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF059669),
-                      ),
-                    ),
+                  Switch(
+                    value: state.isListening,
+                    activeThumbColor: const Color(0xFF5B4FE8),
+                    onChanged: (value) async {
+                      if (value) {
+                        await state.toggleListening();
+                        return;
+                      }
+
+                      final confirmed = await showDialog<bool>(
+                        context: context,
+                        builder: (dialogContext) {
+                          return AlertDialog(
+                            title: const Text('Turn off microphone?'),
+                            content: const Text(
+                              "Sound detection won't work when the microphone is turned off.",
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.pop(dialogContext, false),
+                                child: const Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () =>
+                                    Navigator.pop(dialogContext, true),
+                                child: const Text('Turn Off'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+
+                      if (confirmed == true) {
+                        await state.toggleListening();
+                      }
+                    },
                   ),
                 ],
               ),

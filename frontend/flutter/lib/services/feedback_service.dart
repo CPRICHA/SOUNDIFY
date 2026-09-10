@@ -1,3 +1,5 @@
+import 'package:crypto/crypto.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -219,7 +221,7 @@ class FeedbackService {
       rating: rating,
       feedbackText: feedbackText,
       category: category,
-      userId: userId ?? currentUserId,
+      userId: currentUserId ?? userId,
       soundType: soundType,
       detectedConfidence: detectedConfidence,
       appVersion: appVersion,
@@ -255,12 +257,20 @@ class FeedbackService {
     final isOnline = await _connectivityChecker();
     if (isOnline) {
       try {
+        print('[FEEDBACK] Firebase UID: ${FirebaseAuth.instance.currentUser?.uid}');
+        print('[FEEDBACK] Payload userId: ${payload['userId']}');
+        print('[FEEDBACK] Payload: $payload');
+
         await _submitToFirestoreOverride(payload);
+
+        print('[FEEDBACK] Firestore write SUCCESS');
+
         return const FeedbackSubmissionResult(
           status: FeedbackSubmissionStatus.submitted,
           message: 'Feedback submitted',
         );
-      } catch (_) {
+      } catch (e) {
+        print('[FEEDBACK] Firestore write FAILED: $e');
         // Fall back to the offline queue if Firestore submission fails.
       }
     }

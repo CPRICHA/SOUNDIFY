@@ -54,7 +54,7 @@
         
         <!-- Foreground Service for Continuous Microphone Listening & On-Device Classification -->
         <service
-            android:name="com.soundsee.accessibility.services.SoundDetectionForegroundService"
+            android:name="com.example.sound_accessibility_app.SoundDetectionForegroundService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="microphone|dataSync|specialUse">
