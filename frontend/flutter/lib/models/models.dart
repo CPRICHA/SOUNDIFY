@@ -8,6 +8,8 @@ class SoundLabel {
   final EnvironmentType environment;
   final String category;
   final PriorityLevel severity;
+  final PriorityLevel? indoorPriority;
+  final PriorityLevel? outdoorPriority;
   final String imagePath;
   final String? iconName;
 
@@ -17,6 +19,8 @@ class SoundLabel {
     required this.environment,
     required this.category,
     required this.severity,
+    this.indoorPriority,
+    this.outdoorPriority,
     required this.imagePath,
     this.iconName,
   });
@@ -30,6 +34,12 @@ class SoundLabel {
           : EnvironmentType.indoor,
       category: json['category'] as String,
       severity: _parseSeverity(json['severity'] as String),
+      indoorPriority: json['indoorPriority'] != null
+          ? _parseSeverity(json['indoorPriority'] as String)
+          : null,
+      outdoorPriority: json['outdoorPriority'] != null
+          ? _parseSeverity(json['outdoorPriority'] as String)
+          : null,
       imagePath: json['imagePath'] as String? ?? '',
       iconName: json['iconName'] as String?,
     );
@@ -38,9 +48,12 @@ class SoundLabel {
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,
-        'environment': environment == EnvironmentType.outdoor ? 'outdoor' : 'indoor',
+        'environment':
+            environment == EnvironmentType.outdoor ? 'outdoor' : 'indoor',
         'category': category,
         'severity': severity.name,
+        'indoorPriority': indoorPriority?.name,
+        'outdoorPriority': outdoorPriority?.name,
         'imagePath': imagePath,
         'iconName': iconName,
       };
@@ -86,11 +99,16 @@ class SoundEvent {
         '';
     return SoundEvent(
       id: json['id'] as String,
-      soundId: rawSoundId.isNotEmpty ? rawSoundId : (json['label'] as String? ?? ''),
-      userId: json['user_id'] as String? ?? json['userId'] as String? ?? 'guest_user',
+      soundId:
+          rawSoundId.isNotEmpty ? rawSoundId : (json['label'] as String? ?? ''),
+      userId: json['user_id'] as String? ??
+          json['userId'] as String? ??
+          'guest_user',
       label: json['label'] as String? ?? '',
       severity: SoundLabel._parseSeverity(json['severity'] as String? ?? 'low'),
-      mode: json['mode'] == 'outdoor' ? EnvironmentType.outdoor : EnvironmentType.indoor,
+      mode: json['mode'] == 'outdoor'
+          ? EnvironmentType.outdoor
+          : EnvironmentType.indoor,
       timestamp: json['timestamp'] != null
           ? DateTime.tryParse(json['timestamp'] as String) ?? DateTime.now()
           : DateTime.now(),
@@ -189,8 +207,10 @@ class SavedIndoorLocation {
       longitude: (json['longitude'] as num?)?.toDouble() ?? 0.0,
       radiusMeters: (json['radiusMeters'] as num?)?.toDouble() ?? 100.0,
       enabled: json['enabled'] as bool? ?? true,
-      createdAt: json['createdAt'] as int? ?? DateTime.now().millisecondsSinceEpoch,
-      updatedAt: json['updatedAt'] as int? ?? DateTime.now().millisecondsSinceEpoch,
+      createdAt:
+          json['createdAt'] as int? ?? DateTime.now().millisecondsSinceEpoch,
+      updatedAt:
+          json['updatedAt'] as int? ?? DateTime.now().millisecondsSinceEpoch,
     );
   }
 
