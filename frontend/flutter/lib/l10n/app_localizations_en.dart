@@ -330,11 +330,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get locationName => 'Location Name';
 
   @override
-  String get locationNameHint => 'e.g. Home, Office, Parents\' House';
+  String get locationNameHint => 'Location name';
 
   @override
-  String get locationNamePlaceholder =>
-      'e.g. Home, Grandma\'s House, Gym, Office';
+  String get locationNamePlaceholder => 'Location name';
 
   @override
   String get low => 'Low';
@@ -451,7 +450,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get placeholderEmail => 'Email';
 
   @override
-  String get placeholderLocName => 'e.g. Home, Office, Gym';
+  String get placeholderLocName => 'Location name';
 
   @override
   String get placeholderName => 'Name';

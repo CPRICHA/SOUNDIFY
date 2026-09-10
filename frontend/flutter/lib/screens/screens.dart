@@ -615,7 +615,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ref.read(lastDetectedSoundProvider.notifier).state = sound;
 
           print(
-            'Detected in HomeScreen: ${sound.name} '
+            'Detected in HomeScreen: ${sound?.name ?? 'Unknown'} '
             '${(confidence * 100).toStringAsFixed(1)}%',
           );
         });

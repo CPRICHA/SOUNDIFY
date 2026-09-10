@@ -117,17 +117,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final l10n = AppLocalizations.of(context)!;
 
-    final Color? detectionBorderColor =
-        lastSound != null && colorEnabled
-            ? AppColors.getSeverityColor(
-                lastSound.severity,
-                highContrast: isHC,
-              )
-            : null;
+    final Color? detectionBorderColor = lastSound != null && colorEnabled
+        ? AppColors.getSeverityColor(
+            lastSound.severity,
+            highContrast: isHC,
+          )
+        : null;
 
     return Scaffold(
-      backgroundColor:
-          isHC ? AppColors.hcBackground : AppColors.background,
+      backgroundColor: isHC ? AppColors.hcBackground : AppColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(
@@ -139,84 +137,64 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               // Header with Title and Mode Indicator
               Row(
-                mainAxisAlignment:
-                    MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         l10n.appName,
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
-                          color: isHC
-                              ? AppColors.hcText
-                              : AppColors.textPrimary,
+                          color:
+                              isHC ? AppColors.hcText : AppColors.textPrimary,
                         ),
                       ),
                       Text(
                         l10n.offlineAiSoundDetector,
                         style: TextStyle(
                           fontSize: 12,
-                          color: isHC
-                              ? AppColors.hcText
-                              : AppColors.textSecondary,
-                          fontWeight: isHC
-                              ? FontWeight.w700
-                              : FontWeight.w500,
+                          color:
+                              isHC ? AppColors.hcText : AppColors.textSecondary,
+                          fontWeight: isHC ? FontWeight.w700 : FontWeight.w500,
                         ),
                       ),
                     ],
                   ),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(
+                    padding: const EdgeInsets.symmetric(
                       horizontal: 10,
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: isHC
-                          ? Colors.white
-                          : AppColors.primaryLight,
-                      borderRadius:
-                          BorderRadius.circular(20),
+                      color: isHC ? Colors.white : AppColors.primaryLight,
+                      borderRadius: BorderRadius.circular(20),
                       border: Border.all(
                         color: isHC
                             ? AppColors.hcBorder
-                            : AppColors.primary
-                                .withOpacity(0.3),
+                            : AppColors.primary.withOpacity(0.3),
                         width: isHC ? 1.5 : 1.0,
                       ),
                     ),
                     child: Row(
-                      mainAxisSize:
-                          MainAxisSize.min,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Container(
                           width: 8,
                           height: 8,
-                          decoration:
-                              BoxDecoration(
+                          decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: isListening
-                                ? Colors.green
-                                : Colors.grey,
+                            color: isListening ? Colors.green : Colors.grey,
                           ),
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          isListening
-                              ? l10n.active
-                              : l10n.muted,
+                          isListening ? l10n.active : l10n.muted,
                           style: TextStyle(
                             fontSize: 11,
-                            fontWeight:
-                                FontWeight.w700,
-                            color: isHC
-                                ? AppColors.hcText
-                                : AppColors.primary,
+                            fontWeight: FontWeight.w700,
+                            color: isHC ? AppColors.hcText : AppColors.primary,
                           ),
                         ),
                       ],
@@ -230,11 +208,8 @@ class _HomeScreenState extends State<HomeScreen> {
               // Indoor / Outdoor Mode Switcher
               Container(
                 decoration: BoxDecoration(
-                  color: isHC
-                      ? Colors.white
-                      : const Color(0xFFF1F5F9),
-                  borderRadius:
-                      BorderRadius.circular(16),
+                  color: isHC ? Colors.white : const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(16),
                   border: isHC
                       ? Border.all(
                           color: AppColors.hcBorder,
@@ -242,41 +217,30 @@ class _HomeScreenState extends State<HomeScreen> {
                         )
                       : null,
                 ),
-                padding:
-                    const EdgeInsets.all(4),
+                padding: const EdgeInsets.all(4),
                 child: Row(
                   children: [
                     Expanded(
-                      child:
-                          _buildEnvironmentToggle(
+                      child: _buildEnvironmentToggle(
                         context: context,
                         label: l10n.indoorMode,
-                        icon:
-                            Icons.home_rounded,
+                        icon: Icons.home_rounded,
                         isSelected:
-                            state.environmentMode ==
-                                EnvironmentType
-                                    .indoor,
-                        onTap: () =>
-                            state.setEnvironmentMode(
+                            state.environmentMode == EnvironmentType.indoor,
+                        onTap: () => state.setEnvironmentMode(
                           EnvironmentType.indoor,
                         ),
                         isHC: isHC,
                       ),
                     ),
                     Expanded(
-                      child:
-                          _buildEnvironmentToggle(
+                      child: _buildEnvironmentToggle(
                         context: context,
                         label: l10n.outdoorMode,
-                        icon: Icons
-                            .directions_walk_rounded,
+                        icon: Icons.directions_walk_rounded,
                         isSelected:
-                            state.environmentMode ==
-                                EnvironmentType
-                                    .outdoor,
-                        onTap: () =>
-                            state.setEnvironmentMode(
+                            state.environmentMode == EnvironmentType.outdoor,
+                        onTap: () => state.setEnvironmentMode(
                           EnvironmentType.outdoor,
                         ),
                         isHC: isHC,
@@ -290,22 +254,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
               // Central Sound Detection Display Area
               Container(
-                padding:
-                    const EdgeInsets.fromLTRB(
+                padding: const EdgeInsets.fromLTRB(
                   8,
                   16,
                   8,
                   12,
                 ),
                 decoration: BoxDecoration(
-                  border:
-                      detectionBorderColor != null
-                          ? Border.all(
-                              color:
-                                  detectionBorderColor,
-                              width: 3,
-                            )
-                          : null,
+                  border: detectionBorderColor != null
+                      ? Border.all(
+                          color: detectionBorderColor,
+                          width: 3,
+                        )
+                      : null,
                 ),
                 child: Center(
                   child: Column(
@@ -314,61 +275,38 @@ class _HomeScreenState extends State<HomeScreen> {
                         width: 200,
                         height: 200,
                         child: Stack(
-                          alignment:
-                              Alignment.center,
+                          alignment: Alignment.center,
                           children: [
                             // Ripple Wave Circles
-                            if (isListening &&
-                                lastSound == null) ...[
+                            if (isListening && lastSound == null) ...[
                               Container(
                                 width: 200,
                                 height: 200,
-                                decoration:
-                                    BoxDecoration(
-                                  shape: BoxShape
-                                      .circle,
-                                  color:
-                                      lastSound !=
-                                              null
-                                          ? (colorEnabled
-                                              ? AppColors
-                                                  .getSeverityBg(
-                                                      lastSound
-                                                          .severity)
-                                                  .withOpacity(
-                                                      0.4)
-                                              : (isHC
-                                                  ? Colors
-                                                      .black12
-                                                  : const Color(
-                                                      0xFFF1F5F9)))
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: lastSound != null
+                                      ? (colorEnabled
+                                          ? AppColors.getSeverityBg(
+                                                  lastSound.severity)
+                                              .withOpacity(0.4)
                                           : (isHC
-                                              ? Colors
-                                                  .black12
-                                              : AppColors
-                                                  .primaryLight
-                                                  .withOpacity(
-                                                      0.5)),
-                                  border:
-                                      Border.all(
-                                    color:
-                                        lastSound !=
-                                                null
-                                            ? (colorEnabled
-                                                ? AppColors
-                                                    .getSeverityBorder(
-                                                        lastSound
-                                                            .severity)
-                                                : (isHC
-                                                    ? AppColors
-                                                        .hcBorder
-                                                    : const Color(
-                                                        0xFFCBD5E1)))
+                                              ? Colors.black12
+                                              : const Color(0xFFF1F5F9)))
+                                      : (isHC
+                                          ? Colors.black12
+                                          : AppColors.primaryLight
+                                              .withOpacity(0.5)),
+                                  border: Border.all(
+                                    color: lastSound != null
+                                        ? (colorEnabled
+                                            ? AppColors.getSeverityBorder(
+                                                lastSound.severity)
                                             : (isHC
-                                                ? AppColors
-                                                    .hcBorder
-                                                : const Color(
-                                                    0xFFC7D2FE)),
+                                                ? AppColors.hcBorder
+                                                : const Color(0xFFCBD5E1)))
+                                        : (isHC
+                                            ? AppColors.hcBorder
+                                            : const Color(0xFFC7D2FE)),
                                     width: 1.5,
                                   ),
                                 ),
@@ -376,47 +314,28 @@ class _HomeScreenState extends State<HomeScreen> {
                               Container(
                                 width: 150,
                                 height: 150,
-                                decoration:
-                                    BoxDecoration(
-                                  shape: BoxShape
-                                      .circle,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
                                   color: isHC
                                       ? Colors.white
-                                      : (lastSound !=
-                                              null
+                                      : (lastSound != null
                                           ? (colorEnabled
-                                              ? Colors
-                                                  .indigo
-                                                  .shade50
-                                                  .withOpacity(
-                                                      0.5)
-                                              : const Color(
-                                                  0xFFF8FAFC))
-                                          : Colors
-                                              .indigo
-                                              .shade50
-                                              .withOpacity(
-                                                  0.5)),
-                                  border:
-                                      Border.all(
-                                    color:
-                                        lastSound !=
-                                                null
-                                            ? (colorEnabled
-                                                ? AppColors
-                                                    .getSeverityBorder(
-                                                        lastSound
-                                                            .severity)
-                                                : (isHC
-                                                    ? AppColors
-                                                        .hcBorder
-                                                    : const Color(
-                                                        0xFFE2E8F0)))
+                                              ? Colors.indigo.shade50
+                                                  .withOpacity(0.5)
+                                              : const Color(0xFFF8FAFC))
+                                          : Colors.indigo.shade50
+                                              .withOpacity(0.5)),
+                                  border: Border.all(
+                                    color: lastSound != null
+                                        ? (colorEnabled
+                                            ? AppColors.getSeverityBorder(
+                                                lastSound.severity)
                                             : (isHC
-                                                ? AppColors
-                                                    .hcBorder
-                                                : const Color(
-                                                    0xFFE0E7FF)),
+                                                ? AppColors.hcBorder
+                                                : const Color(0xFFE2E8F0)))
+                                        : (isHC
+                                            ? AppColors.hcBorder
+                                            : const Color(0xFFE0E7FF)),
                                     width: 1.5,
                                   ),
                                 ),
@@ -426,49 +345,38 @@ class _HomeScreenState extends State<HomeScreen> {
                             // Center display
                             GestureDetector(
                               onTap: () async {
-                                if (lastSound !=
-                                    null) {
-                                  state
-                                      .clearDetectedSound();
+                                if (lastSound != null) {
+                                  state.clearDetectedSound();
                                   return;
                                 }
 
-                                state
-                                    .toggleListening();
+                                state.toggleListening();
 
-                                if (!state
-                                    .isListening) {
-                                  await _classificationService
-                                      .stopListening();
+                                if (!state.isListening) {
+                                  await _classificationService.stopListening();
                                 } else {
                                   try {
-                                    await _classificationService
-                                        .startListening(
-                                      (sound,
-                                          confidence) {
+                                    await _classificationService.startListening(
+                                      (sound, confidence) {
                                         if (!mounted) {
                                           return;
                                         }
 
                                         final currentState =
-                                            context.read<
-                                                AppState>();
+                                            context.read<AppState>();
 
-                                        if (!currentState
-                                            .isListening) {
+                                        if (!currentState.isListening) {
                                           return;
                                         }
 
                                         // --------------------------------
                                         // NO SOUND
                                         // --------------------------------
-                                        if (sound ==
-                                            null) {
+                                        if (sound == null) {
                                           return;
                                         }
 
-                                        currentState
-                                            .triggerSoundEvent(
+                                        currentState.triggerSoundEvent(
                                           sound,
                                           confidence,
                                         );
@@ -481,149 +389,107 @@ class _HomeScreenState extends State<HomeScreen> {
                                   }
                                 }
                               },
-                              child:
-                                  lastSound != null &&
-                                          iconEnabled
-                                      ? Builder(
-                                          builder:
-                                              (context) {
-                                            final screenWidth =
-                                                MediaQuery
-                                                    .sizeOf(
-                                                        context)
-                                                    .width;
+                              child: lastSound != null && iconEnabled
+                                  ? Builder(
+                                      builder: (context) {
+                                        final screenWidth =
+                                            MediaQuery.sizeOf(context).width;
 
-                                            final imageSize =
-                                                (screenWidth *
-                                                        0.5)
-                                                    .clamp(
-                                                      140.0,
-                                                      180.0,
-                                                    )
-                                                    .toDouble();
+                                        final imageSize = (screenWidth * 0.5)
+                                            .clamp(
+                                              140.0,
+                                              180.0,
+                                            )
+                                            .toDouble();
 
-                                            return SizedBox(
-                                              width:
-                                                  imageSize,
-                                              height:
-                                                  imageSize,
-                                              child:
-                                                  ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius
-                                                        .circular(
-                                                            20),
-                                                child:
-                                                    Image.asset(
-                                                  lastSound
-                                                      .imagePath,
-                                                  width:
-                                                      imageSize,
-                                                  height:
-                                                      imageSize,
-                                                  fit: BoxFit
-                                                      .cover,
-                                                  errorBuilder:
-                                                      (
-                                                    context,
-                                                    error,
-                                                    stackTrace,
-                                                  ) {
-                                                    return Center(
-                                                      child:
-                                                          Icon(
-                                                        Icons
-                                                            .graphic_eq_rounded,
-                                                        size:
-                                                            48,
-                                                        color:
-                                                            colorEnabled
-                                                                ? AppColors.getSeverityColor(
-                                                                    lastSound.severity,
-                                                                    highContrast:
-                                                                        isHC,
-                                                                  )
-                                                                : AppColors.primary,
-                                                      ),
-                                                    );
-                                                  },
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        )
-                                      : Container(
-                                          width: 72,
-                                          height: 72,
-                                          decoration:
-                                              BoxDecoration(
-                                            shape: BoxShape
-                                                .circle,
-                                            color:
-                                                lastSound !=
-                                                        null
-                                                    ? (colorEnabled
-                                                        ? AppColors.getSeverityColor(
+                                        return SizedBox(
+                                          width: imageSize,
+                                          height: imageSize,
+                                          child: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                            child: Image.asset(
+                                              lastSound.imagePath,
+                                              width: imageSize,
+                                              height: imageSize,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (
+                                                context,
+                                                error,
+                                                stackTrace,
+                                              ) {
+                                                return Center(
+                                                  child: Icon(
+                                                    Icons.graphic_eq_rounded,
+                                                    size: 48,
+                                                    color: colorEnabled
+                                                        ? AppColors
+                                                            .getSeverityColor(
                                                             lastSound.severity,
-                                                            highContrast:
-                                                                isHC,
+                                                            highContrast: isHC,
                                                           )
-                                                        : (isHC
-                                                            ? AppColors.hcText
-                                                            : const Color(
-                                                                0xFF475569)))
-                                                    : (isListening
-                                                        ? (isHC
-                                                            ? AppColors.hcText
-                                                            : AppColors.primary)
-                                                        : (isHC
-                                                            ? Colors.white
-                                                            : Colors.grey.shade400)),
-                                            border: isHC
-                                                ? Border.all(
-                                                    color:
-                                                        AppColors.hcBorder,
-                                                    width:
-                                                        2,
+                                                        : AppColors.primary,
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    )
+                                  : Container(
+                                      width: 72,
+                                      height: 72,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: lastSound != null
+                                            ? (colorEnabled
+                                                ? AppColors.getSeverityColor(
+                                                    lastSound.severity,
+                                                    highContrast: isHC,
                                                   )
-                                                : null,
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors
-                                                    .black
-                                                    .withOpacity(
-                                                        0.1),
-                                                blurRadius:
-                                                    10,
-                                                offset:
-                                                    const Offset(
-                                                  0,
-                                                  4,
-                                                ),
-                                              ),
-                                            ],
+                                                : (isHC
+                                                    ? AppColors.hcText
+                                                    : const Color(0xFF475569)))
+                                            : (isListening
+                                                ? (isHC
+                                                    ? AppColors.hcText
+                                                    : AppColors.primary)
+                                                : (isHC
+                                                    ? Colors.white
+                                                    : Colors.grey.shade400)),
+                                        border: isHC
+                                            ? Border.all(
+                                                color: AppColors.hcBorder,
+                                                width: 2,
+                                              )
+                                            : null,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color:
+                                                Colors.black.withOpacity(0.1),
+                                            blurRadius: 10,
+                                            offset: const Offset(
+                                              0,
+                                              4,
+                                            ),
                                           ),
-                                          child: Icon(
-                                            lastSound !=
-                                                    null
-                                                ? Icons
-                                                    .graphic_eq_rounded
-                                                : (isListening
-                                                    ? Icons
-                                                        .mic_rounded
-                                                    : Icons
-                                                        .mic_off_rounded),
-                                            size: 32,
-                                            color: (isHC &&
-                                                    !isListening &&
-                                                    lastSound ==
-                                                        null)
-                                                ? AppColors
-                                                    .hcText
-                                                : Colors
-                                                    .white,
-                                          ),
-                                        ),
+                                        ],
+                                      ),
+                                      child: Icon(
+                                        lastSound != null
+                                            ? Icons.graphic_eq_rounded
+                                            : (isListening
+                                                ? Icons.mic_rounded
+                                                : Icons.mic_off_rounded),
+                                        size: 32,
+                                        color: (isHC &&
+                                                !isListening &&
+                                                lastSound == null)
+                                            ? AppColors.hcText
+                                            : Colors.white,
+                                      ),
+                                    ),
                             ),
                           ],
                         ),
@@ -632,99 +498,69 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(height: 12),
 
                       // Detection or Idle Text
-                      if (lastSound !=
-                          null) ...[
+                      if (lastSound != null) ...[
                         if (textEnabled) ...[
                           Text(
                             getLocalizedSoundName(
                               lastSound.id,
                               context: context,
                             ),
-                            textAlign:
-                                TextAlign.center,
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 16,
-                              fontWeight:
-                                  FontWeight.w800,
+                              fontWeight: FontWeight.w800,
                               color: isHC
                                   ? AppColors.hcText
-                                  : AppColors
-                                      .textPrimary,
+                                  : AppColors.textPrimary,
                             ),
                           ),
-                          const SizedBox(
-                              height: 4),
+                          const SizedBox(height: 4),
                         ],
                         Container(
-                          padding:
-                              const EdgeInsets
-                                  .symmetric(
+                          padding: const EdgeInsets.symmetric(
                             horizontal: 10,
                             vertical: 3,
                           ),
-                          decoration:
-                              BoxDecoration(
+                          decoration: BoxDecoration(
                             color: colorEnabled
-                                ? AppColors
-                                    .getSeverityBg(
-                                        lastSound
-                                            .severity)
-                                : const Color(
-                                    0xFFF1F5F9),
-                            border:
-                                Border.all(
+                                ? AppColors.getSeverityBg(lastSound.severity)
+                                : const Color(0xFFF1F5F9),
+                            border: Border.all(
                               color: colorEnabled
-                                  ? AppColors
-                                      .getSeverityBorder(
-                                          lastSound
-                                              .severity)
-                                  : const Color(
-                                      0xFFE2E8F0),
+                                  ? AppColors.getSeverityBorder(
+                                      lastSound.severity)
+                                  : const Color(0xFFE2E8F0),
                             ),
-                            borderRadius:
-                                BorderRadius
-                                    .circular(
-                                        12),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
                             '${l10n.priorityPrefix}: ${_getLocalizedSeverity(lastSound.severity, l10n)}',
                             style: TextStyle(
                               fontSize: 11,
-                              fontWeight:
-                                  FontWeight.w800,
+                              fontWeight: FontWeight.w800,
                               color: colorEnabled
-                                  ? AppColors
-                                      .getSeverityColor(
-                                      lastSound
-                                          .severity,
-                                      highContrast:
-                                          isHC,
+                                  ? AppColors.getSeverityColor(
+                                      lastSound.severity,
+                                      highContrast: isHC,
                                     )
                                   : (isHC
-                                      ? AppColors
-                                          .hcText
-                                      : const Color(
-                                          0xFF475569)),
+                                      ? AppColors.hcText
+                                      : const Color(0xFF475569)),
                             ),
                           ),
                         ),
                       ] else ...[
                         Text(
                           isListening
-                              ? l10n
-                                  .listeningStatus
-                              : l10n
-                                  .pausedStatus,
-                          textAlign:
-                              TextAlign.center,
+                              ? l10n.listeningStatus
+                              : l10n.pausedStatus,
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 13,
-                            fontWeight:
-                                FontWeight.w600,
+                            fontWeight: FontWeight.w600,
                             color: isHC
                                 ? AppColors.hcText
-                                : AppColors
-                                    .textSecondary,
+                                : AppColors.textSecondary,
                           ),
                         ),
                       ],
@@ -737,25 +573,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
               // Recent Alert History Box
               Row(
-                mainAxisAlignment:
-                    MainAxisAlignment
-                        .spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     l10n.recentAlerts,
                     style: TextStyle(
                       fontSize: 14,
-                      fontWeight:
-                          FontWeight.w700,
-                      color: isHC
-                          ? AppColors.hcText
-                          : AppColors
-                              .textPrimary,
+                      fontWeight: FontWeight.w700,
+                      color: isHC ? AppColors.hcText : AppColors.textPrimary,
                     ),
                   ),
                   TextButton(
-                    onPressed: () =>
-                        state.setTabIndex(1),
+                    onPressed: () => state.setTabIndex(1),
                     child: Text(
                       l10n.viewAll,
                     ),
@@ -765,18 +594,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
               if (state.history.isEmpty)
                 Container(
-                  padding:
-                      const EdgeInsets.all(16),
-                  decoration:
-                      BoxDecoration(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius:
-                        BorderRadius.circular(
-                            14),
+                    borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                      color: isHC
-                          ? AppColors.hcBorder
-                          : AppColors.border,
+                      color: isHC ? AppColors.hcBorder : AppColors.border,
                     ),
                   ),
                   child: Center(
@@ -784,78 +607,78 @@ class _HomeScreenState extends State<HomeScreen> {
                       l10n.noRecentSounds,
                       style: TextStyle(
                         fontSize: 12,
-                        color: isHC
-                            ? AppColors.hcText
-                            : AppColors.textMuted,
+                        color: isHC ? AppColors.hcText : AppColors.textMuted,
                       ),
                     ),
                   ),
                 )
               else
-                ...state.history
-                    .take(3)
-                    .map((evt) {
+                ...state.history.take(3).map((evt) {
                   return Container(
-                    margin:
-                        const EdgeInsets.only(
+                    margin: const EdgeInsets.only(
                       bottom: 8,
                     ),
-                    padding:
-                        const EdgeInsets.all(12),
-                    decoration:
-                        BoxDecoration(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius:
-                          BorderRadius.circular(
-                              14),
+                      borderRadius: BorderRadius.circular(14),
                       border: Border.all(
-                        color: isHC
-                            ? AppColors.hcBorder
-                            : AppColors.border,
-                        width:
-                            isHC ? 2 : 1,
+                        color: isHC ? AppColors.hcBorder : AppColors.border,
+                        width: isHC ? 2 : 1,
                       ),
                     ),
                     child: Row(
                       children: [
                         if (iconEnabled) ...[
                           Container(
-                            padding:
-                                const EdgeInsets
-                                    .all(8),
-                            decoration:
-                                BoxDecoration(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
                               color: colorEnabled
-                                  ? AppColors
-                                      .getSeverityBg(
-                                          evt.severity)
-                                  : const Color(
-                                      0xFFF1F5F9),
-                              borderRadius:
-                                  BorderRadius
-                                      .circular(
-                                          10),
+                                  ? AppColors.getSeverityBg(evt.severity)
+                                  : const Color(0xFFF1F5F9),
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            child: Icon(
-                              _getSoundIconData(
-                                evt.soundId
-                                        .isNotEmpty
+                            child: Builder(
+                              builder: (context) {
+                                final identifier = evt.soundId.isNotEmpty
                                     ? evt.soundId
-                                    : evt.label,
-                              ),
-                              size: 18,
-                              color: colorEnabled
-                                  ? AppColors
-                                      .getSeverityColor(
-                                      evt.severity,
-                                      highContrast:
-                                          isHC,
-                                    )
-                                  : (isHC
-                                      ? AppColors
-                                          .hcText
-                                      : const Color(
-                                          0xFF475569)),
+                                    : evt.label;
+
+                                SoundLabel? sound;
+
+                                try {
+                                  sound = soundTaxonomy.firstWhere(
+                                    (s) =>
+                                        s.id.toLowerCase() ==
+                                            identifier.toLowerCase() ||
+                                        s.name.toLowerCase() ==
+                                            identifier.toLowerCase(),
+                                  );
+                                } catch (_) {
+                                  sound = null;
+                                }
+
+                                if (sound != null &&
+                                    sound.imagePath.isNotEmpty) {
+                                  return Image.asset(
+                                    sound.imagePath,
+                                    width: 28,
+                                    height: 28,
+                                    fit: BoxFit.contain,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Icon(
+                                        _getSoundIconData(identifier),
+                                        size: 18,
+                                      );
+                                    },
+                                  );
+                                }
+
+                                return Icon(
+                                  _getSoundIconData(identifier),
+                                  size: 18,
+                                );
+                              },
                             ),
                           ),
                           if (textEnabled)
@@ -865,47 +688,32 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                         Expanded(
                           child: Column(
-                            crossAxisAlignment:
-                                CrossAxisAlignment
-                                    .start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               if (textEnabled)
                                 Text(
                                   getLocalizedSoundName(
-                                    evt.soundId
-                                            .isNotEmpty
-                                        ? evt
-                                            .soundId
+                                    evt.soundId.isNotEmpty
+                                        ? evt.soundId
                                         : evt.label,
-                                    context:
-                                        context,
+                                    context: context,
                                   ),
-                                  style:
-                                      TextStyle(
+                                  style: TextStyle(
                                     fontSize: 12,
-                                    fontWeight:
-                                        FontWeight
-                                            .w700,
+                                    fontWeight: FontWeight.w700,
                                     color: isHC
-                                        ? AppColors
-                                            .hcText
-                                        : AppColors
-                                            .textPrimary,
+                                        ? AppColors.hcText
+                                        : AppColors.textPrimary,
                                   ),
                                 ),
                               Text(
                                 '${_getLocalizedMode(evt.mode, l10n)} • ${_getLocalizedSeverity(evt.severity, l10n)}',
-                                style:
-                                    TextStyle(
+                                style: TextStyle(
                                   fontSize: 10,
-                                  fontWeight:
-                                      FontWeight
-                                          .w600,
+                                  fontWeight: FontWeight.w600,
                                   color: isHC
-                                      ? AppColors
-                                          .hcText
-                                      : AppColors
-                                          .textSecondary,
+                                      ? AppColors.hcText
+                                      : AppColors.textSecondary,
                                 ),
                               ),
                             ],
@@ -942,9 +750,7 @@ class _HomeScreenState extends State<HomeScreen> {
     EnvironmentType mode,
     AppLocalizations l10n,
   ) {
-    return mode == EnvironmentType.indoor
-        ? l10n.indoorMode
-        : l10n.outdoorMode;
+    return mode == EnvironmentType.indoor ? l10n.indoorMode : l10n.outdoorMode;
   }
 
   Widget _buildEnvironmentToggle({
@@ -958,25 +764,19 @@ class _HomeScreenState extends State<HomeScreen> {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration:
-            const Duration(milliseconds: 200),
-        padding:
-            const EdgeInsets.symmetric(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(
           vertical: 10,
         ),
         decoration: BoxDecoration(
           color: isSelected
-              ? (isHC
-                  ? AppColors.hcText
-                  : Colors.white)
+              ? (isHC ? AppColors.hcText : Colors.white)
               : Colors.transparent,
-          borderRadius:
-              BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(12),
           boxShadow: isSelected && !isHC
               ? [
                   BoxShadow(
-                    color: Colors.black
-                        .withOpacity(0.05),
+                    color: Colors.black.withOpacity(0.05),
                     blurRadius: 4,
                     offset: const Offset(
                       0,
@@ -987,37 +787,24 @@ class _HomeScreenState extends State<HomeScreen> {
               : null,
         ),
         child: Row(
-          mainAxisAlignment:
-              MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               icon,
               size: 16,
               color: isSelected
-                  ? (isHC
-                      ? Colors.white
-                      : AppColors.primary)
-                  : (isHC
-                      ? AppColors.hcText
-                      : AppColors
-                          .textSecondary),
+                  ? (isHC ? Colors.white : AppColors.primary)
+                  : (isHC ? AppColors.hcText : AppColors.textSecondary),
             ),
             const SizedBox(width: 6),
             Text(
               label,
               style: TextStyle(
                 fontSize: 12,
-                fontWeight: isSelected
-                    ? FontWeight.w700
-                    : FontWeight.w500,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                 color: isSelected
-                    ? (isHC
-                        ? Colors.white
-                        : AppColors.primary)
-                    : (isHC
-                        ? AppColors.hcText
-                        : AppColors
-                            .textSecondary),
+                    ? (isHC ? Colors.white : AppColors.primary)
+                    : (isHC ? AppColors.hcText : AppColors.textSecondary),
               ),
             ),
           ],
@@ -1029,22 +816,19 @@ class _HomeScreenState extends State<HomeScreen> {
   IconData _getSoundIconData(
     String identifier,
   ) {
-    final lower =
-        identifier.toLowerCase();
+    final lower = identifier.toLowerCase();
 
     if (lower.contains('fire') ||
         lower.contains('alarm') ||
         lower.contains('smoke')) {
-      return Icons
-          .local_fire_department_rounded;
+      return Icons.local_fire_department_rounded;
     }
 
     if (lower.contains('glass')) {
       return Icons.gavel_rounded;
     }
 
-    if (lower.contains('cooker') ||
-        lower.contains('whistle')) {
+    if (lower.contains('cooker') || lower.contains('whistle')) {
       return Icons.air_rounded;
     }
 
@@ -1052,18 +836,15 @@ class _HomeScreenState extends State<HomeScreen> {
       return Icons.water_drop_rounded;
     }
 
-    if (lower.contains('doorbell') ||
-        lower.contains('bell')) {
-      return Icons
-          .notifications_active_rounded;
+    if (lower.contains('doorbell') || lower.contains('bell')) {
+      return Icons.notifications_active_rounded;
     }
 
     if (lower.contains('knock')) {
       return Icons.meeting_room_rounded;
     }
 
-    if (lower.contains('baby') ||
-        lower.contains('cry')) {
+    if (lower.contains('baby') || lower.contains('cry')) {
       return Icons.child_care_rounded;
     }
 
@@ -1071,8 +852,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return Icons.emergency_rounded;
     }
 
-    if (lower.contains('horn') ||
-        lower.contains('vehicle')) {
+    if (lower.contains('horn') || lower.contains('vehicle')) {
       return Icons.directions_car_rounded;
     }
 

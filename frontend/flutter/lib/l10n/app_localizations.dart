@@ -715,13 +715,13 @@ abstract class AppLocalizations {
   /// No description provided for @locationNameHint.
   ///
   /// In en, this message translates to:
-  /// **'e.g. Home, Office, Parents\' House'**
+  /// **'Location name'**
   String get locationNameHint;
 
   /// No description provided for @locationNamePlaceholder.
   ///
   /// In en, this message translates to:
-  /// **'e.g. Home, Grandma\'s House, Gym, Office'**
+  /// **'Location name'**
   String get locationNamePlaceholder;
 
   /// No description provided for @low.
@@ -949,7 +949,7 @@ abstract class AppLocalizations {
   /// No description provided for @placeholderLocName.
   ///
   /// In en, this message translates to:
-  /// **'e.g. Home, Office, Gym'**
+  /// **'Location name'**
   String get placeholderLocName;
 
   /// No description provided for @placeholderName.

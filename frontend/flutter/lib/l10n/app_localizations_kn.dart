@@ -42,7 +42,7 @@ class AppLocalizationsKn extends AppLocalizations {
   String get addressHint => 'ರಸ್ತೆ ವಿಳಾಸ ಅಥವಾ ಹೆಗ್ಗುರುತು';
 
   @override
-  String get addressPlaceholder => 'ಉದಾ. 104 ವಿಲ್ಲೋ ಕ್ರೀಕ್ ರಸ್ತೆ, ಫ್ಲಾಟ್ 4B';
+  String get addressPlaceholder => 'ವಿಳಾಸ';
 
   @override
   String get age => 'ವಯಸ್ಸು';
@@ -96,13 +96,13 @@ class AppLocalizationsKn extends AppLocalizations {
   String get contactName => 'ಸಂಪರ್ಕದ ಹೆಸರು';
 
   @override
-  String get contactNameHint => 'ಉದಾ. ಡಾ. ಸಾರಾ ಮಿಚೆಲ್';
+  String get contactNameHint => 'ಸಂಪರ್ಕ ಹೆಸರು';
 
   @override
   String get contactPhone => 'ಸಂಪರ್ಕ ಫೋನ್';
 
   @override
-  String get contactPhoneHint => 'ಉದಾ. +91 98765 43210';
+  String get contactPhoneHint => 'ಸಂಪರ್ಕ ಫೋನ್';
 
   @override
   String get continuousEmergencyVibration => 'ನಿರಂತರ ತುರ್ತು ಕಂಪನ';
@@ -334,10 +334,10 @@ class AppLocalizationsKn extends AppLocalizations {
   String get locationName => 'ಸ್ಥಳದ ಹೆಸರು';
 
   @override
-  String get locationNameHint => 'ಉದಾ. ಮನೆ, ಕಚೇರಿ, ಪೋಷಕರ ಮನೆ';
+  String get locationNameHint => 'ಸ್ಥಳದ ಹೆಸರು';
 
   @override
-  String get locationNamePlaceholder => 'ಉದಾ. ಮನೆ, ಅಜ್ಜಿಯ ಮನೆ, ಜಿಮ್, ಕಚೇರಿ';
+  String get locationNamePlaceholder => 'ಸ್ಥಳದ ಹೆಸರು';
 
   @override
   String get low => 'ಕಡಿಮೆ';
@@ -447,22 +447,22 @@ class AppLocalizationsKn extends AppLocalizations {
   String get phone => 'ಫೋನ್';
 
   @override
-  String get placeholderAddress => 'ಉದಾ. 124 ಮೇಪಲ್ ಸ್ಟ್ರೀಟ್, ಅಪಾರ್ಟ್‌ಮೆಂಟ್ 3B';
+  String get placeholderAddress => 'ವಿಳಾಸ';
 
   @override
-  String get placeholderAge => '28';
+  String get placeholderAge => 'ವಯಸ್ಸು';
 
   @override
-  String get placeholderEmail => 'user@sensoryreach.app';
+  String get placeholderEmail => 'ಇಮೇಲ್';
 
   @override
-  String get placeholderLocName => 'ಉದಾ. ಮನೆ, ಕಚೇರಿ, ಜಿಮ್';
+  String get placeholderLocName => 'ಸ್ಥಳದ ಹೆಸರು';
 
   @override
-  String get placeholderName => 'ಪ್ರವೇಶಸಾಧ್ಯತೆ ಬಳಕೆದಾರ';
+  String get placeholderName => 'ಹೆಸರು';
 
   @override
-  String get placeholderPhone => '9876543210';
+  String get placeholderPhone => 'ಫೋನ್';
 
   @override
   String get prefColorDesc => 'ಬೆದರಿಕೆ ಮಟ್ಟಕ್ಕೆ ಹೊಂದಿಕೆಯಾಗುವ ಹೊಳಪು';

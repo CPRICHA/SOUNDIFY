@@ -277,10 +277,10 @@ class UserProfile {
   factory UserProfile.defaultProfile() {
     return UserProfile(
       id: 'default_user_1',
-      name: 'Accessibility User',
+      name: '',
       age: 28,
       phone: '+1 (555) 019-2834',
-      email: 'user@sensoryreach.app',
+      email: '',
       micAccess: true,
       termsAccepted: true,
       privacyPolicyAccepted: true,

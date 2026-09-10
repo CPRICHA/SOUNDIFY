@@ -283,7 +283,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     TextField(
                       controller: nameController,
                       decoration: InputDecoration(
-                        hintText: 'e.g. Home, Office',
+                        hintText: 'Location name',
                         filled: true,
                         fillColor: isHC ? Colors.white : const Color(0xFFF8FAFC),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -480,7 +480,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           label: l10n.quickHome,
                           isHC: isHC,
                           onTap: () => applySuggestion(
-                              l10n.quickHome, '104 Willow Creek Rd, Apt 4B'),
+                              l10n.quickHome, ''),
                         ),
                         _buildQuickPill(
                           icon: Icons.apartment_rounded,

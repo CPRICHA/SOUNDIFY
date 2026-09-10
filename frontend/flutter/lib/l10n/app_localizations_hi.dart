@@ -42,7 +42,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get addressHint => 'सड़क का पता या लैंडमार्क';
 
   @override
-  String get addressPlaceholder => 'उदा. 104 विलो क्रीक रोड, फ्लैट 4बी';
+  String get addressPlaceholder => 'पता';
 
   @override
   String get age => 'आयु';
@@ -95,13 +95,13 @@ class AppLocalizationsHi extends AppLocalizations {
   String get contactName => 'संपर्क का नाम';
 
   @override
-  String get contactNameHint => 'उदा. डॉ. सारा मिशेल';
+  String get contactNameHint => 'संपर्क नाम';
 
   @override
   String get contactPhone => 'संपर्क फ़ोन';
 
   @override
-  String get contactPhoneHint => 'उदा. +91 98765 43210';
+  String get contactPhoneHint => 'संपर्क फ़ोन';
 
   @override
   String get continuousEmergencyVibration => 'निरंतर आपातकालीन कंपन';
@@ -332,10 +332,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String get locationName => 'स्थान का नाम';
 
   @override
-  String get locationNameHint => 'उदा. घर, कार्यालय, माता-पिता का घर';
+  String get locationNameHint => 'स्थान का नाम';
 
   @override
-  String get locationNamePlaceholder => 'उदा. घर, दादी का घर, जिम, कार्यालय';
+  String get locationNamePlaceholder => 'स्थान का नाम';
 
   @override
   String get low => 'कम';
@@ -444,22 +444,22 @@ class AppLocalizationsHi extends AppLocalizations {
   String get phone => 'फ़ोन';
 
   @override
-  String get placeholderAddress => 'उदा. 124 मेपल स्ट्रीट, फ्लैट 3बी';
+  String get placeholderAddress => 'पता';
 
   @override
-  String get placeholderAge => '28';
+  String get placeholderAge => 'आयु';
 
   @override
-  String get placeholderEmail => 'user@sensoryreach.app';
+  String get placeholderEmail => 'ईमेल';
 
   @override
-  String get placeholderLocName => 'उदा. घर, कार्यालय, जिम';
+  String get placeholderLocName => 'स्थान का नाम';
 
   @override
-  String get placeholderName => 'एक्सेसिबिलिटी उपयोगकर्ता';
+  String get placeholderName => 'नाम';
 
   @override
-  String get placeholderPhone => '9876543210';
+  String get placeholderPhone => 'फ़ोन';
 
   @override
   String get prefColorDesc => 'खतरे के स्तर से मेल खाती चमक';

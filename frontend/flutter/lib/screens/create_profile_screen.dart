@@ -17,10 +17,10 @@ class CreateProfileScreen extends StatefulWidget {
 
 class _CreateProfileScreenState extends State<CreateProfileScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController(text: 'Accessibility User');
-  final _ageController = TextEditingController(text: '28');
-  final _phoneController = TextEditingController(text: '9876543210');
-  final _emailController = TextEditingController(text: 'user@sensoryreach.app');
+  final _nameController = TextEditingController();
+  final _ageController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _emailController = TextEditingController();
 
   String _countryCode = '+91';
   bool _micAccess = true;

@@ -210,7 +210,7 @@ class _SavedLocationsScreenState extends State<SavedLocationsScreen> {
                                   label: l10n.suggestHome,
                                   isHC: isHC,
                                   onTap: () => _applySuggestion(
-                                      l10n.suggestHome, '124 Maple Street, Apt 3B'),
+                                      l10n.suggestHome, ''),
                                 ),
                               ),
                               const SizedBox(width: 8),
