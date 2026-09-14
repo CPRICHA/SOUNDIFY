@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "360494384501",
-    "project_id": "aiish-ea208",
-    "storage_bucket": "aiish-ea208.firebasestorage.app"
+    "project_number": "63857421124",
+    "project_id": "soundify-2026",
+    "storage_bucket": "soundify-2026.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:360494384501:android:189151d078630aaf447f3c",
+        "mobilesdk_app_id": "1:63857421124:android:c065104e0c5634f0eb8511",
         "android_client_info": {
           "package_name": "com.example.sound_accessibility_app"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBRe2Nr-hHk3PKzNWf8b5tuYM81MhsAMHk"
+          "current_key": "AIzaSyBy4FGIjuPphX5ZhYY5qqyjD7opH82PwW8"
         }
       ],
       "services": {

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -80,7 +79,7 @@ class NotificationService {
       );
 
       // 2. Standard Channel for Medium/Low ambient sounds (Heads-up notification)
-      final standardChannel = const AndroidNotificationChannel(
+      const standardChannel = AndroidNotificationChannel(
         standardChannelId,
         'Standard Sound Alerts',
         description: 'Heads-up notifications for ambient and routine sounds.',
@@ -111,9 +110,6 @@ class NotificationService {
 
       if (androidPlugin != null) {
         final granted = await androidPlugin.requestNotificationsPermission();
-        try {
-          await androidPlugin.requestExactAlarmsPermission();
-        } catch (_) {}
         return granted ?? false;
       }
 
@@ -295,7 +291,7 @@ class NotificationService {
           ],
         );
 
-        final darwinDetails = const DarwinNotificationDetails(
+        const darwinDetails = DarwinNotificationDetails(
           presentAlert: true,
           presentBadge: true,
           presentSound: true,
@@ -339,7 +335,7 @@ class NotificationService {
           ],
         );
 
-        final darwinDetails = const DarwinNotificationDetails(
+        const darwinDetails = DarwinNotificationDetails(
           presentAlert: true,
           presentBadge: true,
           presentSound: true,

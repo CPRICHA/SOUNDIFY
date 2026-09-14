@@ -1,12 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'app.dart';
-import 'firebase_options.dart';
+
 import 'services/feedback_service.dart';
 import 'services/notification_service.dart';
 

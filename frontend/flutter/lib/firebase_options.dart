@@ -47,28 +47,30 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyC4cMj6pZZqb4ERyrZj6e6Nomyl0JcbfG8',
-    appId: '1:360494384501:web:005c772b04bad93a447f3c',
-    messagingSenderId: '360494384501',
-    projectId: 'aiish-ea208',
-    authDomain: 'aiish-ea208.firebaseapp.com',
-    storageBucket: 'aiish-ea208.firebasestorage.app',
+    apiKey: 'AIzaSyANg31BgY0FqK-SAMxtBacAQ1vuliqSx-k',
+    appId: '1:63857421124:web:421b069afa8ff328eb8511',
+    messagingSenderId: '63857421124',
+    projectId: 'soundify-2026',
+    authDomain: 'soundify-2026.firebaseapp.com',
+    storageBucket: 'soundify-2026.firebasestorage.app',
+    measurementId: 'G-Z167DZKZJ6',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBRe2Nr-hHk3PKzNWf8b5tuYM81MhsAMHk',
-    appId: '1:360494384501:android:189151d078630aaf447f3c',
-    messagingSenderId: '360494384501',
-    projectId: 'aiish-ea208',
-    storageBucket: 'aiish-ea208.firebasestorage.app',
+    apiKey: 'AIzaSyBy4FGIjuPphX5ZhYY5qqyjD7opH82PwW8',
+    appId: '1:63857421124:android:c065104e0c5634f0eb8511',
+    messagingSenderId: '63857421124',
+    projectId: 'soundify-2026',
+    storageBucket: 'soundify-2026.firebasestorage.app',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyC4cMj6pZZqb4ERyrZj6e6Nomyl0JcbfG8',
-    appId: '1:360494384501:web:24ef6cc15368b8c4447f3c',
-    messagingSenderId: '360494384501',
-    projectId: 'aiish-ea208',
-    authDomain: 'aiish-ea208.firebaseapp.com',
-    storageBucket: 'aiish-ea208.firebasestorage.app',
+    apiKey: 'AIzaSyANg31BgY0FqK-SAMxtBacAQ1vuliqSx-k',
+    appId: '1:63857421124:web:261787dac748e160eb8511',
+    messagingSenderId: '63857421124',
+    projectId: 'soundify-2026',
+    authDomain: 'soundify-2026.firebaseapp.com',
+    storageBucket: 'soundify-2026.firebasestorage.app',
+    measurementId: 'G-N8CBFR2GX0',
   );
 }

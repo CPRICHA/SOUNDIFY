@@ -127,7 +127,7 @@ class _IndoorLocationMapPickerScreenState extends State<IndoorLocationMapPickerS
               margin: const EdgeInsets.all(12),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withValues(alpha: 0.9),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(

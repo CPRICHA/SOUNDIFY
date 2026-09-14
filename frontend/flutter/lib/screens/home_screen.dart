@@ -8,7 +8,7 @@ import '../data/sound_taxonomy.dart';
 import '../l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -40,17 +40,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
           // Ignore detections if microphone/sound detection is OFF.
           if (!currentState.isListening) return;
-
-          // --------------------------------------------------
-          // NO SOUND
-          // --------------------------------------------------
-          // null means the model detected silence.
-          // Do NOT display anything.
-          // Clear any previously displayed sound and return
-          // to the normal listening state.
-          if (sound == null) {
-            return;
-          }
 
           print(
             'REAL AIISH DETECTION: ${sound.name} '
@@ -95,13 +84,6 @@ class _HomeScreenState extends State<HomeScreen> {
               final currentState = context.read<AppState>();
 
               if (!currentState.isListening) return;
-
-              // ------------------------------------------------
-              // NO SOUND
-              // ------------------------------------------------
-              if (sound == null) {
-                return;
-              }
 
               currentState.triggerSoundEvent(
                 sound,
@@ -173,7 +155,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       border: Border.all(
                         color: isHC
                             ? AppColors.hcBorder
-                            : AppColors.primary.withOpacity(0.3),
+                            : AppColors.primary.withValues(alpha: 0.3),
                         width: isHC ? 1.5 : 1.0,
                       ),
                     ),
@@ -288,14 +270,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ? (colorEnabled
                                           ? AppColors.getSeverityBg(
                                                   lastSound.severity)
-                                              .withOpacity(0.4)
+                                              .withValues(alpha: 0.4)
                                           : (isHC
                                               ? Colors.black12
                                               : const Color(0xFFF1F5F9)))
                                       : (isHC
                                           ? Colors.black12
                                           : AppColors.primaryLight
-                                              .withOpacity(0.5)),
+                                              .withValues(alpha: 0.5)),
                                   border: Border.all(
                                     color: lastSound != null
                                         ? (colorEnabled
@@ -321,10 +303,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                       : (lastSound != null
                                           ? (colorEnabled
                                               ? Colors.indigo.shade50
-                                                  .withOpacity(0.5)
+                                                  .withValues(alpha: 0.5)
                                               : const Color(0xFFF8FAFC))
                                           : Colors.indigo.shade50
-                                              .withOpacity(0.5)),
+                                              .withValues(alpha: 0.5)),
                                   border: Border.all(
                                     color: lastSound != null
                                         ? (colorEnabled
@@ -366,13 +348,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                             context.read<AppState>();
 
                                         if (!currentState.isListening) {
-                                          return;
-                                        }
-
-                                        // --------------------------------
-                                        // NO SOUND
-                                        // --------------------------------
-                                        if (sound == null) {
                                           return;
                                         }
 
@@ -467,7 +442,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         boxShadow: [
                                           BoxShadow(
                                             color:
-                                                Colors.black.withOpacity(0.1),
+                                                Colors.black.withValues(alpha: 0.1),
                                             blurRadius: 10,
                                             offset: const Offset(
                                               0,
@@ -722,7 +697,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   );
-                }).toList(),
+                }),
             ],
           ),
         ),
@@ -776,7 +751,7 @@ class _HomeScreenState extends State<HomeScreen> {
           boxShadow: isSelected && !isHC
               ? [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 4,
                     offset: const Offset(
                       0,

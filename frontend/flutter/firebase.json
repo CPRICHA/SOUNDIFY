@@ -1,1 +1,26 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"aiish-ea208","appId":"1:360494384501:android:189151d078630aaf447f3c","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"aiish-ea208","configurations":{"android":"1:360494384501:android:189151d078630aaf447f3c","web":"1:360494384501:web:005c772b04bad93a447f3c","windows":"1:360494384501:web:24ef6cc15368b8c4447f3c"}}}}}}
+{
+	"flutter": {
+		"platforms": {
+			"android": {
+				"default": {
+					"projectId": "soundify-2026",
+					"appId": "1:63857421124:android:c065104e0c5634f0eb8511",
+					"fileOutput": "android/app/google-services.json"
+				}
+			},
+			"dart": {
+				"lib/firebase_options.dart": {
+					"projectId": "soundify-2026",
+					"configurations": {
+						"android": "1:63857421124:android:c065104e0c5634f0eb8511",
+						"web": "1:63857421124:web:421b069afa8ff328eb8511",
+						"windows": "1:63857421124:web:261787dac748e160eb8511"
+					}
+				}
+			}
+		}
+	},
+	"firestore": {
+		"rules": "firestore.rules"
+	}
+}

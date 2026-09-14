@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/models.dart';
 import '../data/sound_taxonomy.dart';
+import 'auth_service.dart';
 import 'environment_manager.dart';
 import 'indoor_location_repository.dart';
 import 'notification_service.dart';
@@ -34,7 +35,8 @@ class AppState extends ChangeNotifier {
   int _currentTabIndex = 0; // 0: Home, 1: History, 2: Settings
   bool _isOnboarded = false;
   bool _isInitialized = false;
-  StreamSubscription<User?>? _firebaseAuthSubscription;
+  StreamSubscription<UserProfile?>? _firebaseAuthSubscription;
+  FirebaseAuthService? _authService;
 
   // ----------------------------------------------------------
   // Detection cooldown tracking
@@ -88,24 +90,17 @@ class AppState extends ChangeNotifier {
   }
 
   void _listenToFirebaseAuth() {
-    _firebaseAuthSubscription =
-        FirebaseAuth.instance.authStateChanges().listen((user) {
-      if (user == null) {
+    if (Firebase.apps.isEmpty) return;
+
+    _authService = FirebaseAuthService();
+    _firebaseAuthSubscription = _authService!.authStateChanges.listen((profile) {
+      if (profile == null) {
         _userProfile.id = 'guest_user';
         notifyListeners();
         return;
       }
 
-      _userProfile.id = user.uid;
-
-      if (user.email != null && user.email!.isNotEmpty) {
-        _userProfile.email = user.email!;
-      }
-
-      if (user.displayName != null &&
-          user.displayName!.isNotEmpty) {
-        _userProfile.name = user.displayName!;
-      }
+      _userProfile = profile;
 
       notifyListeners();
       saveProfileToPrefs();
@@ -940,6 +935,9 @@ class AppState extends ChangeNotifier {
     notifyListeners();
 
     saveProfileToPrefs();
+    if (updated.id != 'guest_user' && _authService != null) {
+      unawaited(_authService!.updateProfile(updated));
+    }
   }
 
   void toggleHighContrast() {

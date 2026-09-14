@@ -3,14 +3,13 @@ import 'package:provider/provider.dart';
 import '../models/models.dart';
 import '../services/app_state.dart';
 import '../services/notification_service.dart';
-import '../theme/app_theme.dart';
 import '../data/sound_taxonomy.dart';
 import '../l10n/app_localizations.dart';
 
 class FullScreenAlertScreen extends StatefulWidget {
   final SoundLabel? sound;
 
-  const FullScreenAlertScreen({Key? key, this.sound}) : super(key: key);
+  const FullScreenAlertScreen({super.key, this.sound});
 
   @override
   State<FullScreenAlertScreen> createState() => _FullScreenAlertScreenState();
@@ -197,10 +196,10 @@ class _FullScreenAlertScreenState extends State<FullScreenAlertScreen>
                       padding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: primaryAlertColor.withOpacity(0.2),
+                        color: primaryAlertColor.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: primaryAlertColor.withOpacity(0.6),
+                          color: primaryAlertColor.withValues(alpha: 0.6),
                           width: 1.5,
                         ),
                       ),
@@ -256,9 +255,9 @@ class _FullScreenAlertScreenState extends State<FullScreenAlertScreen>
                               height: 220,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: primaryAlertColor.withOpacity(0.12),
+                                color: primaryAlertColor.withValues(alpha: 0.12),
                                 border: Border.all(
-                                  color: primaryAlertColor.withOpacity(0.3),
+                                  color: primaryAlertColor.withValues(alpha: 0.3),
                                   width: 2,
                                 ),
                               ),
@@ -269,9 +268,9 @@ class _FullScreenAlertScreenState extends State<FullScreenAlertScreen>
                               height: 170,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: primaryAlertColor.withOpacity(0.22),
+                                color: primaryAlertColor.withValues(alpha: 0.22),
                                 border: Border.all(
-                                  color: primaryAlertColor.withOpacity(0.5),
+                                  color: primaryAlertColor.withValues(alpha: 0.5),
                                   width: 2,
                                 ),
                               ),
@@ -285,7 +284,7 @@ class _FullScreenAlertScreenState extends State<FullScreenAlertScreen>
                                 color: primaryAlertColor,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: primaryAlertColor.withOpacity(0.6),
+                                    color: primaryAlertColor.withValues(alpha: 0.6),
                                     blurRadius: 30,
                                     spreadRadius: 4,
                                   ),
@@ -326,7 +325,7 @@ class _FullScreenAlertScreenState extends State<FullScreenAlertScreen>
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.white.withValues(alpha: 0.7),
                       letterSpacing: 1.0,
                     ),
                   ),
@@ -338,10 +337,10 @@ class _FullScreenAlertScreenState extends State<FullScreenAlertScreen>
                   padding: const EdgeInsets.symmetric(
                       horizontal: 16, vertical: 10),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.08),
+                    color: Colors.white.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.12),
+                      color: Colors.white.withValues(alpha: 0.12),
                     ),
                   ),
                   child: Row(
@@ -412,7 +411,7 @@ class _FullScreenAlertScreenState extends State<FullScreenAlertScreen>
                           style: OutlinedButton.styleFrom(
                             foregroundColor: Colors.white,
                             side: BorderSide(
-                              color: Colors.white.withOpacity(0.4),
+                              color: Colors.white.withValues(alpha: 0.4),
                               width: 1.5,
                             ),
                             shape: RoundedRectangleBorder(

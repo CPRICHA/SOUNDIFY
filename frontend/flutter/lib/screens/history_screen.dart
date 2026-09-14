@@ -7,7 +7,7 @@ import '../data/sound_taxonomy.dart';
 import '../l10n/app_localizations.dart';
 
 class HistoryScreen extends StatelessWidget {
-  const HistoryScreen({Key? key}) : super(key: key);
+  const HistoryScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +87,7 @@ class HistoryScreen extends StatelessWidget {
                         ? null
                         : [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.02),
+                              color: Colors.black.withValues(alpha: 0.02),
                               blurRadius: 6,
                               offset: const Offset(0, 2),
                             ),

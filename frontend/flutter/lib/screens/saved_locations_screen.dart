@@ -7,7 +7,7 @@ import '../l10n/app_localizations.dart';
 import '../app.dart';
 
 class SavedLocationsScreen extends StatefulWidget {
-  const SavedLocationsScreen({Key? key}) : super(key: key);
+  const SavedLocationsScreen({super.key});
 
   @override
   State<SavedLocationsScreen> createState() => _SavedLocationsScreenState();
@@ -188,7 +188,7 @@ class _SavedLocationsScreenState extends State<SavedLocationsScreen> {
                             ? null
                             : [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.03),
+                                  color: Colors.black.withValues(alpha: 0.03),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
                                 ),

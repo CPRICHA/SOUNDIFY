@@ -2,30 +2,38 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/models.dart';
 import '../data/sound_taxonomy.dart';
-import '../services/services.dart' hide SoundClassificationService, TFLiteSoundClassificationService;
+import '../services/auth_service.dart';
+import '../services/services.dart'
+    hide SoundClassificationService, TFLiteSoundClassificationService;
 import '../services/sound_classifier.dart';
 import '../data/legal_content.dart';
 
 // Riverpod Providers
-final authServiceProvider = Provider<AuthService>((ref) => FirebaseAuthService());
-final classificationServiceProvider = Provider<SoundClassificationService>((ref) => TFLiteSoundClassificationService());
-final historyServiceProvider = Provider<HistorySyncService>((ref) => HiveHistorySyncService());
-final emergencyServiceProvider = Provider<EmergencyService>((ref) => MockEmergencyService());
+final authServiceProvider =
+    Provider<AuthService>((ref) => FirebaseAuthService());
+final classificationServiceProvider = Provider<SoundClassificationService>(
+    (ref) => TFLiteSoundClassificationService());
+final historyServiceProvider =
+    Provider<HistorySyncService>((ref) => HiveHistorySyncService());
+final emergencyServiceProvider =
+    Provider<EmergencyService>((ref) => MockEmergencyService());
 
 final authStateProvider = StreamProvider<UserProfile?>((ref) {
   return ref.watch(authServiceProvider).authStateChanges;
 });
 
-final currentModeProvider = StateProvider<String>((ref) => 'indoor'); // 'indoor' or 'outdoor'
+final currentModeProvider =
+    StateProvider<String>((ref) => 'indoor'); // 'indoor' or 'outdoor'
 final isListeningProvider = StateProvider<bool>((ref) => true);
-final userPreferencesProvider = StateProvider<List<String>>((ref) => ['text', 'icon', 'color']);
+final userPreferencesProvider =
+    StateProvider<List<String>>((ref) => ['text', 'icon', 'color']);
 final lastDetectedSoundProvider = StateProvider<SoundLabel?>((ref) => null);
 
 /// -------------------------------------------------------------
 /// 1. SPLASH SCREEN
 /// -------------------------------------------------------------
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen({super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -88,7 +96,7 @@ class _SplashScreenState extends State<SplashScreen> {
 /// 2. AUTH LANDING SCREEN
 /// -------------------------------------------------------------
 class AuthLandingScreen extends StatelessWidget {
-  const AuthLandingScreen({Key? key}) : super(key: key);
+  const AuthLandingScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -118,7 +126,8 @@ class AuthLandingScreen extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const OnboardingScreen()),
+                    MaterialPageRoute(
+                        builder: (context) => const OnboardingScreen()),
                   );
                 },
                 child: const Text('Sign Up'),
@@ -149,7 +158,6 @@ class AuthLandingScreen extends StatelessWidget {
   }
 }
 
-
 /// -------------------------------------------------------------
 /// SIGN IN SCREEN
 /// -------------------------------------------------------------
@@ -169,10 +177,11 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     setState(() => _loading = true);
 
     try {
+      print('[SOUNDIFY AUTH] LOGIN BUTTON PRESSED');
       final user = await ref.read(authServiceProvider).signIn(
-        _emailController.text.trim(),
-        _passwordController.text,
-      );
+            email: _emailController.text.trim(),
+            password: _passwordController.text,
+          );
 
       if (!mounted) return;
 
@@ -249,7 +258,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
 /// 3. ONBOARDING SCREEN
 /// -------------------------------------------------------------
 class OnboardingScreen extends ConsumerStatefulWidget {
-  const OnboardingScreen({Key? key}) : super(key: key);
+  const OnboardingScreen({super.key});
 
   @override
   ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -262,6 +271,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final _phoneController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
   bool _micAccess = false;
   bool _termsAccepted = false;
@@ -281,27 +291,32 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               children: [
                 TextFormField(
                   controller: _nameController,
-                  decoration: const InputDecoration(labelText: 'Name *', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                      labelText: 'Name *', border: OutlineInputBorder()),
                   validator: (v) => v!.isEmpty ? 'Name is required' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _ageController,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Age *', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                      labelText: 'Age *', border: OutlineInputBorder()),
                   validator: (v) => v!.isEmpty ? 'Age is required' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
-                  decoration: const InputDecoration(labelText: 'Emergency Phone', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                      labelText: 'Emergency Phone',
+                      border: OutlineInputBorder()),
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(labelText: 'Email', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                      labelText: 'Email', border: OutlineInputBorder()),
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -313,6 +328,18 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   ),
                   validator: (v) => v == null || v.length < 6
                       ? 'Password must be at least 6 characters'
+                      : null,
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _confirmPasswordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: 'Confirm Password *',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) => value != _passwordController.text
+                      ? 'Passwords do not match'
                       : null,
                 ),
                 const SizedBox(height: 24),
@@ -332,25 +359,25 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       const SizedBox(width: 6),
                       InkWell(
                         onTap: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: const Text('Terms and Conditions'),
-                                content: const SizedBox(
-                                  width: double.maxFinite,
-                                  child: SingleChildScrollView(
-                                    child: Text(termsAndConditionsContent),
-                                  ),
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Terms and Conditions'),
+                              content: const SizedBox(
+                                width: double.maxFinite,
+                                child: SingleChildScrollView(
+                                  child: Text(termsAndConditionsContent),
                                 ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: const Text('Close'),
-                                  ),
-                                ],
                               ),
-                            );
-                          },
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('Close'),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                         child: const Icon(
                           Icons.info_outline_rounded,
                           size: 20,
@@ -361,7 +388,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 ),
                 CheckboxListTile(
                   value: _privacyAccepted,
-                  onChanged: (v) => setState(() => _privacyAccepted = v ?? false),
+                  onChanged: (v) =>
+                      setState(() => _privacyAccepted = v ?? false),
                   title: Row(
                     children: [
                       const Flexible(
@@ -370,25 +398,25 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       const SizedBox(width: 6),
                       InkWell(
                         onTap: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: const Text('Privacy Policy'),
-                                content: const SizedBox(
-                                  width: double.maxFinite,
-                                  child: SingleChildScrollView(
-                                    child: Text(privacyPolicyContent),
-                                  ),
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Privacy Policy'),
+                              content: const SizedBox(
+                                width: double.maxFinite,
+                                child: SingleChildScrollView(
+                                  child: Text(privacyPolicyContent),
                                 ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: const Text('Close'),
-                                  ),
-                                ],
                               ),
-                            );
-                          },
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('Close'),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                         child: const Icon(
                           Icons.info_outline_rounded,
                           size: 20,
@@ -405,7 +433,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         !_privacyAccepted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Please fill required fields and accept terms.'),
+                          content: Text(
+                              'Please fill required fields and accept terms.'),
                         ),
                       );
                       return;
@@ -424,9 +453,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       );
 
                       final user = await ref.read(authServiceProvider).signUp(
-                        profile,
-                        _passwordController.text,
-                      );
+                            name: profile.name,
+                            age: profile.age,
+                            phone: profile.phone,
+                            email: profile.email,
+                            password: _passwordController.text,
+                          );
 
                       if (!mounted) return;
 
@@ -459,13 +491,24 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       ),
     );
   }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _ageController.dispose();
+    _phoneController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
 }
 
 /// -------------------------------------------------------------
 /// 4. OUTPUT STYLE PREFERENCE SCREEN
 /// -------------------------------------------------------------
 class OutputPreferenceScreen extends ConsumerWidget {
-  const OutputPreferenceScreen({Key? key}) : super(key: key);
+  const OutputPreferenceScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -483,7 +526,8 @@ class OutputPreferenceScreen extends ConsumerWidget {
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            const Text('Pick at least one format. You can select multiple.', style: TextStyle(color: Colors.grey)),
+            const Text('Pick at least one format. You can select multiple.',
+                style: TextStyle(color: Colors.grey)),
             const SizedBox(height: 32),
             _buildPrefTile(
               ref,
@@ -515,11 +559,38 @@ class OutputPreferenceScreen extends ConsumerWidget {
             ElevatedButton(
               onPressed: prefs.isEmpty
                   ? null
-                  : () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => const HomeScreen()),
-                      );
+                  : () async {
+                      final profile = ref.read(authServiceProvider).currentUser;
+                      if (profile == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                                'Please sign in again before finishing setup.'),
+                          ),
+                        );
+                        return;
+                      }
+
+                      try {
+                        await ref
+                            .read(authServiceProvider)
+                            .updateProfile(profile);
+                        if (!context.mounted) return;
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const HomeScreen()),
+                        );
+                      } catch (e) {
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              e.toString().replaceFirst('Exception: ', ''),
+                            ),
+                          ),
+                        );
+                      }
                     },
               child: const Text('Complete Setup'),
             ),
@@ -541,7 +612,8 @@ class OutputPreferenceScreen extends ConsumerWidget {
       color: isSelected ? Colors.indigo.shade50 : Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: isSelected ? Colors.indigo : Colors.transparent, width: 1.5),
+        side: BorderSide(
+            color: isSelected ? Colors.indigo : Colors.transparent, width: 1.5),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
@@ -558,21 +630,27 @@ class OutputPreferenceScreen extends ConsumerWidget {
           padding: const EdgeInsets.all(16.0),
           child: Row(
             children: [
-              Icon(icon, size: 40, color: isSelected ? Colors.indigo : Colors.grey),
+              Icon(icon,
+                  size: 40, color: isSelected ? Colors.indigo : Colors.grey),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                    Text(desc, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                    Text(title,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16)),
+                    Text(desc,
+                        style:
+                            const TextStyle(color: Colors.grey, fontSize: 12)),
                   ],
                 ),
               ),
               Checkbox(
                 value: isSelected,
                 onChanged: (_) {
-                  final list = List<String>.from(ref.read(userPreferencesProvider));
+                  final list =
+                      List<String>.from(ref.read(userPreferencesProvider));
                   if (list.contains(id)) {
                     list.remove(id);
                   } else {
@@ -593,8 +671,8 @@ class OutputPreferenceScreen extends ConsumerWidget {
 /// 5. HOME SCREEN
 /// -------------------------------------------------------------
 class HomeScreen extends ConsumerStatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
-   @override
+  const HomeScreen({super.key});
+  @override
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
@@ -645,7 +723,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             icon: const Icon(Icons.history),
             onPressed: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const DetailedHistoryScreen()),
+              MaterialPageRoute(
+                  builder: (context) => const DetailedHistoryScreen()),
             ),
           ),
           IconButton(
@@ -676,15 +755,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       const SizedBox(width: 8),
                       Text(
                         mode == 'indoor' ? 'Indoor Mode' : 'Outdoor Mode',
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
-                  Row(
-                    children: const [
+                  const Row(
+                    children: [
                       Icon(Icons.gps_fixed, size: 16, color: Colors.green),
                       SizedBox(width: 4),
-                      Text('GPS Active', style: TextStyle(color: Colors.green, fontSize: 12)),
+                      Text('GPS Active',
+                          style: TextStyle(color: Colors.green, fontSize: 12)),
                     ],
                   )
                 ],
@@ -695,10 +776,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 children: [
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () => ref.read(currentModeProvider.notifier).state = 'indoor',
+                      onPressed: () => ref
+                          .read(currentModeProvider.notifier)
+                          .state = 'indoor',
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: mode == 'indoor' ? Colors.indigo : Colors.grey.shade200,
-                        foregroundColor: mode == 'indoor' ? Colors.white : Colors.black87,
+                        backgroundColor: mode == 'indoor'
+                            ? Colors.indigo
+                            : Colors.grey.shade200,
+                        foregroundColor:
+                            mode == 'indoor' ? Colors.white : Colors.black87,
                       ),
                       child: const Text('Indoor'),
                     ),
@@ -706,10 +792,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () => ref.read(currentModeProvider.notifier).state = 'outdoor',
+                      onPressed: () => ref
+                          .read(currentModeProvider.notifier)
+                          .state = 'outdoor',
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: mode == 'outdoor' ? Colors.indigo : Colors.grey.shade200,
-                        foregroundColor: mode == 'outdoor' ? Colors.white : Colors.black87,
+                        backgroundColor: mode == 'outdoor'
+                            ? Colors.indigo
+                            : Colors.grey.shade200,
+                        foregroundColor:
+                            mode == 'outdoor' ? Colors.white : Colors.black87,
                       ),
                       child: const Text('Outdoor'),
                     ),
@@ -729,7 +820,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           width: 200,
                           height: 200,
                           decoration: BoxDecoration(
-                            color: Colors.indigo.withOpacity(0.1),
+                            color: Colors.indigo.withValues(alpha: 0.1),
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -737,7 +828,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           width: 160,
                           height: 160,
                           decoration: BoxDecoration(
-                            color: Colors.indigo.withOpacity(0.2),
+                            color: Colors.indigo.withValues(alpha: 0.2),
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -759,47 +850,60 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     const SizedBox(height: 24),
                     Text(
                       listening ? 'Listening for environment...' : 'Paused',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey),
+                      style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey),
                     ),
                   ],
                 ),
               ),
               const Spacer(),
-              
+
               // Outdoor safety auxiliary triggers (Dynamic)
-              if (mode == 'outdoor' && lastSound != null && lastSound.severity == PriorityLevel.critical) ...[
+              if (mode == 'outdoor' &&
+                  lastSound != null &&
+                  lastSound.severity == PriorityLevel.critical) ...[
                 Row(
                   children: [
                     Expanded(
                       child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red),
                         onPressed: () {
-                          ref.read(emergencyServiceProvider).triggerEmergencyAlert(
-                            'user_123',
-                            'Dispatched safety SMS to primary contact',
-                            'CALL_EMERGENCY',
-                          );
+                          ref
+                              .read(emergencyServiceProvider)
+                              .triggerEmergencyAlert(
+                                'user_123',
+                                'Dispatched safety SMS to primary contact',
+                                'CALL_EMERGENCY',
+                              );
                         },
                         icon: const Icon(Icons.phone, color: Colors.white),
-                        label: const Text('Call Emergency', style: TextStyle(color: Colors.white)),
+                        label: const Text('Call Emergency',
+                            style: TextStyle(color: Colors.white)),
                       ),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green),
                         onPressed: () {},
-                        icon: const Icon(Icons.safety_check, color: Colors.white),
-                        label: const Text('Reached Safe', style: TextStyle(color: Colors.white)),
+                        icon:
+                            const Icon(Icons.safety_check, color: Colors.white),
+                        label: const Text('Reached Safe',
+                            style: TextStyle(color: Colors.white)),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 16),
               ],
-              
+
               // Small history overview
-              const Text('Recent Alerts', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              const Text('Recent Alerts',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               const SizedBox(height: 8),
               Container(
                 height: 100,
@@ -808,7 +912,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: const Center(
-                  child: Text('No recent critical events logged', style: TextStyle(color: Colors.grey)),
+                  child: Text('No recent critical events logged',
+                      style: TextStyle(color: Colors.grey)),
                 ),
               )
             ],
@@ -824,7 +929,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 /// -------------------------------------------------------------
 class AlertBannerText extends StatelessWidget {
   final String text;
-  const AlertBannerText({Key? key, required this.text}) : super(key: key);
+  const AlertBannerText({super.key, required this.text});
 
   @override
   Widget build(BuildContext context) {
@@ -842,7 +947,8 @@ class AlertBannerText extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold, color: Colors.red),
             ),
           ),
         ],
@@ -853,7 +959,7 @@ class AlertBannerText extends StatelessWidget {
 
 class AlertBannerIcon extends StatelessWidget {
   final SoundLabel sound;
-  const AlertBannerIcon({Key? key, required this.sound}) : super(key: key);
+  const AlertBannerIcon({super.key, required this.sound});
 
   @override
   Widget build(BuildContext context) {
@@ -890,8 +996,11 @@ class AlertBannerIcon extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(sound.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                Text(sound.category, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                Text(sound.name,
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold)),
+                Text(sound.category,
+                    style: const TextStyle(color: Colors.grey, fontSize: 12)),
               ],
             ),
           ),
@@ -906,7 +1015,7 @@ class AlertBannerIcon extends StatelessWidget {
 /// 8. DETAILED HISTORY SCREEN
 /// -------------------------------------------------------------
 class DetailedHistoryScreen extends ConsumerWidget {
-  const DetailedHistoryScreen({Key? key}) : super(key: key);
+  const DetailedHistoryScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -932,9 +1041,12 @@ class DetailedHistoryScreen extends ConsumerWidget {
             margin: const EdgeInsets.only(bottom: 12),
             child: ListTile(
               leading: Icon(severityIcon, color: sevColor, size: 28),
-              title: Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: Text('${item.category} • ${item.environment.name.toUpperCase()}'),
-              trailing: const Text('Just now', style: TextStyle(color: Colors.grey, fontSize: 12)),
+              title: Text(item.name,
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: Text(
+                  '${item.category} • ${item.environment.name.toUpperCase()}'),
+              trailing: const Text('Just now',
+                  style: TextStyle(color: Colors.grey, fontSize: 12)),
             ),
           );
         },
@@ -947,7 +1059,7 @@ class DetailedHistoryScreen extends ConsumerWidget {
 /// 9. SETTINGS & VIBRATION GUIDE SCREEN
 /// -------------------------------------------------------------
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({Key? key}) : super(key: key);
+  const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -968,10 +1080,10 @@ class SettingsScreen extends StatelessWidget {
               style: TextStyle(color: Colors.grey),
             ),
             const SizedBox(height: 32),
-            
             _buildVibrationRow(
               title: 'Critical Severity Vibration',
-              desc: 'Continuous intense pulses (250ms on, 50ms off) to ensure maximum safety.',
+              desc:
+                  'Continuous intense pulses (250ms on, 50ms off) to ensure maximum safety.',
               intensity: 'High Intensity (Emergency)',
               waveform: '⌂⌂⌂⌂⌂⌂⌂⌂⌂⌂',
               color: Colors.red,
@@ -979,7 +1091,8 @@ class SettingsScreen extends StatelessWidget {
             const SizedBox(height: 16),
             _buildVibrationRow(
               title: 'Attention Severity Vibration',
-              desc: 'Double beat pattern (100ms pulse, 100ms pause, 100ms pulse) for general awareness.',
+              desc:
+                  'Double beat pattern (100ms pulse, 100ms pause, 100ms pulse) for general awareness.',
               intensity: 'Medium Intensity',
               waveform: '⌴⌴  ⌴⌴  ⌴⌴',
               color: Colors.orange,
@@ -987,7 +1100,8 @@ class SettingsScreen extends StatelessWidget {
             const SizedBox(height: 16),
             _buildVibrationRow(
               title: 'Low Severity Vibration',
-              desc: 'Single light tap (50ms duration) for quiet background indicators.',
+              desc:
+                  'Single light tap (50ms duration) for quiet background indicators.',
               intensity: 'Low Intensity (Ambient)',
               waveform: ' .   .   . ',
               color: Colors.green,
@@ -1015,17 +1129,29 @@ class SettingsScreen extends StatelessWidget {
               children: [
                 Icon(Icons.vibration, color: color),
                 const SizedBox(width: 8),
-                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                Text(title,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 16)),
               ],
             ),
             const SizedBox(height: 8),
-            Text(desc, style: const TextStyle(color: Colors.grey, fontSize: 13)),
+            Text(desc,
+                style: const TextStyle(color: Colors.grey, fontSize: 13)),
             const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(intensity, style: TextStyle(color: color, fontWeight: FontWeight.w500, fontSize: 12)),
-                Text(waveform, style: TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.bold, color: color, fontSize: 14)),
+                Text(intensity,
+                    style: TextStyle(
+                        color: color,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 12)),
+                Text(waveform,
+                    style: TextStyle(
+                        fontFamily: 'monospace',
+                        fontWeight: FontWeight.bold,
+                        color: color,
+                        fontSize: 14)),
               ],
             )
           ],

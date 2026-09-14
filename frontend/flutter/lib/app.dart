@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'
+  hide ChangeNotifierProvider, Consumer;
 import 'package:provider/provider.dart';
 import 'services/app_state.dart';
 import 'services/notification_service.dart';
@@ -12,7 +14,7 @@ import 'screens/full_screen_alert_screen.dart';
 import 'widgets/bottom_nav.dart';
 
 class SensoryReachApp extends StatefulWidget {
-  const SensoryReachApp({Key? key}) : super(key: key);
+  const SensoryReachApp({super.key});
 
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
@@ -32,9 +34,10 @@ class _SensoryReachAppState extends State<SensoryReachApp> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => AppState(),
-      child: Consumer<AppState>(
+    return ProviderScope(
+      child: ChangeNotifierProvider(
+        create: (_) => AppState(),
+        child: Consumer<AppState>(
         builder: (context, state, child) {
           final isHC = state.userProfile.highContrast;
 
@@ -62,19 +65,20 @@ class _SensoryReachAppState extends State<SensoryReachApp> {
             },
           );
         },
+        ),
       ),
     );
   }
 }
 
 class MainNavigationShell extends StatelessWidget {
-  const MainNavigationShell({Key? key}) : super(key: key);
+  const MainNavigationShell({super.key});
 
   @override
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
 
-    final screens = const [
+    const screens = [
       HomeScreen(),
       HistoryScreen(),
       SettingsScreen(),

@@ -11,7 +11,7 @@ import '../l10n/app_localizations.dart';
 class GuideScreen extends StatefulWidget {
   final int initialTabIndex;
 
-  const GuideScreen({Key? key, this.initialTabIndex = 0}) : super(key: key);
+  const GuideScreen({super.key, this.initialTabIndex = 0});
 
   @override
   State<GuideScreen> createState() => _GuideScreenState();
@@ -466,8 +466,8 @@ class _GuideScreenState extends State<GuideScreen>
               icon: const Icon(Icons.vibration_rounded, size: 20),
               text: l10n.vibrationGuide,
             ),
-            Tab(
-              icon: const Icon(Icons.grid_view_rounded, size: 20),
+            const Tab(
+              icon: Icon(Icons.grid_view_rounded, size: 20),
               text: 'Sound Taxonomy (33)',
             ),
           ],
@@ -589,7 +589,7 @@ class _GuideScreenState extends State<GuideScreen>
                         ? [
                             BoxShadow(
                               color: AppColors.getSeverityColor(severity)
-                                  .withOpacity(0.2),
+                                  .withValues(alpha: 0.2),
                               blurRadius: 10,
                               offset: const Offset(0, 4),
                             ),
@@ -730,7 +730,7 @@ class _GuideScreenState extends State<GuideScreen>
                     ],
                   ),
                 );
-              }).toList(),
+              }),
             ],
           ),
 
@@ -863,9 +863,9 @@ void showVibrationWaveGuideSheet(BuildContext context) {
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      child: ClipRRect(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        child: const GuideScreen(initialTabIndex: 0),
+      child: const ClipRRect(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        child: GuideScreen(initialTabIndex: 0),
       ),
     ),
   );

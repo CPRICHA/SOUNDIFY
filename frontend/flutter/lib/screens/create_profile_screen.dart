@@ -2,14 +2,16 @@ import '../data/legal_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import '../models/models.dart';
 import '../services/app_state.dart';
+import '../services/auth_service.dart';
 import '../services/notification_service.dart';
 import '../theme/app_theme.dart';
 import '../l10n/app_localizations.dart';
 import 'alert_presentation_screen.dart';
 
 class CreateProfileScreen extends StatefulWidget {
-  const CreateProfileScreen({Key? key}) : super(key: key);
+  const CreateProfileScreen({super.key});
 
   @override
   State<CreateProfileScreen> createState() => _CreateProfileScreenState();
@@ -21,12 +23,15 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
   final _ageController = TextEditingController();
   final _phoneController = TextEditingController();
   final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
   String _countryCode = '+91';
   bool _micAccess = true;
   bool _locationAccess = true;
   bool _termsAccepted = true;
   bool _privacyAccepted = true;
+  bool _isSubmitting = false;
   String? _errorMessage;
 
   @override
@@ -35,15 +40,20 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
     _ageController.dispose();
     _phoneController.dispose();
     _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  void _handleNext(AppLocalizations l10n) {
+  Future<void> _handleNext(AppLocalizations l10n) async {
+    print('[SOUNDIFY AUTH] SIGNUP BUTTON PRESSED');
     setState(() => _errorMessage = null);
 
     final name = _nameController.text.trim();
     final ageStr = _ageController.text.trim();
     final phone = _phoneController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
 
     if (name.isEmpty) {
       setState(() => _errorMessage = l10n.errEnterName);
@@ -58,6 +68,21 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
 
     if (phone.isEmpty || phone.length < 7) {
       setState(() => _errorMessage = l10n.errEnterPhone);
+      return;
+    }
+
+    if (email.isEmpty || !email.contains('@')) {
+      setState(() => _errorMessage = 'Enter a valid email address.');
+      return;
+    }
+
+    if (password.length < 6) {
+      setState(() => _errorMessage = 'Password must be at least 6 characters.');
+      return;
+    }
+
+    if (password != _confirmPasswordController.text) {
+      setState(() => _errorMessage = 'Passwords do not match.');
       return;
     }
 
@@ -81,28 +106,49 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
       return;
     }
 
-    // Update app state profile
-    final state = context.read<AppState>();
-    final currentProfile = state.userProfile;
-    currentProfile.name = name;
-    currentProfile.age = age;
-    currentProfile.phone = '$_countryCode $phone';
-    currentProfile.email = _emailController.text.trim();
-    currentProfile.micAccess = _micAccess;
-    currentProfile.gpsAutoDetect = _locationAccess;
-    currentProfile.termsAccepted = _termsAccepted;
-    currentProfile.privacyPolicyAccepted = _privacyAccepted;
+    setState(() => _isSubmitting = true);
 
-    state.updateProfile(currentProfile);
+    try {
+      final profile = UserProfile(
+        id: '',
+        name: name,
+        age: age,
+        phone: '$_countryCode $phone',
+        email: email,
+        micAccess: _micAccess,
+        termsAccepted: _termsAccepted,
+        privacyPolicyAccepted: _privacyAccepted,
+        gpsAutoDetect: _locationAccess,
+      );
+      final authenticatedProfile = await FirebaseAuthService().signUp(
+        name: profile.name,
+        age: profile.age,
+        phone: profile.phone,
+        email: profile.email,
+        password: password,
+      );
 
-    // Proactively request runtime notification permissions for background alert delivery
-    NotificationService.instance.requestPermissions();
+      if (!mounted || authenticatedProfile == null) return;
+      context.read<AppState>().updateProfile(authenticatedProfile);
 
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const AlertPresentationScreen(),
-      ),
-    );
+      // Proactively request runtime notification permissions for background alert delivery
+      await NotificationService.instance.requestPermissions();
+
+      if (mounted) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => const AlertPresentationScreen(),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(
+            () => _errorMessage = e.toString().replaceFirst('Exception: ', ''));
+      }
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
   }
 
   @override
@@ -136,7 +182,8 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
           children: [
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 child: Form(
                   key: _formKey,
                   child: Column(
@@ -147,7 +194,8 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                         l10n.createProfileDesc,
                         style: TextStyle(
                           fontSize: 12,
-                          color: isHC ? AppColors.hcText : AppColors.textSecondary,
+                          color:
+                              isHC ? AppColors.hcText : AppColors.textSecondary,
                           fontWeight: isHC ? FontWeight.w700 : FontWeight.w500,
                         ),
                       ),
@@ -161,7 +209,8 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: isHC ? AppColors.hcText : AppColors.textPrimary,
+                          color:
+                              isHC ? AppColors.hcText : AppColors.textPrimary,
                         ),
                         decoration: _buildInputDecoration(
                           hint: l10n.placeholderName,
@@ -222,8 +271,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                                           horizontal: 8),
                                       decoration: BoxDecoration(
                                         color: Colors.white,
-                                        borderRadius:
-                                            BorderRadius.circular(12),
+                                        borderRadius: BorderRadius.circular(12),
                                         border: Border.all(
                                           color: isHC
                                               ? AppColors.hcBorder
@@ -320,10 +368,34 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: isHC ? AppColors.hcText : AppColors.textPrimary,
+                          color:
+                              isHC ? AppColors.hcText : AppColors.textPrimary,
                         ),
                         decoration: _buildInputDecoration(
                           hint: l10n.placeholderEmail,
+                          isHC: isHC,
+                        ),
+                      ),
+                      const SizedBox(height: 22),
+
+                      _buildLabel('PASSWORD', isHC),
+                      const SizedBox(height: 6),
+                      TextFormField(
+                        controller: _passwordController,
+                        obscureText: true,
+                        decoration: _buildInputDecoration(
+                          hint: 'Create a password',
+                          isHC: isHC,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      _buildLabel('CONFIRM PASSWORD', isHC),
+                      const SizedBox(height: 6),
+                      TextFormField(
+                        controller: _confirmPasswordController,
+                        obscureText: true,
+                        decoration: _buildInputDecoration(
+                          hint: 'Re-enter your password',
                           isHC: isHC,
                         ),
                       ),
@@ -443,7 +515,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                 width: double.infinity,
                 height: 52,
                 child: ElevatedButton(
-                  onPressed: () => _handleNext(l10n),
+                  onPressed: _isSubmitting ? null : () => _handleNext(l10n),
                   style: ElevatedButton.styleFrom(
                     backgroundColor:
                         isHC ? AppColors.hcText : const Color(0xFF5B4FE8),
@@ -452,12 +524,15 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                       side: isHC
-                          ? const BorderSide(color: AppColors.hcBorder, width: 2)
+                          ? const BorderSide(
+                              color: AppColors.hcBorder, width: 2)
                           : BorderSide.none,
                     ),
                   ),
                   child: Text(
-                    l10n.nextStylePreferences,
+                    _isSubmitting
+                        ? 'Creating account...'
+                        : l10n.nextStylePreferences,
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -557,11 +632,8 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                   title,
                   style: TextStyle(
                     fontSize: 12,
-                    fontWeight:
-                        isHC ? FontWeight.w800 : FontWeight.w600,
-                    color: isHC
-                        ? AppColors.hcText
-                        : const Color(0xFF334155),
+                    fontWeight: isHC ? FontWeight.w800 : FontWeight.w600,
+                    color: isHC ? AppColors.hcText : const Color(0xFF334155),
                   ),
                 ),
               ),
@@ -573,9 +645,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                   icon: Icon(
                     Icons.info_outline_rounded,
                     size: 21,
-                    color: isHC
-                        ? AppColors.hcText
-                        : const Color(0xFF5B4FE8),
+                    color: isHC ? AppColors.hcText : const Color(0xFF5B4FE8),
                   ),
                 ),
             ],

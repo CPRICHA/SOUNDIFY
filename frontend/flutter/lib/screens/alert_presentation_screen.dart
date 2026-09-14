@@ -6,7 +6,7 @@ import '../l10n/app_localizations.dart';
 import 'saved_locations_screen.dart';
 
 class AlertPresentationScreen extends StatefulWidget {
-  const AlertPresentationScreen({Key? key}) : super(key: key);
+  const AlertPresentationScreen({super.key});
 
   @override
   State<AlertPresentationScreen> createState() => _AlertPresentationScreenState();
@@ -203,7 +203,7 @@ class _AlertPresentationScreenState extends State<AlertPresentationScreen> {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: const Color(0xFF5B4FE8).withOpacity(0.08),
+                    color: const Color(0xFF5B4FE8).withValues(alpha: 0.08),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   )

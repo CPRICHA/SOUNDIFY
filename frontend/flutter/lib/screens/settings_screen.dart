@@ -1,10 +1,10 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import '../models/models.dart';
 import '../data/sound_taxonomy.dart';
 import '../services/app_state.dart';
+import '../services/auth_service.dart';
 import '../services/feedback_service.dart';
 import '../services/notification_service.dart';
 import '../theme/app_theme.dart';
@@ -14,7 +14,7 @@ import 'indoor_location_map_screen.dart';
 import 'welcome_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({Key? key}) : super(key: key);
+  const SettingsScreen({super.key});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -214,7 +214,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
               final now = DateTime.now().millisecondsSinceEpoch;
               final location = SavedIndoorLocation(
-                id: existing?.id ?? 'loc_${now}',
+                id: existing?.id ?? 'loc_$now',
                 name: name,
                 latitude: selectedLatitude!,
                 longitude: selectedLongitude!,
@@ -648,6 +648,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _showRateDialog(BuildContext context, bool isHC, AppLocalizations l10n) {
     int currentRating = 5;
+    bool isSubmitting = false;
 
     showDialog(
       context: context,
@@ -676,7 +677,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF5B4FE8).withOpacity(0.25),
+                            color: const Color(0xFF5B4FE8).withValues(alpha: 0.25),
                             blurRadius: 12,
                             offset: const Offset(0, 4),
                           ),
@@ -740,16 +741,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       width: double.infinity,
                       height: 48,
                       child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(ctx).pop();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                  '${l10n.rateThanksPrefix} $currentRating ${l10n.rateThanksSuffix}'),
-                              duration: const Duration(seconds: 2),
-                            ),
-                          );
-                        },
+                        onPressed: isSubmitting
+                            ? null
+                            : () async {
+                                setDialogState(() => isSubmitting = true);
+                                try {
+                                  await FeedbackService.instance.submitFeedback(
+                                    rating: currentRating,
+                                    feedback: '',
+                                  );
+                                  if (ctx.mounted) Navigator.of(ctx).pop();
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                            '${l10n.rateThanksPrefix} $currentRating ${l10n.rateThanksSuffix}'),
+                                        duration: const Duration(seconds: 2),
+                                      ),
+                                    );
+                                  }
+                                } catch (_) {
+                                  if (ctx.mounted) {
+                                    setDialogState(() => isSubmitting = false);
+                                    ScaffoldMessenger.of(ctx).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                            'Unable to submit your rating. Please try again.'),
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: isHC
                               ? AppColors.hcText
@@ -760,13 +782,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             borderRadius: BorderRadius.circular(14),
                           ),
                         ),
-                        child: Text(
-                          l10n.submitReview,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
+                        child: isSubmitting
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : Text(
+                                l10n.submitReview,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -797,6 +828,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _showFeedbackDialog(BuildContext context, bool isHC, AppLocalizations l10n) {
     String selectedCategory = l10n.feedbackCatGeneral;
     int feedbackRating = 5;
+    bool isSubmitting = false;
+    String? submissionError;
     final feedbackTextCtrl = TextEditingController();
 
     final categories = [
@@ -1027,34 +1060,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               height: 44,
                               child: ElevatedButton(
                                 onPressed: () async {
+                                  if (isSubmitting) return;
                                   final text = feedbackTextCtrl.text.trim();
                                   if (text.isEmpty) {
+                                    setDialogState(() {
+                                      submissionError =
+                                          'Please enter your feedback.';
+                                    });
                                     return;
                                   }
 
-                                  final state = context.read<AppState>();
-                                  final feedbackResult =
-                                      await FeedbackService.instance.submitFeedback(
-                                    rating: feedbackRating,
-                                    feedbackText: text,
-                                    category: selectedCategory,
-                                    userId: state.userProfile.id,
-                                    soundType: state.lastDetectedSound?.name,
-                                    detectedConfidence:
-                                        state.lastDetectedConfidence,
-                                    appVersion: null,
-                                    modelVersion: 'AIISH_v2',
-                                    platform: null,
-                                  );
-
-                                  if (ctx.mounted) Navigator.of(ctx).pop();
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(feedbackResult.message),
-                                        duration: const Duration(seconds: 2),
-                                      ),
+                                  setDialogState(() {
+                                    isSubmitting = true;
+                                    submissionError = null;
+                                  });
+                                  try {
+                                    await FeedbackService.instance.submitFeedback(
+                                      rating: feedbackRating,
+                                      feedback: text,
                                     );
+
+                                    if (ctx.mounted) Navigator.of(ctx).pop();
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          content:
+                                              Text(l10n.feedbackStoredLocal),
+                                          duration:
+                                              const Duration(seconds: 2),
+                                        ),
+                                      );
+                                    }
+                                  } catch (_) {
+                                    if (ctx.mounted) {
+                                      setDialogState(() {
+                                        isSubmitting = false;
+                                        submissionError =
+                                            'Unable to submit feedback. Please try again.';
+                                      });
+                                    }
                                   }
                                 },
                                 style: ElevatedButton.styleFrom(
@@ -1066,13 +1111,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                child: Text(
-                                  l10n.saveFeedback,
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
+                                child: isSubmitting
+                                    ? const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    : Text(
+                                        l10n.saveFeedback,
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
                               ),
                             ),
                           ),
@@ -1107,6 +1161,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ],
                       ),
+                      if (submissionError != null) ...[
+                        const SizedBox(height: 10),
+                        Text(
+                          submissionError!,
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -1318,7 +1382,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                     if (confirm == true && context.mounted) {
                       try {
-                        await FirebaseAuth.instance.signOut();
+                        await FirebaseAuthService().signOut();
                       } catch (_) {
                         // Preserve the existing flow even if sign-out fails.
                       }
@@ -1876,7 +1940,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   Switch(
                     value: state.environmentMode == EnvironmentType.outdoor,
-                    activeColor:
+                    activeThumbColor:
                         isHC ? AppColors.hcText : const Color(0xFF5B4FE8),
                     onChanged: (val) {
                       state.setEnvironmentMode(val
@@ -1914,7 +1978,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   Switch(
                     value: profile.gpsAutoDetect,
-                    activeColor:
+                    activeThumbColor:
                         isHC ? AppColors.hcText : const Color(0xFF5B4FE8),
                     onChanged: (val) {
                       profile.gpsAutoDetect = val;
@@ -2236,7 +2300,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   Switch(
                     value: profile.highContrast,
-                    activeColor:
+                    activeThumbColor:
                         isHC ? AppColors.hcText : const Color(0xFF5B4FE8),
                     onChanged: (_) => state.toggleHighContrast(),
                   ),
@@ -2328,7 +2392,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ? null
             : [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
+                  color: Colors.black.withValues(alpha: 0.02),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
