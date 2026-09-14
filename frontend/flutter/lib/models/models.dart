@@ -7,7 +7,8 @@ class SoundLabel {
   final String name;
   final EnvironmentType environment;
   final String category;
-  final PriorityLevel severity;
+  final PriorityLevel indoorSeverity;
+  final PriorityLevel outdoorSeverity;
   final String imagePath;
   final String? iconName;
 
@@ -16,12 +17,23 @@ class SoundLabel {
     required this.name,
     required this.environment,
     required this.category,
-    required this.severity,
+    required this.indoorSeverity,
+    required this.outdoorSeverity,
     required this.imagePath,
     this.iconName,
   });
 
+  PriorityLevel getPriority(EnvironmentType mode) {
+    return mode == EnvironmentType.indoor
+        ? indoorSeverity
+        : outdoorSeverity;
+  }
+
   factory SoundLabel.fromJson(Map<String, dynamic> json) {
+    final defaultSeverity = _parseSeverity(
+      json['severity'] as String? ?? 'low',
+    );
+
     return SoundLabel(
       id: json['id'] as String,
       name: json['name'] as String,
@@ -29,7 +41,12 @@ class SoundLabel {
           ? EnvironmentType.outdoor
           : EnvironmentType.indoor,
       category: json['category'] as String,
-      severity: _parseSeverity(json['severity'] as String),
+      indoorSeverity: _parseSeverity(
+        json['indoorSeverity'] as String? ?? defaultSeverity.name,
+      ),
+      outdoorSeverity: _parseSeverity(
+        json['outdoorSeverity'] as String? ?? defaultSeverity.name,
+      ),
       imagePath: json['imagePath'] as String? ?? '',
       iconName: json['iconName'] as String?,
     );
@@ -38,9 +55,12 @@ class SoundLabel {
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,
-        'environment': environment == EnvironmentType.outdoor ? 'outdoor' : 'indoor',
+        'environment':
+            environment == EnvironmentType.outdoor ? 'outdoor' : 'indoor',
         'category': category,
-        'severity': severity.name,
+        'indoorSeverity': indoorSeverity.name,
+        'outdoorSeverity': outdoorSeverity.name,
+        'severity': indoorSeverity.name,
         'imagePath': imagePath,
         'iconName': iconName,
       };
