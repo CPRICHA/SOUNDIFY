@@ -7,6 +7,7 @@ import '../services/services.dart'
     hide SoundClassificationService, TFLiteSoundClassificationService;
 import '../services/sound_classifier.dart';
 import '../data/legal_content.dart';
+import 'home_screen.dart' as proper_home;
 
 // Riverpod Providers
 final authServiceProvider =
@@ -223,7 +224,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
-            builder: (_) => const HomeScreen(),
+            builder: (_) => const proper_home.HomeScreen(),
           ),
           (route) => false,
         );
