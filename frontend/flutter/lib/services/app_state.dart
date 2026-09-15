@@ -26,7 +26,7 @@ class AppState extends ChangeNotifier {
 
   Timer? _historyCleanupTimer;
 
-  // 10-second timer for the detected sound display.
+  // 15-second timer for the detected sound display.
   // This only controls the UI display and does not
   // stop or restart the sound classification service.
   Timer? _detectionDisplayTimer;
@@ -562,13 +562,44 @@ class AppState extends ChangeNotifier {
       sound.getPriority(_environmentMode);
 
   // --------------------------------------------------------
+  // CONFIDENCE THRESHOLD
+  // --------------------------------------------------------
+  //
+  // Children Playing and Air Conditioner have no confidence
+  // threshold. If detected, they are always shown.
+  //
+  // All other sounds require at least 40% confidence.
+  // Low-confidence detections are ignored completely.
+  // --------------------------------------------------------
+
+  const confidenceThreshold = 0.40;
+
+  final thresholdExempt =
+      sound.id == 'children_playing' ||
+      sound.id == 'air_conditioner';
+
+  if (!thresholdExempt &&
+      (confidence == null ||
+          confidence < confidenceThreshold)) {
+    if (kDebugMode) {
+      print(
+        'Detection rejected for '
+        '${sound.name}. '
+        'Confidence: ${confidence ?? 0}. '
+        'Required: 40%.',
+      );
+    }
+    return;
+  }
+
+  // --------------------------------------------------------
   // Determine cooldown based on the current mode-specific
   // priority.
   //
-  // Low      -> 5 minutes
-  // Medium   -> 3 minutes
-  // High     -> 2 minutes
-  // Critical -> 1 minute
+  // Low      -> 1 minute
+  // Medium   -> 50 seconds
+  // High     -> 40 seconds
+  // Critical -> 30 seconds
   // --------------------------------------------------------
 
   final Duration cooldown;
@@ -576,22 +607,22 @@ class AppState extends ChangeNotifier {
   switch (currentPriority) {
     case PriorityLevel.low:
       cooldown =
-          const Duration(minutes: 5);
+          const Duration(minutes: 1);
       break;
 
     case PriorityLevel.medium:
       cooldown =
-          const Duration(minutes: 3);
+          const Duration(seconds: 50);
       break;
 
     case PriorityLevel.high:
       cooldown =
-          const Duration(minutes: 2);
+          const Duration(seconds: 40);
       break;
 
     case PriorityLevel.critical:
       cooldown =
-          const Duration(minutes: 1);
+          const Duration(seconds: 30);
       break;
   }
 
@@ -605,7 +636,7 @@ class AppState extends ChangeNotifier {
   //
   // If the same sound is still within its cooldown:
   // - Do NOT show it on the main screen.
-  // - Do NOT restart the 10-second display timer.
+  // - Do NOT restart the 15-second display timer.
   // - Do NOT add it to History.
   // - Do NOT send a notification.
   //
@@ -650,7 +681,7 @@ final lastDetection =
   _isListening = true;
 
   // --------------------------------------------------------
-  // Keep the detected sound visible for 10 seconds.
+  // Keep the detected sound visible for 15 seconds.
   //
   // This timer controls ONLY the UI display.
   // It does NOT stop or restart sound classification.
@@ -659,7 +690,7 @@ final lastDetection =
   _detectionDisplayTimer?.cancel();
 
   _detectionDisplayTimer = Timer(
-    const Duration(seconds: 10),
+    const Duration(seconds: 15),
     () {
       _lastDetectedSound = null;
       _lastDetectedConfidence = null;

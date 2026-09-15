@@ -310,7 +310,7 @@ class NotificationService {
       final body = customBody ??
           (textEnabled
               ? '${l10n.priorityPrefix}: '
-                  '$localizedPriority â€¢ $localizedMode'
+                  '$localizedPriority $localizedMode'
               : '${l10n.priorityPrefix}: '
                   '$localizedPriority');
 
