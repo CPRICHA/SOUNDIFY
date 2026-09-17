@@ -85,7 +85,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   ),
                   const SizedBox(height: 14),
                   Text(
-                    'SOUNDIFY helps turn important environmental\nsounds into clear visual and sensory alerts.',
+                    'SoundSee helps turn important environmental\nsounds into clear visual and sensory alerts.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: colors.body,
@@ -245,9 +245,9 @@ class _TopBrand extends StatelessWidget {
               letterSpacing: 1.4,
             ),
             children: [
-              const TextSpan(text: 'SOUND'),
+              const TextSpan(text: 'Sound'),
               TextSpan(
-                text: 'IFY',
+                text: 'See',
                 style: TextStyle(color: colors.purple),
               ),
             ],
@@ -388,40 +388,20 @@ class _SoundAwarenessHero extends StatelessWidget {
                 ),
               ],
             ),
-            child: Stack(
-              alignment: Alignment.topCenter,
-              children: [
-                Container(
-                  margin: const EdgeInsets.only(top: 18),
-                  width: 48,
-                  height: 48,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFFFD8C8),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.person_rounded,
-                    size: 34,
-                    color: Color(0xFF7255D7),
-                  ),
+            child: Center(
+              child: Container(
+                width: 56,
+                height: 56,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFFD8C8),
+                  shape: BoxShape.circle,
                 ),
-                Positioned(
-                  top: 75,
-                  child: Container(
-                    width: 78,
-                    height: 65,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF4EFFF),
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: const Icon(
-                      Icons.hearing_rounded,
-                      size: 37,
-                      color: Color(0xFF7255D7),
-                    ),
-                  ),
+                child: const Icon(
+                  Icons.person_rounded,
+                  size: 38,
+                  color: Color(0xFF7255D7),
                 ),
-              ],
+              ),
             ),
           ),
         ],

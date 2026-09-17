@@ -32,6 +32,8 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
   bool _termsAccepted = true;
   bool _privacyAccepted = true;
   bool _isSubmitting = false;
+  bool _showPassword = false;
+  bool _showConfirmPassword = false;
   String? _errorMessage;
 
   @override
@@ -382,10 +384,23 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                       const SizedBox(height: 6),
                       TextFormField(
                         controller: _passwordController,
-                        obscureText: true,
+                        obscureText: !_showPassword,
                         decoration: _buildInputDecoration(
                           hint: 'Create a password',
                           isHC: isHC,
+                        ).copyWith(
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _showPassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _showPassword = !_showPassword;
+                              });
+                            },
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -393,10 +408,24 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                       const SizedBox(height: 6),
                       TextFormField(
                         controller: _confirmPasswordController,
-                        obscureText: true,
+                        obscureText: !_showConfirmPassword,
                         decoration: _buildInputDecoration(
                           hint: 'Re-enter your password',
                           isHC: isHC,
+                        ).copyWith(
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _showConfirmPassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _showConfirmPassword =
+                                    !_showConfirmPassword;
+                              });
+                            },
+                          ),
                         ),
                       ),
                       const SizedBox(height: 22),
